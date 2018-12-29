@@ -104,6 +104,7 @@ function app(debug = false){
 	});
 
 	function drawScreen(){
+		//reset
 		context.fillStyle = '#aaaaaa';
 		context.fillRect(0, 0, width, height);
 
@@ -114,6 +115,11 @@ function app(debug = false){
 
 		for(var i = 0; i < arrows.length; ++i){
 			drawArrow(arrows[i]);
+		}
+
+		if(getArrowUnderMouse()){
+			drawArrow(getArrowUnderMouse(), 2.5);
+			context.lineWidth = 1;
 		}
 
 		//draw circles on top of arrows to avoid anything inside the 'nodes'
@@ -132,6 +138,20 @@ function app(debug = false){
 	}
 }
 
+function getArrowUnderMouse(){
+	for(var i = 0; i < arrows.length; i++){
+		//see if we're in the range of an arrow
+		var point_a = arrows[i].getClosestPoint();
+		var point_b = arrows[i].getFarthestPoint();
+
+		if( Math.floor(getDistance(point_a, mouse_pos) + getDistance(point_b, mouse_pos)) === 
+			Math.floor(getDistance(point_a,point_b)))
+			return arrows[i];
+
+	}
+	return null;
+}
+
 function isOverNode(){
 	return distanceToClosestNode() < NODE_RADIUS;
 }
@@ -142,8 +162,8 @@ function getMouse(pos){
 	var Y = pos.clientY - rect.top;
 	return {X,Y};
 }
-function drawArrow(arr){
-	drawLine(arr.start_pos, arr.end_pos);
+function drawArrow(arr, thickness = 1){
+	drawLine(arr.start_pos, arr.end_pos, thickness);
 }
 function drawCircle(center, fill = false){
 	context.beginPath();
@@ -161,10 +181,11 @@ function drawCircle(center, fill = false){
 	}
 }
 
-function drawLine(a, b){
+function drawLine(a, b, thickness = 1){
 	context.beginPath();
 	context.moveTo(a.X,a.Y);
 	context.lineTo(b.X,b.Y);
+	context.lineWidth = thickness;
 	context.stroke();
 }
 
@@ -233,9 +254,19 @@ class Node{
 class Arrow{
 	constructor(a, b){
 		this.start_pos = a;
-		this. end_pos = b;
+		this.end_pos = b;
 	}
 	length(){
 		return getDistance(this.start_pos, this.end_pos);
+	}
+	getClosestPoint(){
+		var dist_1 = getDistance(mouse_pos, this.start_pos);
+		var dist_2 = getDistance(mouse_pos, this.end_pos);
+		return (dist_1 > dist_2) ? this.end_pos : this.start_pos;
+	}
+	getFarthestPoint(){
+		var dist_1 = getDistance(mouse_pos, this.start_pos);
+		var dist_2 = getDistance(mouse_pos, this.end_pos);
+		return (dist_1 > dist_2) ? this.start_pos : this.end_pos;
 	}
 }
