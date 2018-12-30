@@ -51,8 +51,9 @@ function app(debug = false){
 		mouse_down = true;
 		if(e.shiftKey && isOverNode() && mouse_down){
 			begin_arrow = true;
+			current_node = getClosestNode();
 		}
-		if(isOverNode() && key_down)
+		if(isOverNode() && !key_down)
 			current_node = nodes[getClosestNodeIndex()];
 	});
 
@@ -221,6 +222,7 @@ function distanceToClosestNode(){
 	return getDistance(mouse_pos, tmp.getPos());
 }
 
+//todo remove
 function getClosestNodeIndex(){
 	var min = 1000;
 	var index = 0;
@@ -238,6 +240,23 @@ function getClosestNodeIndex(){
 	return index;
 }
 
+function getClosestNode(){
+	var min = 1000;
+	var index = 0;
+	if(nodes.length === 0)
+		return;
+	if(nodes.length === 1)
+		return nodes[0];
+	for (var i = 0; i < nodes.length; ++i) {
+		var dist = getDistance(nodes[i].getPos(), mouse_pos);
+		if(dist < min){
+			min = dist;
+			index = i;
+		}
+	}	
+	return nodes[index];
+}
+
 function drawPathToAllNodes(){
 	if(nodes.length === 0)
 		return;
@@ -247,8 +266,12 @@ function drawPathToAllNodes(){
 }
 
 class Node{
-	constructor(pos){this.pos = pos}
+	constructor(pos){
+		this.pos = pos
+		this.connected = false;
+	}
 	getPos(){return this.pos}
+	isConnected(){return this.connected}
 }
 
 class Arrow{
