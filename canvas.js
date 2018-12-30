@@ -30,7 +30,7 @@ var nodes = [];
 var arrows = [];
 var mouse_pos;
 
-function app(debug = false){
+function app(){
 	var over_node = false;
 	var mouse_down = false;
 	var begin_arrow = false;
@@ -43,8 +43,6 @@ function app(debug = false){
 		drawCircle(mouse_pos, true);
 		nodes.push(new Node(mouse_pos));
 		over_node = true;
-   		if(debug)
-   			console.log('added new node:' + nodes.length);
 	});
 
 	canvas.addEventListener('mousedown', (e) => {
@@ -196,23 +194,6 @@ function getDistance(a, b){
 	return Math.hypot(x_, y_); 
 }
 
-function drawPathToClosestNode(){
-	var min = 1000;
-	var closest_node;
-	if(nodes.length === 0)
-		return;
-	for (var i = 0; i < nodes.length; ++i) {
-		var dist = getDistance(nodes[i].getPos(), mouse_pos);
-		if(dist < min){
-			min = dist;
-			closest_node = nodes[i];
-		}
-	}	
-	context.strokeStyle = '#ff0000';
-	drawLine(mouse_pos, closest_node.getPos());
-	context.strokeStyle = '#000000';
-}
-
 function distanceToClosestNode(){
 	var min = 1000;
 	var closest_node;
@@ -255,14 +236,6 @@ function getClosestNode(){
 		}
 	}	
 	return nodes[index];
-}
-
-function drawPathToAllNodes(){
-	if(nodes.length === 0)
-		return;
-	for(var i = 0 ; i < nodes.length; ++i){
-		drawLine(mouse_pos, nodes[i].getPos());
-	}
 }
 
 class Node{
