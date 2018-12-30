@@ -28,21 +28,16 @@ function init(){
 
 var nodes = [];
 var arrows = [];
-var mouse_pos;
-
+var mouse_pos, mouse_down, key_down;
+var current_node;
 function app(){
-	var over_node = false;
-	var mouse_down = false;
-	var begin_arrow = false;
-	var current_node = null;
-	var key_down = false;
+	mouse_down = begin_arrow = key_down = false;
 	canvas.addEventListener('click', (e) => {
 		mouse_pos = getMouse(e);
-		if(over_node || key_down)
+		if(isOverNode() || key_down)
 			return;
 		drawCircle(mouse_pos, true);
 		nodes.push(new Node(mouse_pos));
-		over_node = true;
 	});
 
 	canvas.addEventListener('mousedown', (e) => {
@@ -52,7 +47,7 @@ function app(){
 			current_node = getClosestNode();
 		}
 		if(isOverNode() && !key_down)
-			current_node = nodes[getClosestNodeIndex()];
+			current_node = getClosestNode();
 	});
 
 	canvas.addEventListener('mousemove', (e) => {
@@ -60,10 +55,13 @@ function app(){
 		//check if we're over anything
 		if(nodes.length == 0) 
 			return;
-		over_node = (distanceToClosestNode() < NODE_RADIUS);
 
-		if(current_node && mouse_down && !key_down)
+		if(current_node && mouse_down && !key_down){
 			current_node.pos = mouse_pos;
+			if(current_node.arrow_index != -1){
+				arrows[current_node.arrow_index].setClosestPoint(mouse_pos);
+			}
+		}
 	});
 
 	canvas.addEventListener('mouseup', (e) => {
@@ -73,7 +71,7 @@ function app(){
 			begin_arrow = false;
 			if(isOverNode()){
 				//if we landed on another node create a new arrow
-				arrows.push(new Arrow(current_node.getPos(), nodes[getClosestNodeIndex()].getPos()));
+				addArrowToNode(getClosestNode(), current_node);
 			}
 		}
 		current_node = null;
@@ -86,7 +84,7 @@ function app(){
 
 		if(e.shiftKey && isOverNode() && mouse_down){
 			begin_arrow = true;
-			current_node = nodes[getClosestNodeIndex()];
+			current_node = getClosestNode();
 		}
 	});
 
@@ -96,7 +94,7 @@ function app(){
 			begin_arrow = false;
 			if(isOverNode()){
 				//if we landed on another node create a new arrow
-				arrows.push(new Arrow(current_node.getPos(), nodes[getClosestNodeIndex()].getPos()));
+				addArrowToNode(getClosestNode(), current_node);
 			}
 		}
 		current_node = null;
@@ -126,8 +124,8 @@ function app(){
 			drawCircle(nodes[i].getPos());
 		}
 
-		if(over_node || current_node && !begin_arrow)
-			drawCircle(nodes[getClosestNodeIndex()].getPos(), true);
+		if(isOverNode() || current_node && !begin_arrow)
+			drawCircle(getClosestNode().getPos(), true);
 	}
 
 	loop();
@@ -140,8 +138,8 @@ function app(){
 function getArrowUnderMouse(){
 	for(var i = 0; i < arrows.length; i++){
 		//see if we're in the range of an arrow
-		var point_a = arrows[i].getClosestPoint();
-		var point_b = arrows[i].getFarthestPoint();
+		let point_a = arrows[i].end_pos;
+		let point_b = arrows[i].start_pos;
 
 		if( Math.floor(getDistance(point_a, mouse_pos) + getDistance(point_b, mouse_pos)) === 
 			Math.floor(getDistance(point_a,point_b)))
@@ -157,8 +155,8 @@ function isOverNode(){
 
 function getMouse(pos){
 	var rect = canvas.getBoundingClientRect();
-	var X = pos.clientX - rect.left;
-	var Y = pos.clientY - rect.top;
+	let X = pos.clientX - rect.left;
+	let Y = pos.clientY - rect.top;
 	return {X,Y};
 }
 function drawArrow(arr, thickness = 1){
@@ -199,26 +197,12 @@ function distanceToClosestNode(){
 	var closest_node;
 	if(nodes.length === 0)
 		return width;
-	tmp = nodes[getClosestNodeIndex()];
-	return getDistance(mouse_pos, tmp.getPos());
+	return getDistance(mouse_pos, getClosestNode().getPos());
 }
 
-//todo remove
-function getClosestNodeIndex(){
-	var min = 1000;
-	var index = 0;
-	if(nodes.length === 0)
-		return;
-	if(nodes.length === 1)
-		return 0;
-	for (var i = 0; i < nodes.length; ++i) {
-		var dist = getDistance(nodes[i].getPos(), mouse_pos);
-		if(dist < min){
-			min = dist;
-			index = i;
-		}
-	}	
-	return index;
+function addArrowToNode(_node){
+	arrows.push(new Arrow(current_node.getPos(), _node.getPos()));
+	_node.arrow_index = current_node.arrow_index = arrows.length-1;
 }
 
 function getClosestNode(){
@@ -241,10 +225,9 @@ function getClosestNode(){
 class Node{
 	constructor(pos){
 		this.pos = pos
-		this.connected = false;
+		this.arrow_index = -1;
 	}
 	getPos(){return this.pos}
-	isConnected(){return this.connected}
 }
 
 class Arrow{
@@ -256,13 +239,13 @@ class Arrow{
 		return getDistance(this.start_pos, this.end_pos);
 	}
 	getClosestPoint(){
-		var dist_1 = getDistance(mouse_pos, this.start_pos);
-		var dist_2 = getDistance(mouse_pos, this.end_pos);
-		return (dist_1 > dist_2) ? this.end_pos : this.start_pos;
+		return (getDistance(this.start_pos, mouse_pos) < getDistance(this.end_pos, mouse_pos)) ?
+				this.start_pos : this.end_pos;
 	}
-	getFarthestPoint(){
-		var dist_1 = getDistance(mouse_pos, this.start_pos);
-		var dist_2 = getDistance(mouse_pos, this.end_pos);
-		return (dist_1 > dist_2) ? this.start_pos : this.end_pos;
+	setClosestPoint(new_pos){
+		if(this.getClosestPoint() == this.start_pos)
+			this.start_pos = new_pos;
+		else
+			this.end_pos = new_pos;
 	}
 }
