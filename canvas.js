@@ -29,12 +29,12 @@ function init(){
 var nodes = [];
 var arrows = [];
 var mouse_pos, mouse_down, key_down;
-var current_node;
+var current_node, current_arrow;
 function app(){
 	mouse_down = begin_arrow = key_down = false;
 	canvas.addEventListener('click', (e) => {
 		mouse_pos = getMouse(e);
-		if(isOverNode() || key_down)
+		if(isOverNode() || key_down || getArrowUnderMouse())
 			return;
 		nodes.push(new Node(mouse_pos, nodes.length.toString(10) ));
 	});
@@ -48,6 +48,8 @@ function app(){
 		if(isOverNode() && !key_down)
 			current_node = getClosestNode();
 
+		if(getArrowUnderMouse())
+			current_arrow = getArrowUnderMouse();
 	});
 
 	canvas.addEventListener('mousemove', (e) => {
@@ -62,6 +64,10 @@ function app(){
 				current_node.connected_points[i].setClosestPoint(mouse_pos);
 			}
 		}
+
+		if(mouse_down && current_arrow){
+			current_arrow.midpoint = mouse_pos;
+		}
 	});
 
 	canvas.addEventListener('mouseup', (e) => {
@@ -74,7 +80,7 @@ function app(){
 				addArrowToNode(getClosestNode());
 			}
 		}
-		current_node = null;
+		current_node = current_arrow = null;
 	});
 
 	window.addEventListener('keydown', (e) =>{
@@ -141,11 +147,10 @@ function getArrowUnderMouse(){
 		//see if we're in the range of an arrow
 		let point_a = arrows[i].end_pos;
 		let point_b = arrows[i].start_pos;
-
+		let point_c = arrows[i].midpoint;
 		if( Math.floor(getDistance(point_a, mouse_pos) + getDistance(point_b, mouse_pos)) === 
 			Math.floor(getDistance(point_a,point_b)))
 			return arrows[i];
-
 	}
 	return null;
 }
@@ -161,7 +166,12 @@ function getMouse(pos){
 	return {X,Y};
 }
 function drawArrow(arr, thickness = 1){
-	drawLine(arr.start_pos, arr.end_pos, thickness);
+	context.lineWidth = thickness;
+	context.beginPath();
+	context.moveTo(arr.start_pos.X,arr.start_pos.Y);
+	context.lineTo(arr.midpoint.X,arr.midpoint.Y);
+	context.lineTo(arr.end_pos.X, arr.end_pos.Y);
+	context.stroke();
 }
 function drawNode(_node, fill = false){
 	drawCircle(_node.pos,fill);
@@ -237,6 +247,12 @@ function getClosestNode(){
 	return nodes[index];
 }
 
+function getMidPoint(a, b){
+	let x_ = Math.abs(a.X - b.X)/2;
+	let y_ = Math.abs(a.Y - b.Y)/2;
+	return {x_, y_}
+}
+
 class Node{
 	constructor(pos, str = null){
 		this.pos = pos
@@ -250,6 +266,7 @@ class Arrow{
 	constructor(a, b){
 		this.start_pos = a;
 		this.end_pos = b;
+		this.midpoint = getMidPoint(a,b);
 	}
 	length(){
 		return getDistance(this.start_pos, this.end_pos);
