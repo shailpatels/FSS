@@ -36,8 +36,7 @@ function app(){
 		mouse_pos = getMouse(e);
 		if(isOverNode() || key_down)
 			return;
-		drawCircle(mouse_pos, true);
-		nodes.push(new Node(mouse_pos));
+		nodes.push(new Node(mouse_pos, nodes.length.toString(10) ));
 	});
 
 	canvas.addEventListener('mousedown', (e) => {
@@ -48,6 +47,7 @@ function app(){
 		}
 		if(isOverNode() && !key_down)
 			current_node = getClosestNode();
+
 	});
 
 	canvas.addEventListener('mousemove', (e) => {
@@ -58,8 +58,8 @@ function app(){
 
 		if(current_node && mouse_down && !key_down){
 			current_node.pos = mouse_pos;
-			if(current_node.arrow_index != -1){
-				arrows[current_node.arrow_index].setClosestPoint(mouse_pos);
+			for(let i = 0; i < current_node.connected_points.length; ++i){
+				current_node.connected_points[i].setClosestPoint(mouse_pos);
 			}
 		}
 	});
@@ -71,7 +71,7 @@ function app(){
 			begin_arrow = false;
 			if(isOverNode()){
 				//if we landed on another node create a new arrow
-				addArrowToNode(getClosestNode(), current_node);
+				addArrowToNode(getClosestNode());
 			}
 		}
 		current_node = null;
@@ -85,6 +85,7 @@ function app(){
 		if(e.shiftKey && isOverNode() && mouse_down){
 			begin_arrow = true;
 			current_node = getClosestNode();
+			return;
 		}
 	});
 
@@ -94,7 +95,7 @@ function app(){
 			begin_arrow = false;
 			if(isOverNode()){
 				//if we landed on another node create a new arrow
-				addArrowToNode(getClosestNode(), current_node);
+				addArrowToNode(getClosestNode());
 			}
 		}
 		current_node = null;
@@ -106,8 +107,8 @@ function app(){
 		context.fillRect(0, 0, width, height);
 
 		if(begin_arrow){
-			drawLine(current_node.getPos(), mouse_pos);
-			drawCircle(current_node.getPos(), true);
+			drawLine(current_node.pos, mouse_pos);
+			drawNode(current_node, true);
 		}
 
 		for(var i = 0; i < arrows.length; ++i){
@@ -121,11 +122,11 @@ function app(){
 
 		//draw circles on top of arrows to avoid anything inside the 'nodes'
 		for(var i = 0; i < nodes.length; ++i){
-			drawCircle(nodes[i].getPos());
+			drawNode(nodes[i]);
 		}
 
 		if(isOverNode() || current_node && !begin_arrow)
-			drawCircle(getClosestNode().getPos(), true);
+			drawNode(getClosestNode(), true);
 	}
 
 	loop();
@@ -162,7 +163,11 @@ function getMouse(pos){
 function drawArrow(arr, thickness = 1){
 	drawLine(arr.start_pos, arr.end_pos, thickness);
 }
-function drawCircle(center, fill = false){
+function drawNode(_node, fill = false){
+	drawCircle(_node.pos,fill);
+	drawText(_node.string, _node.pos);
+}
+function drawCircle(center, fill){
 	context.beginPath();
 	context.arc(center.X, center.Y, NODE_RADIUS, 0, 2 * Math.PI);
 	if(!fill){
@@ -178,6 +183,15 @@ function drawCircle(center, fill = false){
 	}
 }
 
+//theres probably a better way to handle this...
+function drawText(str, _pos){
+	context.font = "italic 25px Times New Roman";
+	context.fillStyle = "black";
+	context.fillText("S", _pos.X-8, _pos.Y+5);
+	context.font = "15px Times New Roman";
+	context.fillText(str, _pos.X+4, _pos.Y+10);
+}
+
 function drawLine(a, b, thickness = 1){
 	context.beginPath();
 	context.moveTo(a.X,a.Y);
@@ -187,8 +201,8 @@ function drawLine(a, b, thickness = 1){
 }
 
 function getDistance(a, b){
-	var x_ = Math.abs(a.X - b.X);
-	var y_ = Math.abs(a.Y - b.Y);
+	let x_ = Math.abs(a.X - b.X);
+	let y_ = Math.abs(a.Y - b.Y);
 	return Math.hypot(x_, y_); 
 }
 
@@ -197,23 +211,24 @@ function distanceToClosestNode(){
 	var closest_node;
 	if(nodes.length === 0)
 		return width;
-	return getDistance(mouse_pos, getClosestNode().getPos());
+	return getDistance(mouse_pos, getClosestNode().pos);
 }
 
 function addArrowToNode(_node){
-	arrows.push(new Arrow(current_node.getPos(), _node.getPos()));
-	_node.arrow_index = current_node.arrow_index = arrows.length-1;
+	arrows.push(new Arrow(current_node.pos, _node.pos));
+	_node.connected_points.push(arrows[arrows.length-1]);
+	current_node.connected_points.push(arrows[arrows.length-1]);
 }
 
 function getClosestNode(){
-	var min = 1000;
-	var index = 0;
+	let min = 1000;
+	let index = 0;
 	if(nodes.length === 0)
 		return;
 	if(nodes.length === 1)
 		return nodes[0];
-	for (var i = 0; i < nodes.length; ++i) {
-		var dist = getDistance(nodes[i].getPos(), mouse_pos);
+	for (let i = 0; i < nodes.length; ++i) {
+		let dist = getDistance(nodes[i].pos, mouse_pos);
 		if(dist < min){
 			min = dist;
 			index = i;
@@ -223,11 +238,12 @@ function getClosestNode(){
 }
 
 class Node{
-	constructor(pos){
+	constructor(pos, str = null){
 		this.pos = pos
 		this.arrow_index = -1;
+		this.connected_points = [];
+		this.string = str;
 	}
-	getPos(){return this.pos}
 }
 
 class Arrow{
