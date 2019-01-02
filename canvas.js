@@ -32,12 +32,6 @@ var mouse_pos, mouse_down, key_down;
 var current_node, current_arrow;
 function app(){
 	mouse_down = begin_arrow = key_down = false;
-	canvas.addEventListener('click', (e) => {
-		mouse_pos = getMouse(e);
-		if(isOverNode() || key_down || getArrowUnderMouse())
-			return;
-		nodes.push(new Node(mouse_pos, nodes.length.toString(10) ));
-	});
 
 	canvas.addEventListener('mousedown', (e) => {
 		mouse_down = true;
@@ -54,11 +48,10 @@ function app(){
 
 	canvas.addEventListener('mousemove', (e) => {
 		mouse_pos = getMouse(e);
-		//check if we're over anything
-		if(nodes.length == 0) 
+		if(nodes.length == 0 || key_down) 
 			return;
 
-		if(current_node && mouse_down && !key_down){
+		if(current_node && mouse_down){
 			current_node.pos = mouse_pos;
 			for(let i = 0; i < current_node.connected_points.length; ++i){
 				current_node.connected_points[i].setClosestPoint(mouse_pos);
@@ -80,7 +73,12 @@ function app(){
 				addArrowToNode(getClosestNode());
 			}
 		}
-		current_node = current_arrow = null;
+		mouse_pos = getMouse(e);
+		if( !isOverNode() && !key_down && !current_arrow) {
+			nodes.push(new Node(mouse_pos, nodes.length.toString(10) ));
+		}
+
+		current_arrow = current_node = null;
 	});
 
 	window.addEventListener('keydown', (e) =>{
@@ -169,8 +167,10 @@ function drawArrow(arr, thickness = 1){
 	context.lineWidth = thickness;
 	context.beginPath();
 	context.moveTo(arr.start_pos.X,arr.start_pos.Y);
-	context.lineTo(arr.midpoint.X,arr.midpoint.Y);
-	context.lineTo(arr.end_pos.X, arr.end_pos.Y);
+	context.quadraticCurveTo(arr.midpoint.X, arr.midpoint.Y,
+						  	 arr.end_pos.X, arr.end_pos.Y );
+	//context.lineTo(arr.midpoint.X,arr.midpoint.Y);
+	//context.lineTo(arr.end_pos.X, arr.end_pos.Y);
 	context.stroke();
 }
 function drawNode(_node, fill = false){
@@ -248,9 +248,9 @@ function getClosestNode(){
 }
 
 function getMidPoint(a, b){
-	let x_ = Math.abs(a.X - b.X)/2;
-	let y_ = Math.abs(a.Y - b.Y)/2;
-	return {x_, y_}
+	let X = Math.abs(a.X + b.X)/2;
+	let Y = Math.abs(a.Y + b.Y)/2;
+	return {X, Y}
 }
 
 class Node{
