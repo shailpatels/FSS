@@ -139,7 +139,11 @@ function app(){
 		window.setTimeout(loop, intervalTime);
 	}
 }
+//helper functions:
+//note that position/point objects are represented as: {X,Y}
 
+//checks if there's an arrow under the current mouse position
+//returns a refrence to that arrow if there is one, otherwise returns null
 function getArrowUnderMouse(){
 	for(var i = 0; i < arrows.length; i++){
 		//see if we're in the range of an arrow
@@ -157,26 +161,32 @@ function isOverNode(){
 	return distanceToClosestNode() < NODE_RADIUS;
 }
 
+//corrects the raw mouse position to a mouse position relative to the canvas
+//upper left corner is (0,0)
 function getMouse(pos){
 	var rect = canvas.getBoundingClientRect();
 	let X = pos.clientX - rect.left;
 	let Y = pos.clientY - rect.top;
 	return {X,Y};
 }
+
+//draws an arrow between two nodes,
+//expects an arrow object
 function drawArrow(arr, thickness = 1){
 	context.lineWidth = thickness;
 	context.beginPath();
 	context.moveTo(arr.start_pos.X,arr.start_pos.Y);
 	context.quadraticCurveTo(arr.midpoint.X, arr.midpoint.Y,
 						  	 arr.end_pos.X, arr.end_pos.Y );
-	//context.lineTo(arr.midpoint.X,arr.midpoint.Y);
-	//context.lineTo(arr.end_pos.X, arr.end_pos.Y);
 	context.stroke();
 }
+
+//draw a node
 function drawNode(_node, fill = false){
 	drawCircle(_node.pos,fill);
 	drawText(_node.string, _node.pos);
 }
+
 function drawCircle(center, fill){
 	context.beginPath();
 	context.arc(center.X, center.Y, NODE_RADIUS, 0, 2 * Math.PI);
@@ -216,6 +226,7 @@ function getDistance(a, b){
 	return Math.hypot(x_, y_); 
 }
 
+//returns closest node relative to the current mouse position
 function distanceToClosestNode(){
 	var min = 1000;
 	var closest_node;
@@ -224,12 +235,15 @@ function distanceToClosestNode(){
 	return getDistance(mouse_pos, getClosestNode().pos);
 }
 
+//adds a new arrow to the list of arrows,
+//sets the midpoint and assigns the connected points to _node and current_node
 function addArrowToNode(_node){
 	arrows.push(new Arrow(current_node.pos, _node.pos));
-	_node.connected_points.push(arrows[arrows.length-1]);
-	current_node.connected_points.push(arrows[arrows.length-1]);
+	_node.connected_arrows.push(arrows[arrows.length-1]);
+	current_node.connected_arrows.push(arrows[arrows.length-1]);
 }
 
+//returns a refrence to the closest node relative to the mouse position
 function getClosestNode(){
 	let min = 1000;
 	let index = 0;
@@ -253,15 +267,30 @@ function getMidPoint(a, b){
 	return {X, Y}
 }
 
+//a node represents a state in a FSM
+/*NODE:
+	pos: the position on the canvas of the node (its centerpoint)
+	connected_arrows: a list of arrows connected to this node
+	string: the label of the node e.g: S_1
+*/
 class Node{
 	constructor(pos, str = null){
 		this.pos = pos
-		this.arrow_index = -1;
-		this.connected_points = [];
+		this.connected_arrows = [];
 		this.string = str;
 	}
 }
 
+//an arrow represents a connection in a FSM
+/*ARROW
+	start_pos: the position where the arrow started from
+	end_pos: the position where the arrow ends
+	midpoint: the position between the start & end points
+	
+	lenght(): returns the lenght of the arrow
+	getClosestPoint(): returns either the start or end pos, depending on which is closer to the mouse pos
+	setClosestPoint(): sets the closest point to a new position
+*/
 class Arrow{
 	constructor(a, b){
 		this.start_pos = a;
