@@ -9,6 +9,9 @@ const NODE_RADIUS = 25;
 const FRAME_RATE = 30;
 var intervalTime = 1000/FRAME_RATE;
 
+const LEFT_MOUSE_BUTTON = 0;
+const RIGHT_MOUSE_BUTTON = 2;
+
 window.onload = init;
 
 function init(){
@@ -35,6 +38,9 @@ function app(){
 
 	canvas.addEventListener('mousedown', (e) => {
 		mouse_down = true;
+		if(e.button === RIGHT_MOUSE_BUTTON)
+			return;
+		
 		if(e.shiftKey && isOverNode() && mouse_down){
 			begin_arrow = true;
 			current_node = getClosestNode();
@@ -53,8 +59,8 @@ function app(){
 
 		if(current_node && mouse_down){
 			current_node.pos = mouse_pos;
-			for(let i = 0; i < current_node.connected_points.length; ++i){
-				current_node.connected_points[i].setClosestPoint(mouse_pos);
+			for(let i = 0; i < current_node.connected_arrows.length; ++i){
+				current_node.connected_arrows[i].setClosestPoint(mouse_pos);
 			}
 		}
 
@@ -66,11 +72,30 @@ function app(){
 	canvas.addEventListener('mouseup', (e) => {
 		mouse_down = false;
 		dragging = false;
+
+		if(e.button === RIGHT_MOUSE_BUTTON){
+			//remove all conections from this node
+			if(isOverNode()){
+				for(var i = 0; i < getClosestNode().connected_arrows.length; ++i)
+					arrows.splice( getArrowIndex(getClosestNode().connected_arrows[i]) , 1);
+
+				//update labels
+				for(var i = getNodeIndex(getClosestNode()); i < nodes.length; ++i)
+					nodes[i].string = i-1;
+				//remove from list
+				nodes.splice(getNodeIndex(getClosestNode()), 1);
+			}
+			if(getArrowUnderMouse()){
+				//disconnect this arrow from any node
+			}
+			return;
+		}
+
 		if(begin_arrow){
 			begin_arrow = false;
 			if(isOverNode()){
 				//if we landed on another node create a new arrow
-				addArrowToNode(getClosestNode());
+				addArrowToNode(getClosestNode(), current_node);
 			}
 		}
 		mouse_pos = getMouse(e);
@@ -99,7 +124,7 @@ function app(){
 			begin_arrow = false;
 			if(isOverNode()){
 				//if we landed on another node create a new arrow
-				addArrowToNode(getClosestNode());
+				addArrowToNode(getClosestNode(), current_node);
 			}
 		}
 		current_node = null;
@@ -144,23 +169,56 @@ function app(){
 
 //checks if there's an arrow under the current mouse position
 //returns a refrence to that arrow if there is one, otherwise returns null
+
+//warning: this is a hacked up solution
 function getArrowUnderMouse(){
 	for(var i = 0; i < arrows.length; i++){
 		//see if we're in the range of an arrow
 		let point_a = arrows[i].end_pos;
 		let point_b = arrows[i].start_pos;
 		let point_c = arrows[i].midpoint;
+
+		let offset = getDistance(getMidPoint(point_a, point_b), point_c)
 		if( Math.floor(getDistance(point_a, mouse_pos) + getDistance(point_b, mouse_pos)) === 
-			Math.floor(getDistance(point_a,point_b)))
+			Math.floor(getDistance(point_a,point_b)) && offset === 0 )
+		  	return arrows[i];
+
+		context.beginPath();
+		context.moveTo(point_a.X, point_a.Y);
+		context.quadraticCurveTo(point_c.X, point_c.Y,
+						  	 	 point_b.X, point_b.Y);
+
+		if(context.isPointInPath(mouse_pos.X, mouse_pos.Y))
 			return arrows[i];
 	}
 	return null;
+}
+//end hack
+function calcBezierCurve(t,p1,p2,p3){
+	return{
+		X: Math.pow((1-t),3) * p1.X + 2 * t * p2.X + t * t * p3.X,
+	}
 }
 
 function isOverNode(){
 	return distanceToClosestNode() < NODE_RADIUS;
 }
 
+function getNodeIndex(_node){
+	for(var i = 0; i < nodes.length; ++i){
+		if(nodes[i] === _node)
+			return i;
+	}
+	return -1;
+}
+
+function getArrowIndex(arr){
+	for(var i = 0; i < arrows.length; ++i){
+		if(arrows[i] === arr)
+			return i;
+	}
+	return -1;
+}
 //corrects the raw mouse position to a mouse position relative to the canvas
 //upper left corner is (0,0)
 function getMouse(pos){
@@ -177,8 +235,13 @@ function drawArrow(arr, thickness = 1){
 	context.beginPath();
 	context.moveTo(arr.start_pos.X,arr.start_pos.Y);
 	context.quadraticCurveTo(arr.midpoint.X, arr.midpoint.Y,
-						  	 arr.end_pos.X, arr.end_pos.Y );
+						  	 arr.end_pos.X,  arr.end_pos.Y);
 	context.stroke();
+	context.beginPath();
+	context.fillStyle = "red";
+	context.arc(arr.midpoint.X, arr.midpoint.Y, 2,0 ,2 * Math.PI);
+	context.fill();
+	context.fillStyle = "black";
 }
 
 //draw a node
@@ -237,10 +300,10 @@ function distanceToClosestNode(){
 
 //adds a new arrow to the list of arrows,
 //sets the midpoint and assigns the connected points to _node and current_node
-function addArrowToNode(_node){
+function addArrowToNode(_node, _current_node){
 	arrows.push(new Arrow(current_node.pos, _node.pos));
 	_node.connected_arrows.push(arrows[arrows.length-1]);
-	current_node.connected_arrows.push(arrows[arrows.length-1]);
+	_current_node.connected_arrows.push(arrows[arrows.length-1]);
 }
 
 //returns a refrence to the closest node relative to the mouse position
