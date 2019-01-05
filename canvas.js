@@ -86,7 +86,15 @@ function app(){
 				nodes.splice(getNodeIndex(getClosestNode()), 1);
 			}
 			if(getArrowUnderMouse()){
-				//disconnect this arrow from any node
+				let arr_ = getArrowUnderMouse();
+				let node_a = arr_.connected_nodes[0];
+				let node_b = arr_.connected_nodes[1];
+
+				node_a.connected_arrows.splice(node_a.getConnectedArrowIndex(arr_),1);
+				node_b.connected_arrows.splice(node_b.getConnectedArrowIndex(arr_),1);
+
+				arrows.splice(getArrowIndex(arr_), 1);
+
 			}
 			return;
 		}
@@ -193,12 +201,6 @@ function getArrowUnderMouse(){
 	}
 	return null;
 }
-//end hack
-function calcBezierCurve(t,p1,p2,p3){
-	return{
-		X: Math.pow((1-t),3) * p1.X + 2 * t * p2.X + t * t * p3.X,
-	}
-}
 
 function isOverNode(){
 	return distanceToClosestNode() < NODE_RADIUS;
@@ -237,12 +239,26 @@ function drawArrow(arr, thickness = 1){
 	context.quadraticCurveTo(arr.midpoint.X, arr.midpoint.Y,
 						  	 arr.end_pos.X,  arr.end_pos.Y);
 	context.stroke();
-	context.beginPath();
-	context.fillStyle = "red";
-	context.arc(arr.midpoint.X, arr.midpoint.Y, 2,0 ,2 * Math.PI);
-	context.fill();
+
 	context.fillStyle = "black";
+
+	var angle = Math.atan2(arr.end_pos.Y-arr.midpoint.Y,arr.end_pos.X-arr.midpoint.X);
+
+	context.save();
+	context.translate(arr.end_pos.X, arr.end_pos.Y );
+	context.rotate(angle);
+	 // draw your arrow, with its origin at [0, 0]
+
+	context.beginPath();
+	
+	context.moveTo(-NODE_RADIUS,0);
+	context.lineTo(-10 - NODE_RADIUS, -5);
+	context.lineTo(-10 - NODE_RADIUS, 5);
+
+	context.fill();
+	context.restore();
 }
+
 
 //draw a node
 function drawNode(_node, fill = false){
@@ -304,6 +320,9 @@ function addArrowToNode(_node, _current_node){
 	arrows.push(new Arrow(current_node.pos, _node.pos));
 	_node.connected_arrows.push(arrows[arrows.length-1]);
 	_current_node.connected_arrows.push(arrows[arrows.length-1]);
+
+	arrows[arrows.length-1].connected_nodes.push(_node);
+	arrows[arrows.length-1].connected_nodes.push(_current_node);
 }
 
 //returns a refrence to the closest node relative to the mouse position
@@ -342,6 +361,13 @@ class Node{
 		this.connected_arrows = [];
 		this.string = str;
 	}
+	getConnectedArrowIndex(arr){
+		for(var i = 0; i < this.connected_arrows.length; ++i){
+			if(arr == this.connected_arrows[i])
+				return i;
+		}
+		return -1;
+	}
 }
 
 //an arrow represents a connection in a FSM
@@ -359,6 +385,7 @@ class Arrow{
 		this.start_pos = a;
 		this.end_pos = b;
 		this.midpoint = getMidPoint(a,b);
+		this.connected_nodes = [];
 	}
 	length(){
 		return getDistance(this.start_pos, this.end_pos);
