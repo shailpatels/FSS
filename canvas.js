@@ -103,7 +103,10 @@ function app(){
 			begin_arrow = false;
 			if(isOverNode()){
 				//if we landed on another node create a new arrow
-				addArrowToNode(getClosestNode(), current_node);
+				if(getClosestNode() != current_node) 
+					addArrowToNode(getClosestNode(), current_node);
+				else 
+					addArrowToCurrentNode(current_node);
 			}
 		}
 		mouse_pos = getMouse(e);
@@ -235,28 +238,33 @@ function getMouse(pos){
 function drawArrow(arr, thickness = 1){
 	context.lineWidth = thickness;
 	context.beginPath();
-	context.moveTo(arr.start_pos.X,arr.start_pos.Y);
-	context.quadraticCurveTo(arr.midpoint.X, arr.midpoint.Y,
-						  	 arr.end_pos.X,  arr.end_pos.Y);
-	context.stroke();
 
-	context.fillStyle = "black";
+	if(!arr.self_arrow){
+		context.moveTo(arr.start_pos.X,arr.start_pos.Y);
+		context.quadraticCurveTo(arr.midpoint.X, arr.midpoint.Y,
+							  	 arr.end_pos.X,  arr.end_pos.Y);
+		context.stroke();
 
-	var angle = Math.atan2(arr.end_pos.Y-arr.midpoint.Y,arr.end_pos.X-arr.midpoint.X);
+		context.fillStyle = "black";
+		let angle = Math.atan2(arr.end_pos.Y-arr.midpoint.Y,arr.end_pos.X-arr.midpoint.X);
+		context.save();
+		context.translate(arr.end_pos.X, arr.end_pos.Y );
+		context.rotate(angle);
+		 // draw your arrow, with its origin at [0, 0]
 
-	context.save();
-	context.translate(arr.end_pos.X, arr.end_pos.Y );
-	context.rotate(angle);
-	 // draw your arrow, with its origin at [0, 0]
+		context.beginPath();
+		
+		context.moveTo(-NODE_RADIUS,0);
+		context.lineTo(-10 - NODE_RADIUS, -5);
+		context.lineTo(-10 - NODE_RADIUS, 5);
 
-	context.beginPath();
-	
-	context.moveTo(-NODE_RADIUS,0);
-	context.lineTo(-10 - NODE_RADIUS, -5);
-	context.lineTo(-10 - NODE_RADIUS, 5);
-
-	context.fill();
-	context.restore();
+		context.fill();
+		context.restore();
+	}else{
+		context.moveTo(arr.start_pos.X,arr.start_pos.Y);
+		context.arc(arr.start_pos.X - NODE_RADIUS - 25,arr.start_pos.Y , 30, 0, 2 * Math.PI);
+		context.stroke();
+	}
 }
 
 
@@ -325,6 +333,14 @@ function addArrowToNode(_node, _current_node){
 	arrows[arrows.length-1].connected_nodes.push(_current_node);
 }
 
+function addArrowToCurrentNode(_current_node){
+	arrows.push(new Arrow(_current_node.pos, _current_node.pos));
+
+	_current_node.connected_arrows.push(arrows[arrows.length-1]);
+	arrows[arrows.length-1].connected_nodes.push(_current_node);
+	arrows[arrows.length-1].self_arrow = true;
+}
+
 //returns a refrence to the closest node relative to the mouse position
 function getClosestNode(){
 	let min = 1000;
@@ -386,6 +402,7 @@ class Arrow{
 		this.end_pos = b;
 		this.midpoint = getMidPoint(a,b);
 		this.connected_nodes = [];
+		this.self_arrow = false;
 	}
 	length(){
 		return getDistance(this.start_pos, this.end_pos);
