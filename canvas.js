@@ -52,6 +52,9 @@ function app(){
 		if(isOverNode() && !key_down)
 			current_node = getClosestNode();
 
+		if(current_node)
+			current_arrow = null;
+
 	});
 
 	canvas.addEventListener('mousemove', (e) => {
@@ -60,13 +63,17 @@ function app(){
 		if(nodes.length == 0 || key_down) 
 			return;
 
-		// if(current_node && mouse_down){
-		// 	current_node.pos = mouse_pos;
+		if(isOverNode() && mouse_down){
+			current_node = getClosestNode();
+			current_node.pos = mouse_pos;
+			return;
+		}
+
 		// 	for(let i = 0; i < current_node.connected_arrows.length; ++i){
 		// 		current_node.connected_arrows[i].setClosestPoint(mouse_pos);
 		// 	}
 		// }
-		if(mouse_down && current_arrow){
+		if(!isOverNode() && mouse_down && current_arrow){
 			current_arrow.setCtrl_pos(mouse_pos);
 		}
 	});
@@ -87,17 +94,17 @@ function app(){
 				//remove from list
 				nodes.splice(getNodeIndex(getClosestNode()), 1);
 			}
-			if(getArrowUnderMouse()){
-				let arr_ = getArrowUnderMouse();
-				let node_a = arr_.connected_nodes[0];
-				let node_b = arr_.connected_nodes[1];
+			// if(getArrowUnderMouse()){
+			// 	let arr_ = getArrowUnderMouse();
+			// 	let node_a = arr_.connected_nodes[0];
+			// 	let node_b = arr_.connected_nodes[1];
 
-				node_a.connected_arrows.splice(node_a.getConnectedArrowIndex(arr_),1);
-				node_b.connected_arrows.splice(node_b.getConnectedArrowIndex(arr_),1);
+			// 	node_a.connected_arrows.splice(node_a.getConnectedArrowIndex(arr_),1);
+			// 	node_b.connected_arrows.splice(node_b.getConnectedArrowIndex(arr_),1);
 
-				arrows.splice(getArrowIndex(arr_), 1);
+			// 	arrows.splice(getArrowIndex(arr_), 1);
 
-			}
+			// }
 			return;
 		}
 
@@ -157,7 +164,7 @@ function app(){
 			//drawArrow(arrows[i]);
 			arrows[i].draw();
 			current_node = null;
-			if(arrows[i].isMouseOver()){
+			if(arrows[i].isMouseOver() && !isOverNode() ){
 				current_arrow = arrows[i];
 			}
 		}
@@ -284,12 +291,6 @@ function drawLine(a, b, thickness = 1){
 	context.lineTo(b.X,b.Y);
 	context.lineWidth = thickness;
 	context.stroke();
-}
-
-function getDistance(a, b){
-	let x_ = Math.abs(a.X - b.X);
-	let y_ = Math.abs(a.Y - b.Y);
-	return Math.hypot(x_, y_); 
 }
 
 //returns closest node relative to the current mouse position

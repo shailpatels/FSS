@@ -10,3 +10,9 @@ class Point{
 		this.Y = Y_;
 	}
 }
+
+function getDistance(a, b){
+	let x_ = Math.abs(a.X - b.X);
+	let y_ = Math.abs(a.Y - b.Y);
+	return Math.hypot(x_, y_); 
+}
