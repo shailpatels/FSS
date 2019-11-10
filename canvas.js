@@ -26,6 +26,7 @@ function init(){
 	canvas.focus();
 	//background color:
 	context.fillRect(0, 0, width, height);
+
 	app();
 }
 
@@ -33,8 +34,11 @@ var nodes = [];
 var arrows = [];
 var mouse_pos, mouse_down, key_down;
 var current_node, current_arrow;
+
+var pos;
 function app(){
 	mouse_down = begin_arrow = key_down = false;
+	pos = new Point(0,0);
 
 	canvas.addEventListener('mousedown', (e) => {
 		mouse_down = true;
@@ -48,24 +52,22 @@ function app(){
 		if(isOverNode() && !key_down)
 			current_node = getClosestNode();
 
-		if(getArrowUnderMouse())
-			current_arrow = getArrowUnderMouse();
 	});
 
 	canvas.addEventListener('mousemove', (e) => {
 		mouse_pos = getMouse(e);
+		pos.set(e.offsetX, e.offsetY);
 		if(nodes.length == 0 || key_down) 
 			return;
 
-		if(current_node && mouse_down){
-			current_node.pos = mouse_pos;
-			for(let i = 0; i < current_node.connected_arrows.length; ++i){
-				current_node.connected_arrows[i].setClosestPoint(mouse_pos);
-			}
-		}
-
+		// if(current_node && mouse_down){
+		// 	current_node.pos = mouse_pos;
+		// 	for(let i = 0; i < current_node.connected_arrows.length; ++i){
+		// 		current_node.connected_arrows[i].setClosestPoint(mouse_pos);
+		// 	}
+		// }
 		if(mouse_down && current_arrow){
-			current_arrow.midpoint = mouse_pos;
+			current_arrow.setCtrl_pos(mouse_pos);
 		}
 	});
 
@@ -114,7 +116,7 @@ function app(){
 			nodes.push(new Node(mouse_pos, nodes.length.toString(10) ));
 		}
 
-		current_arrow = current_node = null;
+		current_node = null;
 	});
 
 	window.addEventListener('keydown', (e) =>{
@@ -152,13 +154,18 @@ function app(){
 		}
 
 		for(var i = 0; i < arrows.length; ++i){
-			drawArrow(arrows[i]);
+			//drawArrow(arrows[i]);
+			arrows[i].draw();
+			current_node = null;
+			if(arrows[i].isMouseOver()){
+				current_arrow = arrows[i];
+			}
 		}
 
-		if(getArrowUnderMouse()){
-			drawArrow(getArrowUnderMouse(), 2.5);
-			context.lineWidth = 1;
-		}
+		// if(getArrowUnderMouse()){
+		// 	drawArrow(getArrowUnderMouse(), 2.5);
+		// 	context.lineWidth = 1;
+		// }
 
 		//draw circles on top of arrows to avoid anything inside the 'nodes'
 		for(var i = 0; i < nodes.length; ++i){
@@ -176,34 +183,6 @@ function app(){
 	}
 }
 //helper functions:
-//note that position/point objects are represented as: {X,Y}
-
-//checks if there's an arrow under the current mouse position
-//returns a refrence to that arrow if there is one, otherwise returns null
-
-//warning: this is a hacked up solution
-function getArrowUnderMouse(){
-	for(var i = 0; i < arrows.length; i++){
-		//see if we're in the range of an arrow
-		let point_a = arrows[i].end_pos;
-		let point_b = arrows[i].start_pos;
-		let point_c = arrows[i].midpoint;
-
-		let offset = getDistance(getMidPoint(point_a, point_b), point_c)
-		if( Math.floor(getDistance(point_a, mouse_pos) + getDistance(point_b, mouse_pos)) === 
-			Math.floor(getDistance(point_a,point_b)) && offset === 0 )
-		  	return arrows[i];
-
-		context.beginPath();
-		context.moveTo(point_a.X, point_a.Y);
-		context.quadraticCurveTo(point_c.X, point_c.Y,
-						  	 	 point_b.X, point_b.Y);
-
-		if(context.isPointInPath(mouse_pos.X, mouse_pos.Y))
-			return arrows[i];
-	}
-	return null;
-}
 
 function isOverNode(){
 	return distanceToClosestNode() < NODE_RADIUS;
@@ -400,9 +379,9 @@ class Arrow{
 	constructor(a, b){
 		this.start_pos = a;
 		this.end_pos = b;
-		this.midpoint = getMidPoint(a,b);
 		this.connected_nodes = [];
 		this.self_arrow = false;
+		this.curve = new Curve(a,b);
 	}
 	length(){
 		return getDistance(this.start_pos, this.end_pos);
@@ -416,5 +395,17 @@ class Arrow{
 			this.start_pos = new_pos;
 		else
 			this.end_pos = new_pos;
+	}
+
+	draw(){
+		this.curve.draw();
+	}
+
+	isMouseOver(){
+		return this.curve.mouse_over;
+	}
+
+	setCtrl_pos(new_pos){
+		this.curve.ctrl_pos = new_pos;
 	}
 }
