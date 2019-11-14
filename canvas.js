@@ -52,30 +52,6 @@ function app(){
 		if(isOverNode() && !key_down)
 			current_node = getClosestNode();
 
-		if(current_node)
-			current_arrow = null;
-
-	});
-
-	canvas.addEventListener('mousemove', (e) => {
-		mouse_pos = getMouse(e);
-		pos.set(e.offsetX, e.offsetY);
-		if(nodes.length == 0 || key_down) 
-			return;
-
-		if(isOverNode() && mouse_down){
-			current_node = getClosestNode();
-			current_node.pos = mouse_pos;
-			return;
-		}
-
-		// 	for(let i = 0; i < current_node.connected_arrows.length; ++i){
-		// 		current_node.connected_arrows[i].setClosestPoint(mouse_pos);
-		// 	}
-		// }
-		if(!isOverNode() && mouse_down && current_arrow){
-			current_arrow.setCtrl_pos(mouse_pos);
-		}
 	});
 
 	canvas.addEventListener('mouseup', (e) => {
@@ -105,6 +81,8 @@ function app(){
 			// 	arrows.splice(getArrowIndex(arr_), 1);
 
 			// }
+			current_node = null;
+			current_arrow = null;
 			return;
 		}
 
@@ -124,6 +102,7 @@ function app(){
 		}
 
 		current_node = null;
+		current_arrow = null;
 	});
 
 	window.addEventListener('keydown', (e) =>{
@@ -155,7 +134,7 @@ function app(){
 		context.fillStyle = '#aaaaaa';
 		context.fillRect(0, 0, width, height);
 
-		if(begin_arrow){
+		if(begin_arrow && current_node){
 			drawLine(current_node.pos, mouse_pos);
 			drawNode(current_node, true);
 		}
@@ -163,7 +142,6 @@ function app(){
 		for(var i = 0; i < arrows.length; ++i){
 			//drawArrow(arrows[i]);
 			arrows[i].draw();
-			current_node = null;
 			if(arrows[i].isMouseOver() && !isOverNode() ){
 				current_arrow = arrows[i];
 			}
@@ -227,7 +205,7 @@ function drawArrow(arr, thickness = 1){
 
 	if(!arr.self_arrow){
 		context.moveTo(arr.start_pos.X,arr.start_pos.Y);
-		context.quadraticCurveTo(arr.midpoint.X, arr.midpoint.Y,
+		cdrawArrowontext.quadraticCurveTo(arr.midpoint.X, arr.midpoint.Y,
 							  	 arr.end_pos.X,  arr.end_pos.Y);
 		context.stroke();
 
