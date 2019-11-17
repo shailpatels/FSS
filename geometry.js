@@ -16,3 +16,7 @@ function getDistance(a, b){
 	let y_ = Math.abs(a.Y - b.Y);
 	return Math.hypot(x_, y_); 
 }
+
+function isCloser(test_pos, a, b){
+	return getDistance(test_pos, a) <= getDistance(test_pos, b);
+}

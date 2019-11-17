@@ -4,21 +4,21 @@ var context;
 var height;
 var width;
 
-const NODE_RADIUS = 25;
-
-const FRAME_RATE = 30;
-var intervalTime = 1000/FRAME_RATE;
+const NODE_RADIUS = 25;	
 
 const LEFT_MOUSE_BUTTON = 0;
 const RIGHT_MOUSE_BUTTON = 2;
 
 window.onload = init;
 
+var arrow_menu;
+
 function init(){
 	canvas = document.getElementById("canvas");
 	if(!canvas || !canvas.getContext)
 		return;
 
+	arrow_menu = document.getElementById("arrow_menu");
 	context = canvas.getContext("2d");
 	height = canvas.height;
 	width = canvas.width;
@@ -26,6 +26,8 @@ function init(){
 	canvas.focus();
 	//background color:
 	context.fillRect(0, 0, width, height);
+
+	initControls(canvas);
 
 	app();
 }
@@ -35,100 +37,12 @@ var arrows = [];
 var mouse_pos, mouse_down, key_down;
 var current_node, current_arrow;
 
-var pos;
+var raw_pos;
 function app(){
 	mouse_down = begin_arrow = key_down = false;
-	pos = new Point(0,0);
-
-	canvas.addEventListener('mousedown', (e) => {
-		mouse_down = true;
-		if(e.button === RIGHT_MOUSE_BUTTON)
-			return;
-		
-		if(e.shiftKey && isOverNode() && mouse_down){
-			begin_arrow = true;
-			current_node = getClosestNode();
-		}
-		if(isOverNode() && !key_down)
-			current_node = getClosestNode();
-
-	});
-
-	canvas.addEventListener('mouseup', (e) => {
-		mouse_down = false;
-		dragging = false;
-
-		if(e.button === RIGHT_MOUSE_BUTTON){
-			//remove all conections from this node
-			if(isOverNode()){
-				for(var i = 0; i < getClosestNode().connected_arrows.length; ++i)
-					arrows.splice( getArrowIndex(getClosestNode().connected_arrows[i]) , 1);
-
-				//update labels
-				for(var i = getNodeIndex(getClosestNode()); i < nodes.length; ++i)
-					nodes[i].string = i-1;
-				//remove from list
-				nodes.splice(getNodeIndex(getClosestNode()), 1);
-			}
-			// if(getArrowUnderMouse()){
-			// 	let arr_ = getArrowUnderMouse();
-			// 	let node_a = arr_.connected_nodes[0];
-			// 	let node_b = arr_.connected_nodes[1];
-
-			// 	node_a.connected_arrows.splice(node_a.getConnectedArrowIndex(arr_),1);
-			// 	node_b.connected_arrows.splice(node_b.getConnectedArrowIndex(arr_),1);
-
-			// 	arrows.splice(getArrowIndex(arr_), 1);
-
-			// }
-			current_node = null;
-			current_arrow = null;
-			return;
-		}
-
-		if(begin_arrow){
-			begin_arrow = false;
-			if(isOverNode()){
-				//if we landed on another node create a new arrow
-				if(getClosestNode() != current_node) 
-					addArrowToNode(getClosestNode(), current_node);
-				else 
-					addArrowToCurrentNode(current_node);
-			}
-		}
-		mouse_pos = getMouse(e);
-		if( !isOverNode() && !key_down && !current_arrow) {
-			nodes.push(new Node(mouse_pos, nodes.length.toString(10) ));
-		}
-
-		current_node = null;
-		current_arrow = null;
-	});
-
-	window.addEventListener('keydown', (e) =>{
-		//draw arrow instead
-		current_node = null;
-		key_down = true;
-
-		if(e.shiftKey && isOverNode() && mouse_down){
-			begin_arrow = true;
-			current_node = getClosestNode();
-			return;
-		}
-	});
-
-	window.addEventListener('keyup', (e) =>{
-		key_down = false;
-		if(begin_arrow){
-			begin_arrow = false;
-			if(isOverNode()){
-				//if we landed on another node create a new arrow
-				addArrowToNode(getClosestNode(), current_node);
-			}
-		}
-		current_node = null;
-	});
-
+	current_node = current_arrow = null;
+	raw_pos = new Point(0,0);
+	drawScreen();
 	function drawScreen(){
 		//reset
 		context.fillStyle = '#aaaaaa';
@@ -140,17 +54,11 @@ function app(){
 		}
 
 		for(var i = 0; i < arrows.length; ++i){
-			//drawArrow(arrows[i]);
 			arrows[i].draw();
 			if(arrows[i].isMouseOver() && !isOverNode() ){
 				current_arrow = arrows[i];
 			}
 		}
-
-		// if(getArrowUnderMouse()){
-		// 	drawArrow(getArrowUnderMouse(), 2.5);
-		// 	context.lineWidth = 1;
-		// }
 
 		//draw circles on top of arrows to avoid anything inside the 'nodes'
 		for(var i = 0; i < nodes.length; ++i){
@@ -159,18 +67,26 @@ function app(){
 
 		if(isOverNode() || current_node && !begin_arrow)
 			drawNode(getClosestNode(), true);
+
+
+		window.requestAnimationFrame(drawScreen);
 	}
 
-	loop();
-	function loop(){
-		drawScreen();
-		window.setTimeout(loop, intervalTime);
-	}
 }
 //helper functions:
 
 function isOverNode(){
 	return distanceToClosestNode() < NODE_RADIUS;
+}
+
+function addNewArrow(start_node, end_node){
+	new_arrow = new Arrow(start_node, end_node);
+	
+	start_node.connected_arrows.push(new_arrow);
+	end_node.connected_arrows.push(new_arrow);
+
+	arrows.push(new_arrow);
+	//showArrowMenu(new_arrow);
 }
 
 function getNodeIndex(_node){
@@ -195,6 +111,11 @@ function getMouse(pos){
 	let X = pos.clientX - rect.left;
 	let Y = pos.clientY - rect.top;
 	return {X,Y};
+}
+
+function mouseToPage(pos){
+	var rect = canvas.getBoundingClientRect();
+	return new Point( pos.X + rect.left, pos.Y + Math.abs(rect.top) ); 
 }
 
 //draws an arrow between two nodes,
@@ -235,7 +156,7 @@ function drawArrow(arr, thickness = 1){
 //draw a node
 function drawNode(_node, fill = false){
 	drawCircle(_node.pos,fill);
-	drawText(_node.string, _node.pos);
+	drawText(_node.label, _node.pos);
 }
 
 function drawCircle(center, fill){
@@ -283,7 +204,6 @@ function distanceToClosestNode(){
 //adds a new arrow to the list of arrows,
 //sets the midpoint and assigns the connected points to _node and current_node
 function addArrowToNode(_node, _current_node){
-	arrows.push(new Arrow(current_node.pos, _node.pos));
 	_node.connected_arrows.push(arrows[arrows.length-1]);
 	_current_node.connected_arrows.push(arrows[arrows.length-1]);
 
@@ -292,8 +212,6 @@ function addArrowToNode(_node, _current_node){
 }
 
 function addArrowToCurrentNode(_current_node){
-	arrows.push(new Arrow(_current_node.pos, _current_node.pos));
-
 	_current_node.connected_arrows.push(arrows[arrows.length-1]);
 	arrows[arrows.length-1].connected_nodes.push(_current_node);
 	arrows[arrows.length-1].self_arrow = true;
@@ -323,68 +241,4 @@ function getMidPoint(a, b){
 	return {X, Y}
 }
 
-//a node represents a state in a FSM
-/*NODE:
-	pos: the position on the canvas of the node (its centerpoint)
-	connected_arrows: a list of arrows connected to this node
-	string: the label of the node e.g: S_1
-*/
-class Node{
-	constructor(pos, str = null){
-		this.pos = pos
-		this.connected_arrows = [];
-		this.string = str;
-	}
-	getConnectedArrowIndex(arr){
-		for(var i = 0; i < this.connected_arrows.length; ++i){
-			if(arr == this.connected_arrows[i])
-				return i;
-		}
-		return -1;
-	}
-}
 
-//an arrow represents a connection in a FSM
-/*ARROW
-	start_pos: the position where the arrow started from
-	end_pos: the position where the arrow ends
-	midpoint: the position between the start & end points
-	
-	lenght(): returns the lenght of the arrow
-	getClosestPoint(): returns either the start or end pos, depending on which is closer to the mouse pos
-	setClosestPoint(): sets the closest point to a new position
-*/
-class Arrow{
-	constructor(a, b){
-		this.start_pos = a;
-		this.end_pos = b;
-		this.connected_nodes = [];
-		this.self_arrow = false;
-		this.curve = new Curve(a,b);
-	}
-	length(){
-		return getDistance(this.start_pos, this.end_pos);
-	}
-	getClosestPoint(){
-		return (getDistance(this.start_pos, mouse_pos) < getDistance(this.end_pos, mouse_pos)) ?
-				this.start_pos : this.end_pos;
-	}
-	setClosestPoint(new_pos){
-		if(this.getClosestPoint() == this.start_pos)
-			this.start_pos = new_pos;
-		else
-			this.end_pos = new_pos;
-	}
-
-	draw(){
-		this.curve.draw();
-	}
-
-	isMouseOver(){
-		return this.curve.mouse_over;
-	}
-
-	setCtrl_pos(new_pos){
-		this.curve.ctrl_pos = new_pos;
-	}
-}

@@ -2,11 +2,13 @@
 <html lang = "">
 <head>
 	<meta charset="UTF-8">
-	<title>Canvas Page</title>
+	<title>FSS</title>
 	<script src = "canvas.js"></script>
-	<script src = "curve.js"></script>
+	<script src = "elements.js"></script>
 	<script src = "geometry.js"></script>
 	<script src = "input.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="main.css">
 </head>
 
 <body style="text-align: center; font-family: Tahoma, Geneva, sans-serif">
@@ -25,6 +27,20 @@
 			<li>Right click to delete a state</li>
 		</ul>
 	</div>
+
+	<!-- menu for new arrows -->
+
+	<div id="arrow_menu" class="arrow_menu">
+		<p id="arrow_label"></p>
+		<span > IF <input class="arrow_input" type="text" name="IF"> </span>
+		<br>
+		<br>
+		<span > THEN <input type="text" name="THEN"> </span>
+		<br>
+		<br>
+		<button onclick="submitArrowMenu()" >Submit</button>
+	</div>
+
 </body>
 </html>
 
