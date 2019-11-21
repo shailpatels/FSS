@@ -25,7 +25,6 @@ canvas.addEventListener('mousedown', (e) => {
 canvas.addEventListener('mousemove', (e) => {
 	mouse_pos = getMouse(e);
 	dragging = mouse_down;
-	raw_pos.set(e.clientX,e.clientY);
 	if(nodes.length == 0 || key_down) 
 		return;
 
@@ -33,7 +32,6 @@ canvas.addEventListener('mousemove', (e) => {
 		current_node.moveTo(mouse_pos);
 	}
 
-	//console.log(current_arrow !== null);
 	if(!isOverNode() && mouse_down && current_arrow !== null){
 		current_arrow.ctrl_pos = mouse_pos;
 	}
@@ -66,10 +64,6 @@ canvas.addEventListener('mouseup', (e) => {
 		if(isOverNode()){
 			//if we landed on another node create a new arrow
 			addNewArrow(current_node, getClosestNode());
-			// if(getClosestNode() != current_node) 
-			// 	addArrowToNode(getClosestNode(), current_node);
-			// else 
-			// 	addArrowToCurrentNode(current_node);
 		}
 	}
 

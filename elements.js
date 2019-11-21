@@ -4,21 +4,13 @@
 /*NODE:
 	pos: the position on the canvas of the node (its centerpoint)
 	connected_arrows: a list of arrows connected to this node
-	string: the label of the node e.g: S_1
+	label: the label of the node e.g: S_1
 */
 class Node{
 	constructor(pos, str = null){
 		this.pos = pos
 		this.connected_arrows = [];
 		this.label = str;
-	}
-
-	getConnectedArrowIndex(arr){
-		for(var i = 0; i < this.connected_arrows.length; ++i){
-			if(arr == this.connected_arrows[i])
-				return i;
-		}
-		return -1;
 	}
 
 	moveTo(new_pos){
@@ -43,7 +35,7 @@ class Node{
 */
 
 class Arrow{
-	constructor(start, end){
+	constructor(start, end, is_self = false){
 		this.start_pos = start.pos;
 		this.end_pos = end.pos;
 		this.t = 0.5;
@@ -51,24 +43,26 @@ class Arrow{
 		this.mouse_over = false;
 		this.start_node = start;
 		this.end_node = end;
+		this.is_self = false;
 	}
-
+	
 	draw(){
 
 		context.fillStyle = "black";
-		context.lineWidth = 2;
+		let line_width = 2;
 
 		if(this.mouse_over)
-			context.lineWidth = 4;
+			line_width = 4;
 
-
+		context.lineWidth = line_width;
 		this.path = new Path2D();
 		this.path.moveTo(this.start_pos.X, this.start_pos.Y);
 		this.path.quadraticCurveTo(this.ctrl_pos.X,this.ctrl_pos.Y, 
 								   this.end_pos.X, this.end_pos.Y);
 
-		context.stroke(this.path); 
-
+		context.stroke(this.path);
+		let ang = findAngle(this.ctrl_pos, this.end_pos);
+		this.drawArrowhead(this.end_pos, ang, line_width );
 
 		this.hooverPath = new Path2D();
 		this.hooverPath.moveTo(this.start_pos.X, this.start_pos.Y);
@@ -96,4 +90,34 @@ class Arrow{
 		else
 			this.end_pos = new_pos;
 	}
+
+	//Draw an arrow at the end of the curve to show the direction
+	// SRC : https://stackoverflow.com/questions/6576827/html-canvas-draw-curved-arrows
+	drawArrowhead(pos, angle, line_width) {
+		context.fillStyle = "black";
+
+		let sizex = 8 + line_width,
+			sizey = 8 + line_width;
+
+	    var hx = sizex / 2,
+	    	hy = sizey / 2;
+
+	    context.translate(pos.X, pos.Y);
+	    context.rotate(angle);
+	    context.translate(-hx,-hy);
+
+	    context.beginPath();
+
+	    let pad = 5
+	    context.moveTo(-(NODE_RADIUS+pad),0);
+	  	context.lineTo(-(NODE_RADIUS+pad),(1*sizey));   
+	    context.lineTo((1*sizex)- (NODE_RADIUS+pad),1*hy);
+	    context.closePath();
+	    context.fill();
+
+	    context.translate(hx,hy);
+	    context.rotate(-angle);
+	    context.translate(-pos.X,-pos.Y);
+	}        
 }
+

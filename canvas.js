@@ -1,21 +1,19 @@
-var canvas;
-var context;
+var canvas,
+    context,
 
-var height;
-var width;
+    height,
+    width;
 
 const NODE_RADIUS = 25;	
-
 const LEFT_MOUSE_BUTTON = 0;
 const RIGHT_MOUSE_BUTTON = 2;
 
-window.onload = init;
-
+//HTML UIs 
 var arrow_menu;
 
-function init(){
+window.onload = function init(){
 	canvas = document.getElementById("canvas");
-	if(!canvas || !canvas.getContext)
+	if(!canvas || !canvas.getContext("2d"))
 		return;
 
 	arrow_menu = document.getElementById("arrow_menu");
@@ -32,16 +30,13 @@ function init(){
 	app();
 }
 
-var nodes = [];
-var arrows = [];
-var mouse_pos, mouse_down, key_down;
-var current_node, current_arrow;
+var nodes = [], arrows = [],
+	mouse_pos, mouse_down, key_down,
+	current_node, current_arrow;
 
-var raw_pos;
 function app(){
 	mouse_down = begin_arrow = key_down = false;
 	current_node = current_arrow = null;
-	raw_pos = new Point(0,0);
 	drawScreen();
 	function drawScreen(){
 		//reset
@@ -73,20 +68,26 @@ function app(){
 	}
 
 }
-//helper functions:
 
+//helper functions:
 function isOverNode(){
 	return distanceToClosestNode() < NODE_RADIUS;
 }
 
 function addNewArrow(start_node, end_node){
+
+	if(start_node === end_node){
+		console.log("Selft node!");
+		return;
+		//TODO!
+	}
+
 	new_arrow = new Arrow(start_node, end_node);
 	
 	start_node.connected_arrows.push(new_arrow);
 	end_node.connected_arrows.push(new_arrow);
 
 	arrows.push(new_arrow);
-	//showArrowMenu(new_arrow);
 }
 
 function getNodeIndex(_node){
@@ -104,56 +105,19 @@ function getArrowIndex(arr){
 	}
 	return -1;
 }
+
 //corrects the raw mouse position to a mouse position relative to the canvas
 //upper left corner is (0,0)
 function getMouse(pos){
-	var rect = canvas.getBoundingClientRect();
-	let X = pos.clientX - rect.left;
-	let Y = pos.clientY - rect.top;
-	return {X,Y};
+	return new Point(pos.offsetX, pos.offsetY);
 }
 
+//converts back from canvas mouse position to HTML position
 function mouseToPage(pos){
 	var rect = canvas.getBoundingClientRect();
 	return new Point( pos.X + rect.left, pos.Y + Math.abs(rect.top) ); 
 }
 
-//draws an arrow between two nodes,
-//expects an arrow object
-function drawArrow(arr, thickness = 1){
-	context.lineWidth = thickness;
-	context.beginPath();
-
-	if(!arr.self_arrow){
-		context.moveTo(arr.start_pos.X,arr.start_pos.Y);
-		cdrawArrowontext.quadraticCurveTo(arr.midpoint.X, arr.midpoint.Y,
-							  	 arr.end_pos.X,  arr.end_pos.Y);
-		context.stroke();
-
-		context.fillStyle = "black";
-		let angle = Math.atan2(arr.end_pos.Y-arr.midpoint.Y,arr.end_pos.X-arr.midpoint.X);
-		context.save();
-		context.translate(arr.end_pos.X, arr.end_pos.Y );
-		context.rotate(angle);
-		 // draw your arrow, with its origin at [0, 0]
-
-		context.beginPath();
-		
-		context.moveTo(-NODE_RADIUS,0);
-		context.lineTo(-10 - NODE_RADIUS, -5);
-		context.lineTo(-10 - NODE_RADIUS, 5);
-
-		context.fill();
-		context.restore();
-	}else{
-		context.moveTo(arr.start_pos.X,arr.start_pos.Y);
-		context.arc(arr.start_pos.X - NODE_RADIUS - 25,arr.start_pos.Y , 30, 0, 2 * Math.PI);
-		context.stroke();
-	}
-}
-
-
-//draw a node
 function drawNode(_node, fill = false){
 	drawCircle(_node.pos,fill);
 	drawText(_node.label, _node.pos);
@@ -201,22 +165,6 @@ function distanceToClosestNode(){
 	return getDistance(mouse_pos, getClosestNode().pos);
 }
 
-//adds a new arrow to the list of arrows,
-//sets the midpoint and assigns the connected points to _node and current_node
-function addArrowToNode(_node, _current_node){
-	_node.connected_arrows.push(arrows[arrows.length-1]);
-	_current_node.connected_arrows.push(arrows[arrows.length-1]);
-
-	arrows[arrows.length-1].connected_nodes.push(_node);
-	arrows[arrows.length-1].connected_nodes.push(_current_node);
-}
-
-function addArrowToCurrentNode(_current_node){
-	_current_node.connected_arrows.push(arrows[arrows.length-1]);
-	arrows[arrows.length-1].connected_nodes.push(_current_node);
-	arrows[arrows.length-1].self_arrow = true;
-}
-
 //returns a refrence to the closest node relative to the mouse position
 function getClosestNode(){
 	let min = 1000;
@@ -233,12 +181,6 @@ function getClosestNode(){
 		}
 	}	
 	return nodes[index];
-}
-
-function getMidPoint(a, b){
-	let X = Math.abs(a.X + b.X)/2;
-	let Y = Math.abs(a.Y + b.Y)/2;
-	return {X, Y}
 }
 
 
