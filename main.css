@@ -1,0 +1,13 @@
+
+
+.arrow_menu{
+	position: absolute;
+	display:none;
+	height: 200px;
+	background-color: white;
+	padding-left: 15px;
+}
+
+.arrow_menu input[type="text"]{
+	width: 100px;
+}
