@@ -1,0 +1,35 @@
+{
+  "name": "fss",
+  "version": "1.0.0",
+  "description": "Finate State Simulator",
+  "main": "canvas.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "jest": "^24.9.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.23",
+    "rimraf": "^3.0.0",
+    "ts-jest": "^24.2.0",
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.7.2",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10"
+  },
+  "scripts": {
+    "build": "webpack --config webpack.js --mode=development",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shailpatels/FSS.git"
+  },
+  "author": "Shail Patel",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/shailpatels/FSS/issues"
+  },
+  "homepage": "https://github.com/shailpatels/FSS#readme"
+}

@@ -11,6 +11,13 @@ const RIGHT_MOUSE_BUTTON = 2;
 //HTML UIs 
 var arrow_menu;
 
+import initControls from './input.js';
+import * as geom from './geometry.js';
+require("./geometry.js");
+require("./input.js");
+require("./graph.js");
+
+
 window.onload = function init(){
 	canvas = document.getElementById("canvas");
 	if(!canvas || !canvas.getContext("2d"))
@@ -32,7 +39,8 @@ window.onload = function init(){
 
 var nodes = [], arrows = [],
 	mouse_pos, mouse_down, key_down,
-	current_node, current_arrow;
+	current_node, current_arrow,
+	begin_arrow, start_node, mouse_down;
 
 function app(){
 	mouse_down = begin_arrow = key_down = false;
@@ -90,6 +98,18 @@ function addNewArrow(start_node, end_node){
 	arrows.push(new_arrow);
 }
 
+function deleteNode(){
+	for(var i = 0; i < getClosestNode().connected_arrows.length; ++i)
+		arrows.splice( getArrowIndex(getClosestNode().connected_arrows[i]) , 1);
+
+	//update labels
+	for(var i = getNodeIndex(getClosestNode()); i < nodes.length; ++i)
+		nodes[i].label = i-1;
+
+	//remove from list
+	nodes.splice(getNodeIndex(getClosestNode()), 1);
+}
+
 function getNodeIndex(_node){
 	for(var i = 0; i < nodes.length; ++i){
 		if(nodes[i] === _node)
@@ -106,13 +126,10 @@ function getArrowIndex(arr){
 	return -1;
 }
 
-//corrects the raw mouse position to a mouse position relative to the canvas
-//upper left corner is (0,0)
-function getMouse(pos){
-	return new Point(pos.offsetX, pos.offsetY);
-}
-
-//converts back from canvas mouse position to HTML position
+/**
+@param {Point} pos - position to convert from canvas to HTML coords
+@returns {Point}
+**/
 function mouseToPage(pos){
 	var rect = canvas.getBoundingClientRect();
 	return new Point( pos.X + rect.left, pos.Y + Math.abs(rect.top) ); 
@@ -182,5 +199,7 @@ function getClosestNode(){
 	}	
 	return nodes[index];
 }
+
+/** @typedef { import('./geometry.js').Point } Point */
 
 
