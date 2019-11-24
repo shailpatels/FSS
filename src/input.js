@@ -1,5 +1,8 @@
 
-function initControls(canvas){
+import * as geom from './geometry.js';
+
+
+export default function initControls(canvas){
 
 canvas.addEventListener('mousedown', (e) => {
 	mouse_down = true;
@@ -44,14 +47,7 @@ canvas.addEventListener('mouseup', (e) => {
 	if(e.button === RIGHT_MOUSE_BUTTON){
 		//remove all conections from this node
 		if(isOverNode()){
-			for(var i = 0; i < getClosestNode().connected_arrows.length; ++i)
-				arrows.splice( getArrowIndex(getClosestNode().connected_arrows[i]) , 1);
-
-			//update labels
-			for(var i = getNodeIndex(getClosestNode()); i < nodes.length; ++i)
-				nodes[i].string = i-1;
-			//remove from list
-			nodes.splice(getNodeIndex(getClosestNode()), 1);
+			deleteNode();
 		}
 		
 		current_node = null;
@@ -125,4 +121,10 @@ function showArrowMenu(arr){
 
 function submitArrowMenu(){
 	arrow_menu.style.display = "none";
+}
+
+//corrects the raw mouse position to a mouse position relative to the canvas
+//upper left corner is (0,0)
+function getMouse(pos){
+	return new Point(pos.offsetX, pos.offsetY);
 }
