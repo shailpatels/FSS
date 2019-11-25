@@ -1,7 +1,7 @@
 const path = require('path');
-
+ 
 const config = {
-   entry: './src/canvas.ts',
+   entry: './src/canvas.js',
    output: {
        filename: 'Bundle.js',
        path: path.resolve(__dirname, 'build')
@@ -23,7 +23,7 @@ const config = {
        extensions: ['.ts', '.js']
    }
 };
-
+ 
 module.exports = config;
-
+ 
 

@@ -1,8 +1,6 @@
-export class Graph{
-    public graph: any;
-    public size: any;
+export default class Graph{
 
-	constructor(){
+	constructor(){ 
 		this.graph = new Map();
 		this.size = 0;
 	}
@@ -64,3 +62,6 @@ export class Graph{
 
 	}
 }
+
+if(typeof module !== 'undefined')
+	module.exports = Graph;
