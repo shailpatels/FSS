@@ -1,8 +1,5 @@
 
-import * as geom from './geometry.js';
-
-
-export default function initControls(canvas){
+function initControls(canvas){
 
 canvas.addEventListener('mousedown', (e) => {
 	mouse_down = true;

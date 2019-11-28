@@ -11,13 +11,6 @@ const RIGHT_MOUSE_BUTTON = 2;
 //HTML UIs 
 var arrow_menu;
 
-import initControls from './input.js';
-import * as geom from './geometry.js';
-require("./geometry.js");
-require("./input.js");
-require("./graph.js");
-
-
 window.onload = function init(){
 	canvas = document.getElementById("canvas");
 	if(!canvas || !canvas.getContext("2d"))

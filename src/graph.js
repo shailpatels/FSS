@@ -1,4 +1,4 @@
-export default class Graph{
+class Graph{
 
 	constructor(){ 
 		this.graph = new Map();
