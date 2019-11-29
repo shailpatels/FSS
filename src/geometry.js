@@ -31,3 +31,7 @@ function getMidPoint(a, b){
 	let Y = Math.abs(a.Y + b.Y)/2;
 	return new Point(X, Y);
 }
+
+function radToDeg(rad){
+	return rad * (180/Math.PI);
+}

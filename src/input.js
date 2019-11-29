@@ -9,6 +9,7 @@ canvas.addEventListener('mousedown', (e) => {
 	if(e.shiftKey && isOverNode()){
 		begin_arrow = true;
 		current_node = getClosestNode();
+		start_node = current_node;
 	}
 	if(isOverNode() && !key_down)
 		current_node = getClosestNode();
@@ -33,7 +34,7 @@ canvas.addEventListener('mousemove', (e) => {
 	}
 
 	if(!isOverNode() && mouse_down && current_arrow !== null){
-		current_arrow.ctrl_pos = mouse_pos;
+		current_arrow.moveToMouse();
 	}
 });
 
@@ -49,6 +50,7 @@ canvas.addEventListener('mouseup', (e) => {
 		
 		current_node = null;
 		current_arrow = null;
+		start_node = null;
 		return;
 	}
 
@@ -67,6 +69,7 @@ canvas.addEventListener('mouseup', (e) => {
 
 	current_node = null;
 	current_arrow = null;
+	start_node = null;
 });
 
 
