@@ -45,6 +45,9 @@ function app(){
 		context.fillRect(0, 0, width, height);
 
 		if(begin_arrow && current_node){
+			if(isOverNode() && (getClosestNode() == start_node) )
+				drawSelfArrow(start_node.pos);
+
 			drawLine(current_node.pos, mouse_pos);
 			drawNode(current_node, true);
 		}
@@ -77,13 +80,14 @@ function isOverNode(){
 
 function addNewArrow(start_node, end_node){
 
+	let is_self = false;
+	let angle = 0.0;
 	if(start_node === end_node){
-		console.log("Selft node!");
-		return;
-		//TODO!
+		is_self = true;
+		angle = findAngle(start_node.pos, mouse_pos);
 	}
 
-	new_arrow = new Arrow(start_node, end_node);
+	new_arrow = new Arrow(start_node, end_node, is_self, angle);
 	
 	start_node.connected_arrows.push(new_arrow);
 	end_node.connected_arrows.push(new_arrow);

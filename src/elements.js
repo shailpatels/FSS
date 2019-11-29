@@ -16,7 +16,7 @@ class Node{
 	moveTo(new_pos){
 		this.pos = new_pos;
 		for (var i = this.connected_arrows.length - 1; i >= 0; i--) {
-			this.connected_arrows[i].moveTo(new_pos, this);
+			this.connected_arrows[i].moveByNode(new_pos, this);
 		}
 	}
 
@@ -35,7 +35,7 @@ class Node{
 */
 
 class Arrow{
-	constructor(start, end, is_self = false){
+	constructor(start, end, is_self_, angle_off){
 		this.start_pos = start.pos;
 		this.end_pos = end.pos;
 		this.t = 0.5;
@@ -43,10 +43,15 @@ class Arrow{
 		this.mouse_over = false;
 		this.start_node = start;
 		this.end_node = end;
-		this.is_self = false;
+		this.is_self = is_self_;
+		this.angle_offset = angle_off;
 	}
 	
 	draw(){
+		if (this.is_self){
+			this.drawSelfArrow();
+			return;
+		}
 
 		context.fillStyle = "black";
 		let line_width = 2;
@@ -62,7 +67,7 @@ class Arrow{
 
 		context.stroke(this.path);
 		let ang = findAngle(this.ctrl_pos, this.end_pos);
-		this.drawArrowhead(this.end_pos, ang, line_width );
+		drawArrowhead(this.end_pos, ang, line_width );
 
 		this.hooverPath = new Path2D();
 		this.hooverPath.moveTo(this.start_pos.X, this.start_pos.Y);
@@ -79,45 +84,62 @@ class Arrow{
 		context.lineWidth = 1;
 	}
 
+	drawSelfArrow(){
+		let line_width = 2;
+
+		if(this.mouse_over)
+			line_width = 4;
+
+		context.lineWidth = line_width;
+		let pad = 30;
+
+	 	context.translate(this.start_pos.X, this.start_pos.Y);
+	 	context.rotate(this.angle_offset);
+
+	    context.beginPath();
+	    context.arc(pad,pad, NODE_RADIUS, 0, 2 * Math.PI);
+	    context.stroke();
+
+	    this.hooverPath = new Path2D();
+	    this.hooverPath.arc(pad,pad, NODE_RADIUS, 0, 2 * Math.PI);
+
+	    context.lineWidth = 10;
+	    context.save();
+		context.globalAlpha = 0.0;
+		context.stroke(this.hooverPath); 
+		context.restore();
+
+		this.mouse_over = this.isMouseOver();
+
+	    context.rotate(-this.angle_offset);
+	    context.translate(-this.start_pos.X, -this.start_pos.Y);
+
+	    context.lineWidth = 1;
+	    drawArrowhead(this.end_pos, this.angle_offset + Math.PI + (Math.PI/17), line_width );
+	}
+
+
 	isMouseOver(){	
 		return context.isPointInStroke( this.hooverPath, mouse_pos.X, mouse_pos.Y );
 	}
 
-	moveTo(new_pos, selected_node){
+	moveByNode(new_pos, selected_node){
+		if(this.is_self){
+			this.start_pos = new_pos;
+			this.end_pos = new_pos;
+		}
+
 		//the point connected to the selected node should be moved
 		if(selected_node === this.start_node )
 			this.start_pos = new_pos;
 		else
 			this.end_pos = new_pos;
 	}
-
-	//Draw an arrow at the end of the curve to show the direction
-	// SRC : https://stackoverflow.com/questions/6576827/html-canvas-draw-curved-arrows
-	drawArrowhead(pos, angle, line_width) {
-		context.fillStyle = "black";
-
-		let sizex = 8 + line_width,
-			sizey = 8 + line_width;
-
-	    var hx = sizex / 2,
-	    	hy = sizey / 2;
-
-	    context.translate(pos.X, pos.Y);
-	    context.rotate(angle);
-	    context.translate(-hx,-hy);
-
-	    context.beginPath();
-
-	    let pad = 5
-	    context.moveTo(-(NODE_RADIUS+pad),0);
-	  	context.lineTo(-(NODE_RADIUS+pad),(1*sizey));   
-	    context.lineTo((1*sizex)- (NODE_RADIUS+pad),1*hy);
-	    context.closePath();
-	    context.fill();
-
-	    context.translate(hx,hy);
-	    context.rotate(-angle);
-	    context.translate(-pos.X,-pos.Y);
-	}        
+     
+    moveToMouse(){
+    	current_arrow.ctrl_pos = mouse_pos;
+    	if(this.is_self)
+    		this.angle_offset = findAngle(this.start_pos, mouse_pos);
+    }
 }
 
