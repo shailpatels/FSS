@@ -1,24 +1,32 @@
 
 var Q = [];
 var is_starting = true;
+var prev = [];
 
 function step(start_ = 0){
 
 	if (is_starting){
-		Q.push(start_);
+		Q.push(nodes[start_]);
 		is_starting = false;
+	}else{
+		for(u of prev){
+			u.is_active = false;
+		}
+		prev = [];
 	}
 
 	if(Q.length == 0)
 		return;
 
-	let starting_node = nodes[Q.shift()];
-	starting_node.is_active = true;
+	connections = [];
+	for(u of Q){
 
-	let connections = graph.getConnections(starting_node);
+		u.is_active = true;
+		prev.push(u);
+		console.log(u.toString());
+		connections = connections.concat(connections, graph.getConnections(u));
 
-	console.log(starting_node.toString());
-	for (v of connections){
-		Q.push(v);
 	}
+
+	Q = connections;
 }

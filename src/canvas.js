@@ -63,7 +63,7 @@ function app(){
 				drawSelfArrow(start_node.pos);
 
 			drawLine(current_node.pos, mouse_pos);
-			drawNode(current_node, true);
+			current_node.draw();
 		}
 
 		for(var i = 0; i < arrows.length; ++i){
@@ -75,12 +75,8 @@ function app(){
 
 		//draw circles on top of arrows to avoid anything inside the 'nodes'
 		for(var i = 0; i < nodes.length; ++i){
-			drawNode(nodes[i]);
+			nodes[i].draw();
 		}
-
-		if(isOverNode() || current_node && !begin_arrow)
-			drawNode(getClosestNode(), true);
-
 
 		window.requestAnimationFrame(drawScreen);
 	}
@@ -163,27 +159,6 @@ function getArrowIndex(arr){
 function mouseToPage(pos){
 	var rect = canvas.getBoundingClientRect();
 	return new Point( pos.X + rect.left, pos.Y + Math.abs(rect.top) ); 
-}
-
-function drawNode(_node, fill = false){
-	drawCircle(_node.pos,fill);
-	drawText(_node.label, _node.pos);
-}
-
-function drawCircle(center, fill){
-	context.beginPath();
-	context.arc(center.X, center.Y, NODE_RADIUS, 0, 2 * Math.PI);
-	if(!fill){
-		context.stroke();
-		context.beginPath();
-		context.arc(center.X, center.Y, NODE_RADIUS - 0.5, 0, 2 * Math.PI);
-		context.fillStyle = "#ffffff";
-		context.fill();
-	}
-	else{
-		context.fillStyle = "#000020";
-		context.fill();
-	}
 }
 
 //theres probably a better way to handle this...
