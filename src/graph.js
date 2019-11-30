@@ -5,25 +5,33 @@ class Graph{
 		this.size = 0;
 	}
 
-	print(){
+	/**
+	print the graph for debugging, either to the DOM or the console
+
+	@param {boolean} to_console
+	**/
+	print(to_console = false){
 		document.getElementById("graph").innerHTML = "";
 
 		let output = "";
 		let keys = this.graph.keys();
 		for (var u of keys){
-			output += u.toString() + ": "
+			output += u.toString() + ": ";
 			let connections = this.graph.get(u);
 			for (var v of connections)
 				output += v.toString()
 
-			output += "<br>"
+			output +=  to_console ? "\n" : "<br>";
 		}
 
-		document.getElementById("graph").innerHTML += output;
+		if(to_console)
+			console.log(output);
+		else
+			document.getElementById("graph").innerHTML += output;
 	}
 
 	/**
-	@param {number} v - index of state as a new vertex to add to graph
+	@param {Node} v - index of state as a new vertex to add to graph
 	**/
 	addVertex(v){
 		this.graph.set(v, []);
@@ -33,15 +41,15 @@ class Graph{
 	/**
 	create a new directed edge between two vertices
 
-	@param {number} start
-	@param {number} end
+	@param {Node} start
+	@param {Node} end
 	**/
 	addEdge(start, end){
 		this.graph.get(start).push(end);
 	}
 
 	/**
-	@param {number} v) - index of vertex to delete
+	@param {Node} v) - node to delete
 	**/
 	deleteVertex(v_){
 		this.graph.delete(v_);
@@ -60,6 +68,23 @@ class Graph{
 
 		this.size --;
 
+	}
+
+	/**
+	given two nodes delete the edge between them if it exists
+
+	@param {Node} u) - starting node of edge
+	@param {Node} v) - ending node of edge 
+	**/
+	deleteEdge(u, v){
+		let keys = this.graph.keys();
+		let connections = this.graph.get(u);
+
+		connections.remove(v);
+	}
+
+	getConnections(node){
+		return this.graph.get(node);
 	}
 }
 

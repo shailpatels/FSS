@@ -10,6 +10,19 @@ const RIGHT_MOUSE_BUTTON = 2;
 
 //HTML UIs 
 var arrow_menu;
+var graph;
+
+Array.prototype.getLast = function() {
+    return this[this.length - 1];
+}
+
+Array.prototype.remove = function(tgt) {
+    for(var i = 0; i < this.length; i++)
+    	if (this[i] === tgt){
+    		this.splice(i,1);
+    		break;
+    	}
+}
 
 window.onload = function init(){
 	canvas = document.getElementById("canvas");
@@ -24,6 +37,7 @@ window.onload = function init(){
 	canvas.focus();
 	//background color:
 	context.fillRect(0, 0, width, height);
+	graph = new Graph();
 
 	initControls(canvas);
 
@@ -78,6 +92,11 @@ function isOverNode(){
 	return distanceToClosestNode() < NODE_RADIUS;
 }
 
+function addNewNode(){
+	nodes.push( new Node(mouse_pos, nodes.length.toString(10) ));
+	graph.addVertex(nodes.getLast());
+}
+
 function addNewArrow(start_node, end_node){
 
 	let is_self = false;
@@ -93,6 +112,8 @@ function addNewArrow(start_node, end_node){
 	end_node.connected_arrows.push(new_arrow);
 
 	arrows.push(new_arrow);
+
+	graph.addEdge(start_node, end_node);
 }
 
 function deleteNode(){
@@ -105,6 +126,18 @@ function deleteNode(){
 
 	//remove from list
 	nodes.splice(getNodeIndex(getClosestNode()), 1);
+}
+
+function deleteArrow(arr_){
+	let start = arr_.start_node;
+	let end = arr_.end_node;
+
+	start.connected_arrows.remove(arr_);
+	if(start !== end)
+		end.connected_arrows.remove(arr_);
+
+	arrows.remove(arr_);
+	graph.deleteEdge(start, end);
 }
 
 function getNodeIndex(_node){

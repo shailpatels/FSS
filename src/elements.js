@@ -1,7 +1,7 @@
 
 
 //a node represents a state in a FSM
-/*NODE:
+/*Node:
 	pos: the position on the canvas of the node (its centerpoint)
 	connected_arrows: a list of arrows connected to this node
 	label: the label of the node e.g: S_1
@@ -11,6 +11,7 @@ class Node{
 		this.pos = pos
 		this.connected_arrows = [];
 		this.label = str;
+		this.is_active = false;
 	}
 
 	moveTo(new_pos){
@@ -20,6 +21,9 @@ class Node{
 		}
 	}
 
+	toString(){
+		return this.label;
+	}
 }
 
 
@@ -45,6 +49,7 @@ class Arrow{
 		this.end_node = end;
 		this.is_self = is_self_;
 		this.angle_offset = angle_off;
+		this.is_active = false;
 	}
 	
 	draw(){
