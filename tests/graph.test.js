@@ -1,5 +1,17 @@
 const Graph = jest.requireActual('../src/graph.js');
 
+Array.prototype.getLast = function() {
+    return this[this.length - 1];
+}
+
+Array.prototype.remove = function(tgt) {
+    for(var i = 0; i < this.length; i++)
+    	if (this[i] === tgt){
+    		this.splice(i,1);
+    		break;
+    	}
+}
+
 test('add vertex', () => {
 	var g = new Graph();
 	expect( g.size ).toBe(0);
@@ -51,4 +63,16 @@ test('delete vertex', () => {
 	expect( g.graph.get(1) ).toStrictEqual([]);
 	expect( g.graph.size ).toBe(g.size);
 
+});
+
+test('delete edge', () => {
+	var g = new Graph();
+
+	g.addVertex(0);
+	g.addVertex(1);
+	g.addEdge(0,1);
+
+	expect(g.graph.get(0)).toStrictEqual([1]);
+	g.deleteEdge(0,1);
+	expect(g.graph.get(0)).toStrictEqual([]);
 });

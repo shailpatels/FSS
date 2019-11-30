@@ -1,7 +1,7 @@
 
 
 //a node represents a state in a FSM
-/*NODE:
+/*Node:
 	pos: the position on the canvas of the node (its centerpoint)
 	connected_arrows: a list of arrows connected to this node
 	label: the label of the node e.g: S_1
@@ -11,8 +11,18 @@ class Node{
 		this.pos = pos
 		this.connected_arrows = [];
 		this.label = str;
+		this.is_active = false;
+
+		this.condition = "";
+		this.out = "";
 	}
 
+	/**
+	Move this node along to a new position, will drag the ends of 
+	connected arrows with it
+
+	@param {Point} new_pos
+	**/
 	moveTo(new_pos){
 		this.pos = new_pos;
 		for (var i = this.connected_arrows.length - 1; i >= 0; i--) {
@@ -20,6 +30,37 @@ class Node{
 		}
 	}
 
+	toString(){
+		return this.label;
+	}
+
+	draw(){
+
+		context.beginPath();
+		context.arc(this.pos.X, this.pos.Y, NODE_RADIUS, 0, 2 * Math.PI);
+		context.stroke();
+		if(!this.mouse_over){
+			context.beginPath();
+			context.arc(this.pos.X, this.pos.Y, NODE_RADIUS - 0.5, 0, 2 * Math.PI);
+			context.fillStyle = this.is_active ? "yellow" : "white";
+			context.fill();
+		}
+		else{
+			context.save();
+			context.globalAlpha = 0.75;
+			context.fillStyle = "CornflowerBlue";
+			context.fill();
+			context.restore();
+
+		}
+
+		this.mouse_over = this.mouseOver();
+		drawText(this.label, this.pos);
+	}
+
+	mouseOver(){
+		return isOverNode() && getClosestNode() === this;
+	}
 }
 
 
@@ -27,11 +68,7 @@ class Node{
 /*ARROW
 	start_pos: the position where the arrow started from
 	end_pos: the position where the arrow ends
-	midpoint: the position between the start & end points
-	
-	lenght(): returns the lenght of the arrow
-	getClosestPoint(): returns either the start or end pos, depending on which is closer to the mouse pos
-	setClosestPoint(): sets the closest point to a new position
+	ctrl_pos: the position between the start & end points
 */
 
 class Arrow{
@@ -45,6 +82,7 @@ class Arrow{
 		this.end_node = end;
 		this.is_self = is_self_;
 		this.angle_offset = angle_off;
+		this.is_active = false;
 	}
 	
 	draw(){
@@ -123,6 +161,13 @@ class Arrow{
 		return context.isPointInStroke( this.hooverPath, mouse_pos.X, mouse_pos.Y );
 	}
 
+	/**
+	moveByNode updates the arrows position when a conencted node is moved
+	should be called by moveTo on a node object
+
+	@param {Point} new_pos - tgt pos
+	@param {Node} selected_node - node moving this arrow
+	**/
 	moveByNode(new_pos, selected_node){
 		if(this.is_self){
 			this.start_pos = new_pos;
@@ -143,3 +188,4 @@ class Arrow{
     }
 }
 
+/** @typedef { import('./geometry.js').Point } Point */

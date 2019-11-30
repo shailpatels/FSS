@@ -47,6 +47,12 @@ canvas.addEventListener('mouseup', (e) => {
 		if(isOverNode()){
 			deleteNode();
 		}
+
+		for(var i = 0; i < arrows.length; i++)
+			if(arrows[i].mouse_over){
+				deleteArrow(arrows[i]);
+				break;
+			}
 		
 		current_node = null;
 		current_arrow = null;
@@ -64,7 +70,7 @@ canvas.addEventListener('mouseup', (e) => {
 
 	mouse_pos = getMouse(e);
 	if( !isOverNode() && !key_down && current_arrow === null) {
-		nodes.push( new Node(mouse_pos, nodes.length.toString(10) ));
+		addNewNode();
 	}
 
 	current_node = null;
