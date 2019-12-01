@@ -7,6 +7,10 @@
 	label: the label of the node e.g: S_1
 */
 class Node{
+	/**
+	@param {Point} pos
+	@param {string} str - label to give node
+	*/
 	constructor(pos, str = null){
 		this.pos = pos
 		this.connected_arrows = [];
@@ -30,6 +34,7 @@ class Node{
 		}
 	}
 
+	/** @returns {string} */
 	toString(){
 		return this.label;
 	}
@@ -72,6 +77,12 @@ class Node{
 */
 
 class Arrow{
+	/**
+	@param {Point} start
+	@param {Point} end
+	@param {boolean} is_self_
+	@param {number}	angle_off angle offset the mouse clicked on, used for self arrows
+	*/
 	constructor(start, end, is_self_, angle_off){
 		this.start_pos = start.pos;
 		this.end_pos = end.pos;

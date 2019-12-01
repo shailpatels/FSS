@@ -1,5 +1,15 @@
+
 //Draw an arrow at the end of the curve to show the direction
 // SRC : https://stackoverflow.com/questions/6576827/html-canvas-draw-curved-arrows
+
+
+/**
+Draws an arrowhead at a given point - usually a node
+
+@param {Point} pos - position of node to draw the arrow at
+@param {Number} angle - angle arrow should point at in rads
+@param {Number} line_width - thickness to draw arrow 
+**/
 function drawArrowhead(pos, angle, line_width) {
 	context.fillStyle = "black";
 
@@ -27,6 +37,11 @@ function drawArrowhead(pos, angle, line_width) {
     context.translate(-pos.X,-pos.Y);
 }  
 
+/**
+Draws an arrow that starts and ends at the same node
+
+@param {Point} start_pos - position of node to draw at
+**/
 function drawSelfArrow(start_pos){
 
     let angle = findAngle(start_pos, mouse_pos);
