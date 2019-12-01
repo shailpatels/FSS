@@ -21,6 +21,17 @@ class Node{
 		this.out = "";
 	}
 
+	serialize(){
+		return {
+			"pos" : this.pos,
+			"connected_arrows" : serializeArrows(this.connected_arrows),
+			"label" : this.label,
+			"is_active" : this.is_active,
+			"condition" : this.condition,
+			"out" : this.out
+		}
+	}
+
 	/**
 	Move this node along to a new position, will drag the ends of 
 	connected arrows with it
@@ -96,6 +107,19 @@ class Arrow{
 		this.is_active = false;
 	}
 	
+	serialize(){
+		return {
+			"start_pos" : this.start_pos,
+			"end_pos" : this.end_pos,
+			"t" : this.t,
+			"ctrl_pos" : this.ctrl_pos,
+			"mouse_over" : this.mouse_over,
+			"is_self" : this.is_self,
+			"angle_offset" : this.angle_offset,
+			"is_self" : this.angle_offset
+		};
+	}
+
 	draw(){
 		if (this.is_self){
 			this.drawSelfArrow();
@@ -197,6 +221,15 @@ class Arrow{
     	if(this.is_self)
     		this.angle_offset = findAngle(this.start_pos, mouse_pos);
     }
+}
+
+
+function serializeArrows(arrs){
+	let ret = [];
+	for(var i = 0; i < arrs.length; i++){
+		ret.push(arrs[i].serialize());
+	}
+	return ret;
 }
 
 /** @typedef { import('./geometry.js').Point } Point */

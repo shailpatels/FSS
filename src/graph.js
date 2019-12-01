@@ -88,5 +88,48 @@ class Graph{
 	}
 }
 
+function save(){
+	data = [];
+	for(u of graph.graph.keys() ){
+		let connections = [];
+		for(v of graph.getConnections(u)){
+			connections.push( v.serialize() );
+		}
+
+		let tmp = {
+			"node" : u.serialize(),
+			"connections" : connections
+		};
+		data.push(tmp);
+	}
+
+	let json = JSON.stringify(data);
+	localStorage.setItem('data', json);
+}
+
+function load(){
+	let data = localStorage.getItem('data');
+	if(data === null)
+		return;
+
+	data = JSON.parse(data);
+
+	for(var key of data){
+		let tmp = new Node();
+		let tmp_data = key['node'];
+
+		tmp.condition = tmp_data.condition;
+		tmp.connected_arrows = tmp_data.connected_arrows;
+		tmp.is_active = tmp_data.is_active;
+		tmp.label = tmp_data.label;
+		tmp.out = tmp_data.out;
+		tmp.pos = new Point(tmp_data.pos.X, tmp_data.pos.Y);
+
+		addNewNode(tmp);
+
+	}
+}
+
+
 if(typeof module !== 'undefined')
 	module.exports = Graph;
