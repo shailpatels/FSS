@@ -1,4 +1,9 @@
 
+/**
+Add JS event listeners for user input
+
+@param {HTMLCanvasElement} canvas
+*/
 function initControls(canvas){
 
 canvas.addEventListener('mousedown', (e) => {
@@ -110,7 +115,6 @@ window.addEventListener('keyup', (e) =>{
 //end function
 }
 
-
 function showArrowMenu(arr){
 	let _pos = mouseToPage(arr.ctrl_pos);
 
@@ -129,8 +133,13 @@ function submitArrowMenu(){
 	arrow_menu.style.display = "none";
 }
 
-//corrects the raw mouse position to a mouse position relative to the canvas
-//upper left corner is (0,0)
+/**
+corrects the raw mouse position to a mouse position relative to the canvas
+upper left corner is (0,0)
+
+@param {Point} pos - raw mouse position
+@returns {Point}
+*/
 function getMouse(pos){
 	return new Point(pos.offsetX, pos.offsetY);
 }

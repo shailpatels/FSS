@@ -8,7 +8,6 @@ const NODE_RADIUS = 25;
 const LEFT_MOUSE_BUTTON = 0;
 const RIGHT_MOUSE_BUTTON = 2;
 
-//HTML UIs 
 var arrow_menu;
 var graph;
 
