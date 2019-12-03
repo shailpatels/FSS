@@ -11,6 +11,8 @@ const RIGHT_MOUSE_BUTTON = 2;
 var arrow_menu;
 var graph;
 
+
+
 Array.prototype.getLast = function() {
     return this[this.length - 1];
 }
@@ -39,7 +41,6 @@ window.onload = function init(){
 	graph = new Graph();
 
 	initControls(canvas);
-
 	app();
 }
 
@@ -51,6 +52,7 @@ var nodes = [], arrows = [],
 function app(){
 	mouse_down = begin_arrow = key_down = false;
 	current_node = current_arrow = null;
+	mouse_pos = new Point(0,0);
 	drawScreen();
 	function drawScreen(){
 		//reset
@@ -87,9 +89,17 @@ function isOverNode(){
 	return distanceToClosestNode() < NODE_RADIUS;
 }
 
-function addNewNode(){
-	nodes.push( new Node(mouse_pos, nodes.length.toString(10) ));
+function addNewNode(node_ = null){
+	if(node_ === null)
+		var node_ = new Node(mouse_pos, nodes.length.toString(10));
+
+	nodes.push( node_ );
 	graph.addVertex(nodes.getLast());
+}
+
+function placeNewArrow(arr){
+	arrows.push(arr);
+	graph.addEdge(arr.start_node,arr.end_node);
 }
 
 function addNewArrow(start_node, end_node){
@@ -202,6 +212,15 @@ function getClosestNode(){
 		}
 	}	
 	return nodes[index];
+}
+
+function resetCanvas(){
+	//delete graph;
+	graph = new Graph();
+	nodes = [];
+	arrows = [];
+
+	mouse_pos = new Point();
 }
 
 /** @typedef { import('./geometry.js').Point } Point */
