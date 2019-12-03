@@ -6,7 +6,7 @@ Add JS event listeners for user input
 */
 function initControls(canvas){
 
-canvas.addEventListener('mousedown', (e) => {
+window.addEventListener('mousedown', (e) => {
 	mouse_down = true;
 	if(e.button === RIGHT_MOUSE_BUTTON)
 		return;
@@ -28,7 +28,7 @@ canvas.addEventListener('mousedown', (e) => {
 
 });
 
-canvas.addEventListener('mousemove', (e) => {
+window.addEventListener('mousemove', (e) => {
 	mouse_pos = getMouse(e);
 	dragging = mouse_down;
 	if(nodes.length == 0 || key_down) 
@@ -43,7 +43,7 @@ canvas.addEventListener('mousemove', (e) => {
 	}
 });
 
-canvas.addEventListener('mouseup', (e) => {
+window.addEventListener('mouseup', (e) => {
 	mouse_down = false;
 	dragging = false;
 
