@@ -97,6 +97,11 @@ function addNewNode(node_ = null){
 	graph.addVertex(nodes.getLast());
 }
 
+function placeNewArrow(arr){
+	arrows.push(arr);
+	graph.addEdge(arr.start_node,arr.end_node);
+}
+
 function addNewArrow(start_node, end_node){
 
 	let is_self = false;
@@ -207,6 +212,15 @@ function getClosestNode(){
 		}
 	}	
 	return nodes[index];
+}
+
+function resetCanvas(){
+	//delete graph;
+	graph = new Graph();
+	nodes = [];
+	arrows = [];
+
+	mouse_pos = new Point();
 }
 
 /** @typedef { import('./geometry.js').Point } Point */

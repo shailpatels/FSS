@@ -11,7 +11,9 @@ class Node{
 	@param {Point} pos
 	@param {string} str - label to give node
 	*/
-	constructor(pos, str = null){
+	constructor(pos = null, str = null){
+		if (pos === null)
+			pos = new Point();
 		this.pos = pos
 		this.connected_arrows = [];
 		this.label = str;
@@ -24,7 +26,7 @@ class Node{
 	serialize(){
 		return {
 			"pos" : this.pos,
-			"connected_arrows" : serializeArrows(this.connected_arrows),
+			"connected_arrows" : [],
 			"label" : this.label,
 			"is_active" : this.is_active,
 			"condition" : this.condition,
@@ -89,8 +91,8 @@ class Node{
 
 class Arrow{
 	/**
-	@param {Point} start
-	@param {Point} end
+	@param {Node} start
+	@param {Node} end
 	@param {boolean} is_self_
 	@param {number}	angle_off angle offset the mouse clicked on, used for self arrows
 	*/
@@ -116,7 +118,8 @@ class Arrow{
 			"mouse_over" : this.mouse_over,
 			"is_self" : this.is_self,
 			"angle_offset" : this.angle_offset,
-			"is_self" : this.angle_offset
+			"is_self" : this.angle_offset,
+			"end_node" : this.end_node.serialize()
 		};
 	}
 

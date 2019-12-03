@@ -5,7 +5,7 @@ class Point{
 	@param {Number} X_
 	@param {Number} Y_
 	*/
-	constructor(X_,Y_){
+	constructor(X_ = 0,Y_ = 0){
 		this.X = X_;
 		this.Y = Y_;
 	}
