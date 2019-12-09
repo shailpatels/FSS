@@ -47,11 +47,12 @@ window.onload = function init(){
 var nodes = [], arrows = [],
 	mouse_pos, mouse_down, key_down,
 	current_node, current_arrow,
-	begin_arrow, start_node, mouse_down;
+	begin_arrow, start_node, mouse_down,
+	selected_arrow;
 
 function app(){
 	mouse_down = begin_arrow = key_down = false;
-	current_node = current_arrow = null;
+	current_node = current_arrow = selected_arrow = null;
 	mouse_pos = new Point(0,0);
 	drawScreen();
 	function drawScreen(){

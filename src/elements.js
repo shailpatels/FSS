@@ -18,9 +18,6 @@ class Node{
 		this.connected_arrows = [];
 		this.label = str;
 		this.is_active = false;
-
-		this.condition = "";
-		this.out = "";
 	}
 
 	serialize(){
@@ -29,8 +26,6 @@ class Node{
 			"connected_arrows" : [],
 			"label" : this.label,
 			"is_active" : this.is_active,
-			"condition" : this.condition,
-			"out" : this.out
 		}
 	}
 
@@ -132,7 +127,7 @@ class Arrow{
 		context.fillStyle = "black";
 		let line_width = 2;
 
-		if(this.mouse_over)
+		if(this.mouse_over || this === selected_arrow)
 			line_width = 4;
 
 		context.lineWidth = line_width;

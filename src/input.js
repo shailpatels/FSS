@@ -6,8 +6,9 @@ Add JS event listeners for user input
 */
 function initControls(canvas){
 
-window.addEventListener('mousedown', (e) => {
+canvas.addEventListener('mousedown', (e) => {
 	mouse_down = true;
+	selected_arrow = null;
 	if(e.button === RIGHT_MOUSE_BUTTON)
 		return;
 
@@ -22,13 +23,14 @@ window.addEventListener('mousedown', (e) => {
 	for (var i = arrows.length - 1; i >= 0; i--) {
 		if(arrows[i].mouse_over && current_arrow === null){
 			current_arrow = arrows[i];
+			selected_arrow = arrows[i];
 			break;
 		}
 	}
 
 });
 
-window.addEventListener('mousemove', (e) => {
+canvas.addEventListener('mousemove', (e) => {
 	mouse_pos = getMouse(e);
 	dragging = mouse_down;
 	if(nodes.length == 0 || key_down) 
@@ -43,7 +45,7 @@ window.addEventListener('mousemove', (e) => {
 	}
 });
 
-window.addEventListener('mouseup', (e) => {
+canvas.addEventListener('mouseup', (e) => {
 	mouse_down = false;
 	dragging = false;
 
@@ -70,6 +72,13 @@ window.addEventListener('mouseup', (e) => {
 		if(isOverNode()){
 			//if we landed on another node create a new arrow
 			addNewArrow(current_node, getClosestNode());
+		}
+	}
+
+	for (var i = arrows.length - 1; i >= 0; i--) {
+		if(arrows[i].mouse_over && selected_arrow === null){
+			selected_arrow = arrows[i];
+			break;
 		}
 	}
 
