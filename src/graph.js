@@ -111,11 +111,9 @@ function save(){
 function rebuildNode(tmp_data){
 	let tmp = new Node();
 
-	tmp.condition = tmp_data.condition;
 	tmp.connected_arrows = tmp_data.connected_arrows;
 	tmp.is_active = tmp_data.is_active;
 	tmp.label = tmp_data.label;
-	tmp.out = tmp_data.out;
 	tmp.pos = new Point(tmp_data.pos.X, tmp_data.pos.Y);
 
 	return tmp;
