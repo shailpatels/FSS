@@ -1,13 +1,13 @@
 
 
-.arrow_menu{
+#arrow_menu{
+	width: 100px;
+	box-shadow: 5px 5px 5px 0px #888888;
 	position: absolute;
 	display:none;
-	height: 200px;
-	background-color: white;
-	padding-left: 15px;
 }
 
-.arrow_menu input[type="text"]{
-	width: 100px;
+#arrow_menu input[type="text"]{
+	width: 45px;
+	border: none;
 }

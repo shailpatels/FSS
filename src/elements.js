@@ -68,7 +68,7 @@ class Node{
 		}
 
 		this.mouse_over = this.mouseOver();
-		drawText(this.label, this.pos);
+		drawLabel(this.label, this.pos);
 	}
 
 	mouseOver(){
@@ -102,6 +102,10 @@ class Arrow{
 		this.is_self = is_self_;
 		this.angle_offset = angle_off;
 		this.is_active = false;
+		this.mid_point = this.getCurveMidPoint();
+
+		this.IF = "";
+		this.OUT = "";
 	}
 	
 	serialize(){
@@ -116,6 +120,16 @@ class Arrow{
 			"is_self" : this.angle_offset,
 			"end_node" : this.end_node.serialize()
 		};
+	}
+
+	getCurveMidPoint(){
+		var ax = getMidPoint( this.ctrl_pos, this.start_pos );
+		var bx = getMidPoint( this.ctrl_pos, this.end_pos)
+
+		var m = getMidPoint(ax,bx);
+
+
+		return m;
 	}
 
 	draw(){
@@ -153,6 +167,13 @@ class Arrow{
 	
 		this.mouse_over = this.isMouseOver();		
 		context.lineWidth = 1;
+
+		if(this === selected_arrow){
+			drawArrowMenu(this.mid_point,this.IF,this.OUT);
+		}
+		else if(this.IF != ""){
+			drawText(this.IF + " : " + this.OUT, this.mid_point);
+		}
 	}
 
 	drawSelfArrow(){
@@ -212,15 +233,18 @@ class Arrow{
 			this.start_pos = new_pos;
 		else
 			this.end_pos = new_pos;
+
+		this.mid_point = this.getCurveMidPoint();
 	}
      
     moveToMouse(){
     	current_arrow.ctrl_pos = mouse_pos;
     	if(this.is_self)
     		this.angle_offset = findAngle(this.start_pos, mouse_pos);
+
+    	this.mid_point = this.getCurveMidPoint();
     }
 }
-
 
 function serializeArrows(arrs){
 	let ret = [];

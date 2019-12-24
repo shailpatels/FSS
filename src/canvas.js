@@ -39,7 +39,6 @@ window.onload = function init(){
 	//background color:
 	context.fillRect(0, 0, width, height);
 	graph = new Graph();
-
 	initControls(canvas);
 	app();
 }
@@ -54,6 +53,8 @@ function app(){
 	mouse_down = begin_arrow = key_down = false;
 	current_node = current_arrow = selected_arrow = null;
 	mouse_pos = new Point(0,0);
+	drawArrowMenu(mouse_pos);
+
 	drawScreen();
 	function drawScreen(){
 		//reset
@@ -79,6 +80,9 @@ function app(){
 		for(var i = 0; i < nodes.length; ++i){
 			nodes[i].draw();
 		}
+
+		if(selected_arrow === null)
+			hideArrowMenu();
 
 		window.requestAnimationFrame(drawScreen);
 	}
@@ -172,12 +176,18 @@ function mouseToPage(pos){
 }
 
 //theres probably a better way to handle this...
-function drawText(str, _pos){
+function drawLabel(str, _pos){
 	context.font = "italic 25px Times New Roman";
 	context.fillStyle = "black";
 	context.fillText("S", _pos.X-8, _pos.Y+5);
 	context.font = "15px Times New Roman";
 	context.fillText(str, _pos.X+4, _pos.Y+10);
+}
+
+function drawText(str, _pos){
+	context.font = "italic 25px Times New Roman";
+	context.fillStyle = "black";
+	context.fillText(str, _pos.X, _pos.Y);
 }
 
 function drawLine(a, b, thickness = 1){
