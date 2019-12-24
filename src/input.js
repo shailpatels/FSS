@@ -1,10 +1,13 @@
-
+	
 /**
 Add JS event listeners for user input
 
 @param {HTMLCanvasElement} canvas
 */
 function initControls(canvas){
+
+let if_ = document.getElementById("if_");
+let out = document.getElementById("out");
 
 canvas.addEventListener('mousedown', (e) => {
 	mouse_down = true;
@@ -120,26 +123,29 @@ window.addEventListener('keyup', (e) =>{
 	current_node = null;
 });
 
+//record the user input when typing in the input box
+arrow_menu.addEventListener('keyup', (e) => {
+	selected_arrow.IF = if_.value;
+	selected_arrow.OUT = out.value;
+});
 
 //end function
 }
 
-function showArrowMenu(arr){
-	let _pos = mouseToPage(arr.ctrl_pos);
+function drawArrowMenu(pos,if_, out_){
+	if(selected_arrow === null)
+		return;
 
-	arrow_menu.style.display = "block";
-	arrow_menu.style.left = _pos.X.toString() + "px";
-	arrow_menu.style.top = (_pos.Y - 175 ).toString() + "px";
+	let w = Math.round(arrow_menu.offsetWidth/2);
 
-	let label = document.getElementById( "arrow_label" );
-	let start_l = arr.start_node.label;
-	let end_l = arr.end_node.label;
-	label.innerHTML = "S" + start_l + " to " + "S" + end_l;
-
+	arrow_menu.style.display = "block";	
+	arrow_menu.style.left = ((canvas.offsetLeft + pos.X + 15) - w) + "px";
+	arrow_menu.style.top = (canvas.offsetTop + pos.Y + 15) + "px";
 }
 
-function submitArrowMenu(){
+function hideArrowMenu(){
 	arrow_menu.style.display = "none";
+	canvas.focus();
 }
 
 /**

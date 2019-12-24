@@ -19,7 +19,7 @@ class Graph{
 			output += u.toString() + ": ";
 			let connections = this.graph.get(u);
 			for (var v of connections)
-				output += v.toString()
+				output += v.toString() + " "
 
 			output +=  to_console ? "\n" : "<br>";
 		}
@@ -86,6 +86,10 @@ class Graph{
 	getConnections(node){
 		return this.graph.get(node);
 	}
+}
+
+function printGraph(){
+	graph.print();
 }
 
 function save(){
