@@ -33,6 +33,17 @@ canvas.addEventListener('mousedown', (e) => {
 
 });
 
+canvas.addEventListener('dblclick', (e) => {
+	mouse_pos = getMouse(e);
+	if( !isOverNode() && !key_down && current_arrow === null) {
+		addNewNode();
+	}
+
+	current_node = null;
+	current_arrow = null;
+	start_node = null;
+});
+
 canvas.addEventListener('mousemove', (e) => {
 	mouse_pos = getMouse(e);
 	dragging = mouse_down;
@@ -84,13 +95,7 @@ canvas.addEventListener('mouseup', (e) => {
 			break;
 		}
 	}
-
-	mouse_pos = getMouse(e);
-	if( !isOverNode() && !key_down && current_arrow === null) {
-		addNewNode();
-	}
-
-	current_node = null;
+    current_node = null;
 	current_arrow = null;
 	start_node = null;
 });
