@@ -47,10 +47,10 @@ var nodes = [], arrows = [],
 	mouse_pos, mouse_down, key_down,
 	current_node, current_arrow,
 	begin_arrow, start_node, mouse_down,
-	selected_arrow;
+	selected_arrow, arrow_menu_drawn;
 
 function app(){
-	mouse_down = begin_arrow = key_down = false;
+	mouse_down = begin_arrow = key_down = arrow_menu_drawn = false;
 	current_node = current_arrow = selected_arrow = null;
 	mouse_pos = new Point(0,0);
 	drawArrowMenu(mouse_pos);

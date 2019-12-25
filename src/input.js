@@ -20,8 +20,10 @@ canvas.addEventListener('mousedown', (e) => {
 		current_node = getClosestNode();
 		start_node = current_node;
 	}
-	if(isOverNode() && !key_down)
+	if(isOverNode() && !key_down){
 		current_node = getClosestNode();
+        return;
+    }
 
 	for (var i = arrows.length - 1; i >= 0; i--) {
 		if(arrows[i].mouse_over && current_arrow === null){
@@ -56,6 +58,7 @@ canvas.addEventListener('mousemove', (e) => {
 
 	if(!isOverNode() && mouse_down && current_arrow !== null){
 		current_arrow.moveToMouse();
+        selected_arrow = null;
 	}
 });
 
@@ -88,13 +91,15 @@ canvas.addEventListener('mouseup', (e) => {
 			addNewArrow(current_node, getClosestNode());
 		}
 	}
-
-	for (var i = arrows.length - 1; i >= 0; i--) {
-		if(arrows[i].mouse_over && selected_arrow === null){
-			selected_arrow = arrows[i];
-			break;
-		}
-	}
+    
+    if( !isOverNode() ){
+        for (var i = arrows.length - 1; i >= 0; i--) {
+            if(arrows[i].mouse_over && selected_arrow === null){
+                selected_arrow = arrows[i];
+                break;
+            }
+        }
+    }
     current_node = null;
 	current_arrow = null;
 	start_node = null;
@@ -130,15 +135,29 @@ window.addEventListener('keyup', (e) =>{
 
 //record the user input when typing in the input box
 arrow_menu.addEventListener('keyup', (e) => {
-	selected_arrow.IF = if_.value;
-	selected_arrow.OUT = out.value;
+    updateSelectedArrow();
+});
+
+arrow_menu.addEventListener('keyup', (e) => {
+    if(e.keyCode === 13){
+        updateSelectedArrow();  
+        hideArrowMenu(); 
+    }
 });
 
 //end function
 }
 
-function drawArrowMenu(pos,if_, out_){
-	if(selected_arrow === null)
+function updateSelectedArrow(){
+    if(selected_arrow === null)
+        return;
+
+    selected_arrow.IF = if_.value;
+	selected_arrow.OUT = out.value;
+}
+
+function drawArrowMenu(pos,if_text, out_text){
+	if(selected_arrow === null || arrow_menu_drawn)
 		return;
 
 	let w = Math.round(arrow_menu.offsetWidth/2);
@@ -146,11 +165,18 @@ function drawArrowMenu(pos,if_, out_){
 	arrow_menu.style.display = "block";	
 	arrow_menu.style.left = ((canvas.offsetLeft + pos.X + 15) - w) + "px";
 	arrow_menu.style.top = (canvas.offsetTop + pos.Y + 15) + "px";
+    
+    arrow_menu_drawn = true;
+    if_.focus();
 }
 
 function hideArrowMenu(){
 	arrow_menu.style.display = "none";
-	canvas.focus();
+    selected_arrow = null;
+    arrow_menu_drawn = false;
+    
+    canvas.focus();
+    canvas.click();
 }
 
 /**

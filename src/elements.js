@@ -172,7 +172,27 @@ class Arrow{
 			drawArrowMenu(this.mid_point,this.IF,this.OUT);
 		}
 		else if(this.IF != ""){
-			drawText(this.IF + " : " + this.OUT, this.mid_point);
+            let text = this.OUT === "" ? this.IF : this.IF + " : " + this.OUT;
+            let w = context.measureText(text).width;
+            
+            let Y = this.mid_point.Y;
+            let X = this.mid_point.X; 
+            let m = getMidPoint( this.start_pos, this.end_pos );
+
+            if ( this.mid_point.Y > m.Y ){
+                Y += 25;
+            }else{
+                Y -= 10;
+            }
+
+            if( this.mid_point.X > m.X ){
+                X += (w + 5);
+            }else{
+                X -= (w - 5);
+            }
+                
+            let pt = new Point( X - w, Y );
+			drawText(text, pt);
 		}
 	}
 
@@ -255,3 +275,5 @@ function serializeArrows(arrs){
 }
 
 /** @typedef { import('./geometry.js').Point } Point */
+if(typeof module !== 'undefined')
+    module.exports = {Node, Arrow};

@@ -68,3 +68,6 @@ converts radians to degrees
 function radToDeg(rad){
 	return rad * (180/Math.PI);
 }
+
+if(typeof module !== 'undefined')
+    module.exports = {Point, getMidPoint};
