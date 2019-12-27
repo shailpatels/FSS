@@ -31,11 +31,13 @@ function filter(connections, test){
 	let ret = [];
 	let out = [];
 	let arrows = u.connected_arrows;
+	let i = 0;
 	for(arr of arrows){
 		if(arr.IF === test || arr.IF === ""){
-			ret.push(connections[0]);
+			ret.push(connections[i]);
 			out.push(arr.OUT);
 		}
+		i++;
 	}
 	return [ret, out];
 }
@@ -60,17 +62,18 @@ function step(start_ = 0){
     	return;
 
 	for(u of Q){
+		if(typeof u === 'undefined')
+			break;
 
 		u.is_active = true;
 		prev.push(u);
 		
-		console.log(u);
 		let tmp = filter(graph.getConnections(u), tds[index].innerText);
-		connections = connections.concat(connections, tmp[0]);
+		connections = tmp[0];
 
 		tds[index + 1].innerText = tmp[1].toString();
 		connections = [...new Set(connections)];
-		//console.log(connections);
+		console.log(connections);
 	}
     
     //console.log(connections);
