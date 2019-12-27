@@ -11,7 +11,7 @@ class Node{
 	@param {Point} pos
 	@param {string} str - label to give node
 	*/
-	constructor(pos = null, str = null){
+	constructor(pos = null, str = ""){
 		if (pos === null)
 			pos = new Point();
 		this.pos = pos
@@ -276,4 +276,4 @@ function serializeArrows(arrs){
 
 /** @typedef { import('./geometry.js').Point } Point */
 if(typeof module !== 'undefined')
-    module.exports = {Node, Arrow};
+    module.exports = {Node,Arrow};

@@ -70,4 +70,4 @@ function radToDeg(rad){
 }
 
 if(typeof module !== 'undefined')
-    module.exports = {Point, getMidPoint};
+    module.exports = Point;

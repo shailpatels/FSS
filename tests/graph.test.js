@@ -1,4 +1,4 @@
-const Graph = jest.requireActual('../src/graph.js');
+const Graph = require('../src/graph.js');
 
 Array.prototype.getLast = function() {
     return this[this.length - 1];
