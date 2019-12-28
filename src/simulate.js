@@ -55,6 +55,8 @@ function step(start_ = 0){
 			u.is_active = false;
 		}
 		prev = [];
+        tds[index + 1].innerText = outbuff;
+        outbuff = "";
 	}
 
     let connections = [];
@@ -67,17 +69,54 @@ function step(start_ = 0){
 
 		u.is_active = true;
 		prev.push(u);
+    
+        let f = ""; 
+        if(tds.length > 0)
+            f = tds[index].innerText;
+        else
+            addRow(false);
 		
-		let tmp = filter(graph.getConnections(u), tds[index].innerText);
+		let tmp = filter(graph.getConnections(u), f);
 		connections = tmp[0];
 
-		tds[index + 1].innerText = tmp[1].toString();
+        outbuff = tmp[1].toString();
 		connections = [...new Set(connections)];
-		console.log(connections);
 	}
     
     //console.log(connections);
     Q = connections;     
+}
+
+function initTable(){
+    if(table === null)
+        table = document.getElementById("io_table");
+    
+    table.style.left = (canvas.width + canvas.offsetLeft + 10) + "px"; 
+    table.style.top = (canvas.offsetTop) + "px";
+}
+
+function addRow(add_in = true){
+    let txt = "";
+    if(add_in){
+        txt = document.getElementById("string_input").value;  
+        if ( txt === "")
+            return;
+    } 
+    
+    let tmp = document.createElement("tr");
+    let td_a = document.createElement("td");
+    let td_b = document.createElement("td");
+
+    txt = document.createTextNode(txt);
+    td_a.appendChild(txt);
+    txt = document.createTextNode("");
+    td_b.appendChild(txt);
+
+    tmp.appendChild(td_a);
+    tmp.appendChild(td_b);
+    
+
+    table.appendChild(tmp);
 }
 
 if(typeof module !== 'undefined'){

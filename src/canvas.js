@@ -36,10 +36,10 @@ window.onload = function init(){
 	width = canvas.width;
 	context.fillStyle = '#aaaaaa';
 	canvas.focus();
-	//background color:
 	context.fillRect(0, 0, width, height);
 	graph = new Graph();
 	initControls(canvas);
+    initTable();
 	app();
 }
 
@@ -108,6 +108,7 @@ function addNewNode(node_ = null){
 function placeNewArrow(arr){
 	arrows.push(arr);
 	graph.addEdge(arr.start_node,arr.end_node);
+        
 
 	if(!is_starting)
 		resetSim();
@@ -125,7 +126,9 @@ function addNewArrow(start_node, end_node){
 	new_arrow = new Arrow(start_node, end_node, is_self, angle);
 	
 	start_node.connected_arrows.push(new_arrow);
-	end_node.connected_arrows.push(new_arrow);
+    
+    if(!is_self)
+        end_node.connected_arrows.push(new_arrow);
 
 	arrows.push(new_arrow);
 

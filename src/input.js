@@ -39,8 +39,17 @@ canvas.addEventListener('dblclick', (e) => {
 	mouse_pos = getMouse(e);
 	if( !isOverNode() && !key_down && current_arrow === null) {
 		addNewNode();
+        curent_node = null;
+        current_arrow = null;
+        start_node = null;
+        return;
 	}
-
+    
+    let ref = getClosestNode();
+    if( ref !== null){
+        ref.is_accept = !ref.is_accept;
+    } 
+        
 	current_node = null;
 	current_arrow = null;
 	start_node = null;

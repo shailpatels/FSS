@@ -20,9 +20,6 @@ table,td,th{
 
 #io_table{
     position : absolute; 
-    top : 50px;
-    right : 0px;
-    margin: 10px;
     border-collapse: collapse;
 }
 
