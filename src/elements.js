@@ -53,29 +53,28 @@ class Node{
 		context.beginPath();
 		context.arc(this.pos.X, this.pos.Y, NODE_RADIUS, 0, 2 * Math.PI);
 		context.stroke();
-        
-	
-        context.beginPath();
-        context.arc(this.pos.X, this.pos.Y, NODE_RADIUS - 0.5, 0, 2 * Math.PI);
+       
 		if(!this.mouse_over){
+			context.beginPath();
+			context.arc(this.pos.X, this.pos.Y, NODE_RADIUS - 0.5, 0, 2 * Math.PI);
 			context.fillStyle = this.is_active ? "yellow" : "white";
 			context.fill();
 		}
 		else{
 			context.save();
-            context.globalAlpha = 0.75;
+			context.globalAlpha = 0.75;
 			context.fillStyle = "CornflowerBlue";
 			context.fill();
 			context.restore();
 
 		}
-
-
+    
         if(this.is_accept){
             context.beginPath();
-            context.arc(this.pos.X, this.pos.Y, NODE_RADIUS - 7 , 0, 2 * Math.PI);
+            context.arc(this.pos.X, this.pos.Y, NODE_RADIUS - 7, 0, 2 * Math.PI);
             context.stroke();
         }
+	
 		this.mouse_over = this.mouseOver();
 		drawLabel(this.label, this.pos);
 	}

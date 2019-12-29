@@ -27,3 +27,7 @@ table,td,th{
 	max-width: 100px;
 	word-wrap: break-word;
 }
+
+.highlight{
+    background-color:hsl(120,60%,70%);
+}

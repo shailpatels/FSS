@@ -131,11 +131,11 @@ function addNewArrow(start_node, end_node){
         end_node.connected_arrows.push(new_arrow);
 
 	arrows.push(new_arrow);
-
 	graph.addEdge(start_node, end_node);
 
 	if(!is_starting)
 		resetSim();
+    
 }
 
 function deleteNode(){

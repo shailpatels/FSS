@@ -46,7 +46,7 @@ canvas.addEventListener('dblclick', (e) => {
 	}
     
     let ref = getClosestNode();
-    if( ref !== null){
+    if( ref !== null && isOverNode()){
         ref.is_accept = !ref.is_accept;
     } 
         
