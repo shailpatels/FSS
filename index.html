@@ -36,14 +36,30 @@
 	<button onclick="save()">Save</button>
 	<button onclick="load()">Load</button>
 	<button onclick="printGraph()">Print</button>
+    
+    <br>
+    <br>
+
+    <span> Input String: 
+        <textarea type="text" id="string_input"></textarea> 
+        <input type="checkbox" id="is_full_word"> Full word </input>
+        <button onclick="addRow()"> Submit </button> 
+    </span>
 
 	<div id="graph">
 
 	</div>
 
+    
+    <table id="io_table">
+        <tr>
+            <th> Input </th>
+            <th> Output </th>
+        </tr>
+    </table>
+
 
 	<!-- menu for new arrows -->
-
 	<div id="arrow_menu" class="arrow_menu">
 		<input id="if_" type="text" name="">
 		<input id="out" type="text" name="">

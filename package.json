@@ -14,8 +14,8 @@
     "ts-jest": "^24.2.0"
   },
   "scripts": {
-    "test": "jest --coverage",
-    "build" : "./build.sh"
+    "test": "jest",
+    "build": "./build.sh"
   },
   "repository": {
     "type": "git",

@@ -39,8 +39,17 @@ canvas.addEventListener('dblclick', (e) => {
 	mouse_pos = getMouse(e);
 	if( !isOverNode() && !key_down && current_arrow === null) {
 		addNewNode();
+        curent_node = null;
+        current_arrow = null;
+        start_node = null;
+        return;
 	}
-
+    
+    let ref = getClosestNode();
+    if( ref !== null && isOverNode()){
+        ref.is_accept = !ref.is_accept;
+    } 
+        
 	current_node = null;
 	current_arrow = null;
 	start_node = null;
@@ -49,6 +58,7 @@ canvas.addEventListener('dblclick', (e) => {
 canvas.addEventListener('mousemove', (e) => {
 	mouse_pos = getMouse(e);
 	dragging = mouse_down;
+    
 	if(nodes.length == 0 || key_down) 
 		return;
 
@@ -107,20 +117,20 @@ canvas.addEventListener('mouseup', (e) => {
 
 
 window.addEventListener('keydown', (e) =>{
-		//draw arrow instead
-		current_node = null;
-		key_down = true;
+    //draw arrow instead
+    current_node = null;
+    key_down = true;
 
-		if(e.shiftKey && isOverNode() && mouse_down){
-			begin_arrow = true;
-			current_node = getClosestNode();
-			return;
-		}
-	});
+    if(e.shiftKey && isOverNode() && mouse_down){
+        begin_arrow = true;
+        current_node = getClosestNode();
+        return;
+    }
+});
 
 //incase the user is over a node and releases the shift key 
 //before the mouse button
-window.addEventListener('keyup', (e) =>{
+document.addEventListener('keyup', (e) =>{
 	key_down = false;
 
 	if(begin_arrow){
@@ -171,12 +181,14 @@ function drawArrowMenu(pos,if_text, out_text){
 }
 
 function hideArrowMenu(){
+    if( !arrow_menu_drawn )
+        return;
+
 	arrow_menu.style.display = "none";
     selected_arrow = null;
     arrow_menu_drawn = false;
     
-    canvas.focus();
-    canvas.click();
+    refocus();
 }
 
 /**

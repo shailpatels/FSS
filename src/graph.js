@@ -49,7 +49,7 @@ class Graph{
 	}
 
 	/**
-	@param {Node} v) - node to delete
+	@param {Node} v - node to delete
 	**/
 	deleteVertex(v_){
 		this.graph.delete(v_);
@@ -73,8 +73,8 @@ class Graph{
 	/**
 	given two nodes delete the edge between them if it exists
 
-	@param {Node} u) - starting node of edge
-	@param {Node} v) - ending node of edge 
+	@param {Node} u - starting node of edge
+	@param {Node} v - ending node of edge 
 	**/
 	deleteEdge(u, v){
 		let keys = this.graph.keys();
@@ -104,7 +104,7 @@ function save(){
 			"node" : u.serialize(),
 			"arrs" : serializeArrows(u.connected_arrows)
 		};
-		data.push(tmp);
+		data.push(tp);
 	}
 
 	let json = JSON.stringify(data);

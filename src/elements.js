@@ -11,13 +11,14 @@ class Node{
 	@param {Point} pos
 	@param {string} str - label to give node
 	*/
-	constructor(pos = null, str = null){
+	constructor(pos = null, str = ""){
 		if (pos === null)
 			pos = new Point();
 		this.pos = pos
 		this.connected_arrows = [];
 		this.label = str;
 		this.is_active = false;
+        this.is_accept = false;
 	}
 
 	serialize(){
@@ -52,6 +53,7 @@ class Node{
 		context.beginPath();
 		context.arc(this.pos.X, this.pos.Y, NODE_RADIUS, 0, 2 * Math.PI);
 		context.stroke();
+       
 		if(!this.mouse_over){
 			context.beginPath();
 			context.arc(this.pos.X, this.pos.Y, NODE_RADIUS - 0.5, 0, 2 * Math.PI);
@@ -66,7 +68,13 @@ class Node{
 			context.restore();
 
 		}
-
+    
+        if(this.is_accept){
+            context.beginPath();
+            context.arc(this.pos.X, this.pos.Y, NODE_RADIUS - 7, 0, 2 * Math.PI);
+            context.stroke();
+        }
+	
 		this.mouse_over = this.mouseOver();
 		drawLabel(this.label, this.pos);
 	}
@@ -74,6 +82,7 @@ class Node{
 	mouseOver(){
 		return isOverNode() && getClosestNode() === this;
 	}
+
 }
 
 
@@ -188,7 +197,7 @@ class Arrow{
             if( this.mid_point.X > m.X ){
                 X += (w + 5);
             }else{
-                X -= (w - 5);
+                X -= (w);
             }
                 
             let pt = new Point( X - w, Y );
@@ -199,7 +208,7 @@ class Arrow{
 	drawSelfArrow(){
 		let line_width = 2;
 
-		if(this.mouse_over)
+		if(this.mouse_over || this === selected_arrow)
 			line_width = 4;
 
 		context.lineWidth = line_width;
@@ -228,6 +237,23 @@ class Arrow{
 
 	    context.lineWidth = 1;
 	    drawArrowhead(this.end_pos, this.angle_offset + Math.PI + (Math.PI/17), line_width );
+    
+        let d = 75;
+        let X = Math.cos((this.angle_offset)) * d;
+        let Y = Math.sin((this.angle_offset)) * d;
+        
+        X += (this.start_node.pos.X );
+        Y += (this.start_node.pos.Y );
+            
+        let pt = new Point(X,Y);
+        if(this === selected_arrow){
+            drawArrowMenu(pt ,this.IF,this.OUT);
+        }else if(this.IF != ""){
+            let text = this.OUT === "" ? this.IF : this.IF + " : " + this.OUT;
+            let w = context.measureText(text).width;
+            
+            drawText(text,pt); 
+        }
 	}
 
 
@@ -276,4 +302,4 @@ function serializeArrows(arrs){
 
 /** @typedef { import('./geometry.js').Point } Point */
 if(typeof module !== 'undefined')
-    module.exports = {Node, Arrow};
+    module.exports = {Node,Arrow};

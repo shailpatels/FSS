@@ -1,4 +1,10 @@
+canvas{
+    pointer-events : auto;
+}
 
+table,td,th{
+	border: 1px solid #ddd;
+}
 
 #arrow_menu{
 	width: 100px;
@@ -10,4 +16,18 @@
 #arrow_menu input[type="text"]{
 	width: 45px;
 	border: none;
+}
+
+#io_table{
+    position : absolute; 
+    border-collapse: collapse;
+}
+
+#io_table td{
+	max-width: 100px;
+	word-wrap: break-word;
+}
+
+.highlight{
+    background-color:hsl(120,60%,70%);
 }

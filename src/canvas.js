@@ -36,10 +36,10 @@ window.onload = function init(){
 	width = canvas.width;
 	context.fillStyle = '#aaaaaa';
 	canvas.focus();
-	//background color:
 	context.fillRect(0, 0, width, height);
 	graph = new Graph();
 	initControls(canvas);
+    initTable();
 	app();
 }
 
@@ -100,11 +100,18 @@ function addNewNode(node_ = null){
 
 	nodes.push( node_ );
 	graph.addVertex(nodes.getLast());
+
+	if(!is_starting)
+		resetSim();
 }
 
 function placeNewArrow(arr){
 	arrows.push(arr);
 	graph.addEdge(arr.start_node,arr.end_node);
+        
+
+	if(!is_starting)
+		resetSim();
 }
 
 function addNewArrow(start_node, end_node){
@@ -119,11 +126,16 @@ function addNewArrow(start_node, end_node){
 	new_arrow = new Arrow(start_node, end_node, is_self, angle);
 	
 	start_node.connected_arrows.push(new_arrow);
-	end_node.connected_arrows.push(new_arrow);
+    
+    if(!is_self)
+        end_node.connected_arrows.push(new_arrow);
 
 	arrows.push(new_arrow);
-
 	graph.addEdge(start_node, end_node);
+
+	if(!is_starting)
+		resetSim();
+    
 }
 
 function deleteNode(){
@@ -136,6 +148,9 @@ function deleteNode(){
 
 	//remove from list
 	nodes.splice(getNodeIndex(getClosestNode()), 1);
+
+	if(!is_starting)
+		resetSim();
 }
 
 function deleteArrow(arr_){
@@ -148,6 +163,9 @@ function deleteArrow(arr_){
 
 	arrows.remove(arr_);
 	graph.deleteEdge(start, end);
+
+	if(!is_starting)
+		resetSim();
 }
 
 function getNodeIndex(_node){
@@ -232,6 +250,11 @@ function resetCanvas(){
 	arrows = [];
 
 	mouse_pos = new Point();
+}
+
+function refocus(){
+    canvas.focus();
+    canvas.click();
 }
 
 /** @typedef { import('./geometry.js').Point } Point */
