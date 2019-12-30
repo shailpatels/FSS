@@ -4,6 +4,12 @@ canvas{
 
 table,td,th{
 	border: 1px solid #ddd;
+    border-collapse: collapse;
+}
+
+textarea{
+    resize:none;
+    overflow:auto;
 }
 
 #arrow_menu{
@@ -20,7 +26,6 @@ table,td,th{
 
 #io_table{
     position : absolute; 
-    border-collapse: collapse;
 }
 
 #io_table td{

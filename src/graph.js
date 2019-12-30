@@ -6,31 +6,6 @@ class Graph{
 	}
 
 	/**
-	print the graph for debugging, either to the DOM or the console
-
-	@param {boolean} to_console
-	**/
-	print(to_console = false){
-		document.getElementById("graph").innerHTML = "";
-
-		let output = "";
-		let keys = this.graph.keys();
-		for (var u of keys){
-			output += u.toString() + ": ";
-			let connections = this.graph.get(u);
-			for (var v of connections)
-				output += v.toString() + " "
-
-			output +=  to_console ? "\n" : "<br>";
-		}
-
-		if(to_console)
-			console.log(output);
-		else
-			document.getElementById("graph").innerHTML += output;
-	}
-
-	/**
 	@param {Node} v - index of state as a new vertex to add to graph
 	**/
 	addVertex(v){
@@ -90,6 +65,54 @@ class Graph{
 
 function printGraph(){
 	graph.print();
+}
+//end class
+
+function buildTransitionTable(){
+    let tbl = document.getElementById("t_table");
+    let keys = this.graph.graph.keys();
+    
+    function buildText(str){
+        let ret = document.createElement("span");
+        ret.innerHTML = "S<sub>" + str + "</sub>";
+        return ret;
+    }
+
+    for(key of keys){
+        let tmp = document.createElement("tr");
+        tmp.appendChild( document.createElement("td").appendChild( buildText(key.label))); 
+        tbl.appendChild(tmp);
+        let arrs = key.connected_arrows;
+        let td = document.createElement("td");
+
+        for(arr of arrs){
+            if(arr.isDeparting(key))
+                continue;
+            td.appendChild( document.createTextNode(arr.IF));
+            td.appendChild( document.createElement("br") );
+            tmp.appendChild( td );
+        }
+        
+        td = document.createElement("td");
+        for(arr of arrs){
+            if(arr.isDeparting(key))
+                continue;
+            td.appendChild( document.createTextNode(arr.OUT));
+            td.appendChild( document.createElement("br") );
+            tmp.appendChild( td );
+        }
+            
+        td = document.createElement("td");
+        for(arr of arrs){
+            if(arr.isDeparting(key))
+                continue;
+            td.appendChild( buildText(key.label) );
+            td.appendChild( document.createElement("br") );
+            tmp.appendChild( td );
+        }
+        tbl.appendChild(tmp);
+    }
+    
 }
 
 function save(){

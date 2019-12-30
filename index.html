@@ -35,7 +35,8 @@
 	<button onclick="step()">Step</button>
 	<button onclick="save()">Save</button>
 	<button onclick="load()">Load</button>
-	<button onclick="printGraph()">Print</button>
+
+	<button onclick="buildTransitionTable()">Print</button>
     
     <br>
     <br>
@@ -46,9 +47,17 @@
         <button onclick="addRow()"> Submit </button> 
     </span>
 
-	<div id="graph">
-
-	</div>
+    <br>
+    <br>
+    
+    <table id="t_table" style="margin-left:auto; margin-right:auto;">
+        <tr>
+            <th> State </th>
+            <th> Input </th>
+            <th> Output </th>
+            <th> Next State </th>
+        </tr>
+    </table>
 
     
     <table id="io_table">
