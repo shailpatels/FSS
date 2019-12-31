@@ -7,7 +7,24 @@ var Q = [],
 	index = 0,
     char_index = 0,
 	table = document.getElementById("io_table"),
-	tds = document.getElementsByTagName("td");
+	tds = getTableCells();
+
+/**
+collect all the table cells ignoring the ones used in the transition table
+
+@returns {Object} - Array of HTML elements
+**/
+function getTableCells(){
+    let tmp  = document.getElementsByTagName("td");
+    let ret = [];
+    for (t of tmp){
+        if (t.className === "t_tbl")
+            continue;
+
+        ret.push(t);
+    }
+    return ret;
+}
 
 function resetSim(){
 	Q = [];
@@ -28,7 +45,36 @@ function printList(l){
     console.log(str);
 }
 
-function filter(node, test){
+//given an array shuffle contents
+//SRC: https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+function shuffleArray(array) {
+    var currentIndex = array.length, temporaryValue, randomIndex;
+
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+
+        // And swap it with the current element.
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+    }
+
+    return array;
+}
+
+/**
+filter which nodes to visit based on a string to test against
+
+@param {Node} node - the node to start from
+@param {test} String - the string to test arrow IF conditionals against
+@param {shuffle} Boolean - shuffle the output string array
+
+@returns {Object} array containing an array of nodes to visit and an array of strings from the arrow OUTs
+**/
+function filter(node, test, shuffle=true){
 	let ret = [];
 	let out = [];
 	let i = 0;
@@ -37,7 +83,7 @@ function filter(node, test){
     
     for(arr of arrows){
         //if the node is entering pointing to this, skip it
-        if (arr.end_node === node && !arr.is_self )
+        if( arr.isDeparting(node) )
             continue;
         
         if(arr.IF === test || arr.IF === ""){
@@ -45,10 +91,19 @@ function filter(node, test){
             out.push(arr.OUT);
         }
     }
+
+    if(shuffle)
+        out = shuffleArray(out);
         
 	return [ret, out];
 }
 
+/**
+function that moves the simulation forward by one transition
+if theres a valid input table will move to the next input otherwise uses an empty string 
+
+@param {Number} start_ - index of node to start at, 0 by default
+**/
 function step(start_ = 0){
     let full_word = document.getElementById("is_full_word").checked;
 
@@ -59,21 +114,20 @@ function step(start_ = 0){
 		Q.push(nodes[start_]);
 		is_starting = false;
 	}else{
-		for(u of prev){
+		for(u of prev)
 			u.is_active = false;
-		}
+
 		prev = [];
-        
         if( (index + 1) < tds.length )
             tds[index + 1].innerText += outbuff;
 
         outbuff = "";
-
         highlightNext();
 	}
 
     let connections = [];
-	tds = document.getElementsByTagName("td");
+	tds = getTableCells(); 
+
     if(Q.length === 0)
     	return;
 
@@ -91,11 +145,10 @@ function step(start_ = 0){
             addRow(false);
         }
         
-		
 		let tmp = filter(u, f);
 		connections = tmp[0];
 
-        outbuff = tmp[1].toString();
+        outbuff += tmp[1].toFlatString();
 		connections = [...new Set(connections)];
     }
 
@@ -103,6 +156,7 @@ function step(start_ = 0){
     char_index += 1;
 }
 
+//TODO: correct position through HTML not JS
 function initTable(){
     if(table === null)
         table = document.getElementById("io_table");
@@ -111,6 +165,12 @@ function initTable(){
     table.style.top = (canvas.offsetTop) + "px";
 }
 
+
+/**
+add a new row to the input list from the input textarea on the page
+
+@param {Boolean} add_in - if the input textarea should be read and added to the input table
+**/
 function addRow(add_in = true){
     let txt = "";
     let full_word = document.getElementById("is_full_word").checked;
@@ -162,6 +222,7 @@ function addRow(add_in = true){
     table.appendChild(tmp);
 }
 
+//move the highlight from the current word/char to the next in the input list
 function highlightNext(){
     let h = document.getElementsByClassName("highlight");
     if (h.length === 0){

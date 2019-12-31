@@ -25,6 +25,14 @@ Array.prototype.remove = function(tgt) {
     	}
 }
 
+Array.prototype.toFlatString = function() {
+    let ret = "";
+    for(var i = 0; i < this.length; i++)  
+       ret += this[i].toString(); 
+    return ret;
+}
+
+
 window.onload = function init(){
 	canvas = document.getElementById("canvas");
 	if(!canvas || !canvas.getContext("2d"))

@@ -80,10 +80,13 @@ function buildTransitionTable(){
 
     for(key of keys){
         let tmp = document.createElement("tr");
-        tmp.appendChild( document.createElement("td").appendChild( buildText(key.label))); 
+        let td_tmp = document.createElement("td");
+        td_tmp.setAttribute("class", "t_tbl");
+        tmp.appendChild( td_tmp.appendChild( buildText(key.label))); 
         tbl.appendChild(tmp);
         let arrs = key.connected_arrows;
         let td = document.createElement("td");
+        td.setAttribute("class", "t_tbl");
 
         for(arr of arrs){
             if(arr.isDeparting(key))
@@ -94,6 +97,8 @@ function buildTransitionTable(){
         }
         
         td = document.createElement("td");
+        td.setAttribute("class", "t_tbl");
+
         for(arr of arrs){
             if(arr.isDeparting(key))
                 continue;
@@ -103,6 +108,8 @@ function buildTransitionTable(){
         }
             
         td = document.createElement("td");
+        td.setAttribute("class", "t_tbl");
+
         for(arr of arrs){
             if(arr.isDeparting(key))
                 continue;
