@@ -116,6 +116,10 @@ class Arrow{
 		this.IF = "";
 		this.OUT = "";
 	}
+        
+    isDeparting(node){
+        return node !== this.start_node && !this.is_self;
+    }
 	
 	serialize(){
 		return {
