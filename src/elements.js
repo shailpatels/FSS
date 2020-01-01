@@ -1,6 +1,5 @@
 
 
-//a node represents a state in a FSM
 /*Node:
 	pos: the position on the canvas of the node (its centerpoint)
 	connected_arrows: a list of arrows connected to this node
@@ -22,12 +21,14 @@ class Node{
 	}
 
 	serialize(){
-		return {
-			"pos" : this.pos,
-			"connected_arrows" : [],
-			"label" : this.label,
-			"is_active" : this.is_active,
-		}
+        function replacer(key,value){
+            if(key === "connected_arrows")
+                return undefined;
+            
+            return value;
+        }
+
+        return JSON.stringify(this, replacer);
 	}
 
 	/**
@@ -49,7 +50,6 @@ class Node{
 	}
 
 	draw(){
-
 		context.beginPath();
 		context.arc(this.pos.X, this.pos.Y, NODE_RADIUS, 0, 2 * Math.PI);
 		context.stroke();
@@ -97,7 +97,7 @@ class Arrow{
 	/**
 	@param {Node} start
 	@param {Node} end
-	@param {boolean} is_self_
+	@param {boolean} is_self_ - does the arrow enter and leave the same node
 	@param {number}	angle_off angle offset the mouse clicked on, used for self arrows
 	*/
 	constructor(start, end, is_self_, angle_off){
@@ -110,7 +110,6 @@ class Arrow{
 		this.end_node = end;
 		this.is_self = is_self_;
 		this.angle_offset = angle_off;
-		this.is_active = false;
 		this.mid_point = this.getCurveMidPoint();
 
 		this.IF = "";
@@ -122,17 +121,7 @@ class Arrow{
     }
 	
 	serialize(){
-		return {
-			"start_pos" : this.start_pos,
-			"end_pos" : this.end_pos,
-			"t" : this.t,
-			"ctrl_pos" : this.ctrl_pos,
-			"mouse_over" : this.mouse_over,
-			"is_self" : this.is_self,
-			"angle_offset" : this.angle_offset,
-			"is_self" : this.angle_offset,
-			"end_node" : this.end_node.serialize()
-		};
+        return JSON.stringify(this);
 	}
 
 	getCurveMidPoint(){
@@ -228,7 +217,7 @@ class Arrow{
 	    this.hooverPath = new Path2D();
 	    this.hooverPath.arc(pad,pad, NODE_RADIUS, 0, 2 * Math.PI);
 
-	    context.lineWidth = 10;
+	    context.lineWidth = 7;
 	    context.save();
 		context.globalAlpha = 0.0;
 		context.stroke(this.hooverPath); 

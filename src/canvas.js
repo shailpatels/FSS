@@ -105,7 +105,7 @@ function isOverNode(){
 function addNewNode(node_ = null){
 	if(node_ === null)
 		var node_ = new Node(mouse_pos, nodes.length.toString(10));
-
+    
 	nodes.push( node_ );
 	graph.addVertex(nodes.getLast());
 

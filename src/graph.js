@@ -125,16 +125,10 @@ function buildTransitionTable(){
 function save(){
 	data = [];
 	for(u of graph.graph.keys() ){
-		let connections = [];
-		for(v of graph.getConnections(u)){
-			connections.push( v.serialize() );
-		}
-
 		let tmp = {
-			"node" : u.serialize(),
-			"arrs" : serializeArrows(u.connected_arrows)
+			"node" : u.serialize()
 		};
-		data.push(tp);
+		data.push(tmp);
 	}
 
 	let json = JSON.stringify(data);
@@ -142,31 +136,20 @@ function save(){
 }
 
 
-function rebuildNode(tmp_data){
-	let tmp = new Node();
+function rebuildNode(data){
+    let ret = new Node();
 
-	tmp.connected_arrows = tmp_data.connected_arrows;
-	tmp.is_active = tmp_data.is_active;
-	tmp.label = tmp_data.label;
-	tmp.pos = new Point(tmp_data.pos.X, tmp_data.pos.Y);
-
-	return tmp;
+    for (var property in ret)
+        ret.property = data[property]; 
+    
+    ret.pos = new Point(data["pos"].X , data["pos"].Y);
+    ret.label = data["label"].toString();
+    addNewNode(ret);
 }
 
-function rebuildArrow(tmp_data){
-	let tmp = new Arrow(new Node(),new Node(),false,0);
+function rebuildArrow(data){
+	let tmp = new Arrow(); 
 
-
-	tmp.start_pos = new Point(tmp_data.start_pos.X,tmp_data.start_pos.Y);
-	tmp.end_pos = new Point(tmp_data.end_pos.X, tmp_data.end_pos.Y);
-	tmp.t = 0.5;
-	tmp.ctrl_pos = new Point(tmp_data.ctrl_pos.X,tmp_data.ctrl_pos.Y);
-	tmp.mouse_over = tmp_data.mouse_over;
-	//this.start_node = tmp_data.start_node;
-	//this.end_node = end;
-	tmp.is_self = tmp_data.is_self;
-	tmp.angle_offset = tmp_data.angle_offset;
-	tmp.is_active = tmp_data.is_active;
 
 	return tmp;
 }
@@ -182,46 +165,16 @@ function doesNodeExist(label){
 
 function load(){
 	let json = localStorage.getItem('data');
-
 	if(json === null)
 		return;
 
 	resetCanvas();
-	let data = JSON.parse(json);
-
-	for (key of data){
-		if(doesNodeExist (key.label) < 0 ){
-			let node_data = key.node;
-			let node = rebuildNode(node_data);
-
-			addNewNode(node);
-		}
-	}
-
-	for (key of data){
-		let arrow_data = key.arrs;
-		//we need to find the outgoing arrow
-
-		for (arrow of arrow_data){
-			if(arrow.end_node.label == key.node.label)
-				continue;
-
-			let arr = rebuildArrow(arrow);
-			let start_index = doesNodeExist(key.node.label);
-			let end_index = doesNodeExist(arrow.end_node.label);
-
-			if(start_index < 0 || end_index < 0)
-				continue;
-
-			arr.start_node = nodes[start_index];
-
-			nodes[start_index].connected_arrows.push(arr);
-			nodes[end_index].connected_arrows.push(arr);
-
-			placeNewArrow(arr);
-		}
-
-	}
+    
+    let data = JSON.parse(json);
+    for(obj of data){
+        if(Object.getOwnPropertyNames(obj)[0] === "node")
+            rebuildNode(JSON.parse(obj.node));
+    }
 }
 
 if(typeof module !== 'undefined')
