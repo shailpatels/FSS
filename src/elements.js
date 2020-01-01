@@ -85,6 +85,10 @@ class Node{
 
 }
 
+function serializeNode(node){
+    return node.serialize();
+}
+
 
 //an arrow represents a connection in a FSM
 /*ARROW
@@ -121,7 +125,15 @@ class Arrow{
     }
 	
 	serialize(){
-        return JSON.stringify(this);
+        function replacer(key,value){
+            if(key === "start_node" || key === "end_node")
+                return value.serialize();
+
+            return value;
+        }
+    
+        let tmp = JSON.stringify( this, replacer );
+        return tmp;
 	}
 
 	getCurveMidPoint(){
@@ -294,5 +306,8 @@ function serializeArrows(arrs){
 }
 
 /** @typedef { import('./geometry.js').Point } Point */
-if(typeof module !== 'undefined')
+if(typeof module !== 'undefined'){
+    const Geometry = jest.requireActual('./geometry');
+    getMidPoint = Geometry['getMidPoint'];
     module.exports = {Node,Arrow};
+}

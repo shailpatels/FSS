@@ -126,7 +126,8 @@ function save(){
 	data = [];
 	for(u of graph.graph.keys() ){
 		let tmp = {
-			"node" : u.serialize()
+			"node" : u.serialize(),
+            "connected_arrows" : serializeArrows(u.connected_arrows)
 		};
 		data.push(tmp);
 	}
@@ -140,18 +141,39 @@ function rebuildNode(data){
     let ret = new Node();
 
     for (var property in ret)
-        ret.property = data[property]; 
+        ret[property] = data[property]; 
     
-    ret.pos = new Point(data["pos"].X , data["pos"].Y);
-    ret.label = data["label"].toString();
+    ret.connected_arrows = []; 
     addNewNode(ret);
 }
 
-function rebuildArrow(data){
-	let tmp = new Arrow(); 
+function rebuildArrow(start_node, data){
+    let s = JSON.parse(data["start_node"]);
+    if( start_node.label !== s.label && !s.is_active)
+        return;    
 
+	let ret = new Arrow(new Node(), new Node(), false, 0.0); 
+    for(property in data){
+        if(property === "start_node" || property === "end_node"){
+            ret[property] = JSON.parse(data[property]); 
+            continue;
+        }
+        ret[property] = data[property];
+    }
 
-	return tmp;
+    //connect everything together
+    for (n of nodes){
+        if(n.label === ret.start_node.label){
+            n.connected_arrows.push(ret);
+            ret.start_node = n;
+        }
+        if(n.label === ret.end_node.label){
+            n.connected_arrows.push(ret);
+            ret.end_node = n;
+        }
+    }
+       
+    placeNewArrow(ret);
 }
 
 function doesNodeExist(label){
@@ -172,9 +194,17 @@ function load(){
     
     let data = JSON.parse(json);
     for(obj of data){
-        if(Object.getOwnPropertyNames(obj)[0] === "node")
-            rebuildNode(JSON.parse(obj.node));
+        rebuildNode(JSON.parse(obj.node));
     }
+        
+    //once all the nodes have been created we can connected them together
+    for(obj of data){
+        rebuildArrow(
+            JSON.parse(obj.node),
+            JSON.parse(obj.connected_arrows)
+        );
+    }
+
 }
 
 if(typeof module !== 'undefined')
