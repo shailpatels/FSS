@@ -79,14 +79,11 @@ class Node{
 		drawLabel(this.label, this.pos);
 	}
 
+    /** @returns {boolean} **/
 	mouseOver(){
 		return isOverNode() && getClosestNode() === this;
 	}
 
-}
-
-function serializeNode(node){
-    return node.serialize();
 }
 
 

@@ -79,6 +79,7 @@ function buildTransitionTable(){
     }
 
     for(key of keys){
+        console.log(key);
         let tmp = document.createElement("tr");
         let td_tmp = document.createElement("td");
         td_tmp.setAttribute("class", "t_tbl");
@@ -113,7 +114,7 @@ function buildTransitionTable(){
         for(arr of arrs){
             if(arr.isDeparting(key))
                 continue;
-            td.appendChild( buildText(key.label) );
+            td.appendChild( buildText(arr.end_node.label) );
             td.appendChild( document.createElement("br") );
             tmp.appendChild( td );
         }

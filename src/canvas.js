@@ -102,6 +102,12 @@ function isOverNode(){
 	return distanceToClosestNode() < NODE_RADIUS;
 }
 
+/**
+create a new node
+
+@param {Node} node_ - if node is null a new node will be created, otherwise 
+                      the given node will be placed and added to the graph
+**/
 function addNewNode(node_ = null){
 	if(node_ === null)
 		var node_ = new Node(mouse_pos, nodes.length.toString(10));
@@ -113,6 +119,11 @@ function addNewNode(node_ = null){
 		resetSim();
 }
 
+/**
+place an existing arrow and add it to the graph
+
+@param {Arrow} arr
+**/
 function placeNewArrow(arr){
 	arrows.push(arr);
 	graph.addEdge(arr.start_node,arr.end_node);
@@ -122,6 +133,12 @@ function placeNewArrow(arr){
 		resetSim();
 }
 
+/**
+create a new arrow and connect it between two nodes
+
+@param {Node} start_node 
+@param {Node} end_node
+**/
 function addNewArrow(start_node, end_node){
 
 	let is_self = false;
