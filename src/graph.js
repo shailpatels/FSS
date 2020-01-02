@@ -79,6 +79,7 @@ function buildTransitionTable(){
     }
 
     for(key of keys){
+        console.log(key);
         let tmp = document.createElement("tr");
         let td_tmp = document.createElement("td");
         td_tmp.setAttribute("class", "t_tbl");
@@ -113,7 +114,7 @@ function buildTransitionTable(){
         for(arr of arrs){
             if(arr.isDeparting(key))
                 continue;
-            td.appendChild( buildText(key.label) );
+            td.appendChild( buildText(arr.end_node.label) );
             td.appendChild( document.createElement("br") );
             tmp.appendChild( td );
         }
@@ -125,16 +126,11 @@ function buildTransitionTable(){
 function save(){
 	data = [];
 	for(u of graph.graph.keys() ){
-		let connections = [];
-		for(v of graph.getConnections(u)){
-			connections.push( v.serialize() );
-		}
-
 		let tmp = {
 			"node" : u.serialize(),
-			"arrs" : serializeArrows(u.connected_arrows)
+            "connected_arrows" : serializeArrows(u.connected_arrows)
 		};
-		data.push(tp);
+		data.push(tmp);
 	}
 
 	let json = JSON.stringify(data);
@@ -142,33 +138,43 @@ function save(){
 }
 
 
-function rebuildNode(tmp_data){
-	let tmp = new Node();
+function rebuildNode(data){
+    let ret = new Node();
 
-	tmp.connected_arrows = tmp_data.connected_arrows;
-	tmp.is_active = tmp_data.is_active;
-	tmp.label = tmp_data.label;
-	tmp.pos = new Point(tmp_data.pos.X, tmp_data.pos.Y);
-
-	return tmp;
+    for (var property in ret)
+        ret[property] = data[property]; 
+    
+    ret.connected_arrows = []; 
+    addNewNode(ret);
 }
 
-function rebuildArrow(tmp_data){
-	let tmp = new Arrow(new Node(),new Node(),false,0);
+function rebuildArrow(start_node, data){
+    let s = JSON.parse(data["start_node"]);
+    if( start_node.label !== s.label && !s.is_active)
+        return;    
 
+	let ret = new Arrow(new Node(), new Node(), false, 0.0); 
+    for(property in data){
+        if(property === "start_node" || property === "end_node"){
+            ret[property] = JSON.parse(data[property]); 
+            continue;
+        }
+        ret[property] = data[property];
+    }
 
-	tmp.start_pos = new Point(tmp_data.start_pos.X,tmp_data.start_pos.Y);
-	tmp.end_pos = new Point(tmp_data.end_pos.X, tmp_data.end_pos.Y);
-	tmp.t = 0.5;
-	tmp.ctrl_pos = new Point(tmp_data.ctrl_pos.X,tmp_data.ctrl_pos.Y);
-	tmp.mouse_over = tmp_data.mouse_over;
-	//this.start_node = tmp_data.start_node;
-	//this.end_node = end;
-	tmp.is_self = tmp_data.is_self;
-	tmp.angle_offset = tmp_data.angle_offset;
-	tmp.is_active = tmp_data.is_active;
-
-	return tmp;
+    //connect everything together
+    for (n of nodes){
+        if(n.label === ret.start_node.label){
+            n.connected_arrows.push(ret);
+            ret.start_node = n;
+        }
+        if(n.label === ret.end_node.label){
+            n.connected_arrows.push(ret);
+            ret.end_node = n;
+        }
+    }
+       
+    placeNewArrow(ret);
 }
 
 function doesNodeExist(label){
@@ -182,46 +188,24 @@ function doesNodeExist(label){
 
 function load(){
 	let json = localStorage.getItem('data');
-
 	if(json === null)
 		return;
 
 	resetCanvas();
-	let data = JSON.parse(json);
+    
+    let data = JSON.parse(json);
+    for(obj of data){
+        rebuildNode(JSON.parse(obj.node));
+    }
+        
+    //once all the nodes have been created we can connected them together
+    for(obj of data){
+        rebuildArrow(
+            JSON.parse(obj.node),
+            JSON.parse(obj.connected_arrows)
+        );
+    }
 
-	for (key of data){
-		if(doesNodeExist (key.label) < 0 ){
-			let node_data = key.node;
-			let node = rebuildNode(node_data);
-
-			addNewNode(node);
-		}
-	}
-
-	for (key of data){
-		let arrow_data = key.arrs;
-		//we need to find the outgoing arrow
-
-		for (arrow of arrow_data){
-			if(arrow.end_node.label == key.node.label)
-				continue;
-
-			let arr = rebuildArrow(arrow);
-			let start_index = doesNodeExist(key.node.label);
-			let end_index = doesNodeExist(arrow.end_node.label);
-
-			if(start_index < 0 || end_index < 0)
-				continue;
-
-			arr.start_node = nodes[start_index];
-
-			nodes[start_index].connected_arrows.push(arr);
-			nodes[end_index].connected_arrows.push(arr);
-
-			placeNewArrow(arr);
-		}
-
-	}
 }
 
 if(typeof module !== 'undefined')
