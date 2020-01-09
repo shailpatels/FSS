@@ -123,6 +123,7 @@ function buildTransitionTable(){
     
 }
 
+var file_count = 0;
 function save(){
 	data = [];
 	for(u of graph.graph.keys() ){
@@ -135,6 +136,21 @@ function save(){
 
 	let json = JSON.stringify(data);
 	localStorage.setItem('data', json);
+    file_count ++;
+    
+}
+
+
+function fileManager(){
+    for(var i = 0; i < 10; i++){
+        if(localStorage.getItem('file-' + i.toString()) === null)
+            break;
+
+        file_count ++;
+    } 
+    
+    if(file_count === 0)
+        document.getElementById("loadbtn").disabled = true;
 }
 
 
@@ -186,7 +202,7 @@ function doesNodeExist(label){
 }
 
 
-function load(){
+function load(f = 0){
 	let json = localStorage.getItem('data');
 	if(json === null)
 		return;

@@ -15,14 +15,23 @@
 	<link rel="stylesheet" type="text/css" href="main.css">
 </head>
 
-<body style="text-align: center; font-family: Tahoma, Geneva, sans-serif">
+<body style="text-align:center;font-family: Tahoma, Geneva, sans-serif">
 	<h1>Finite State Machine Buidler</h1>
-	<div style="text-align: center; margin-top: 10px;">
-		<canvas id = "canvas" width = "1000px" height = "500" tabindex="1" oncontextmenu="return false;">
+	<div style="max-width:1300px;margin-left:auto;margin-right:auto;">
+		<canvas id = "canvas" width = "1000" height = "500" tabindex="1" oncontextmenu="return false;">
 			This browser does not support HTML5 canvas
-		</canvas>
+        </canvas>
+
+		<table id="io_table">
+            <tr>
+                <th> Input </th>
+                <th> Output </th>
+            </tr>
+        </table>
+
 	</div>
-	<div>
+
+	<div style="width:100%">
 		<p>Instructions:</p>
 		<ul style="list-style-type:none;">
 			<li>Double-click to add a new state</li>
@@ -33,8 +42,6 @@
 	</div>
 
 	<button onclick="step()">Step</button>
-	<button onclick="save()">Save</button>
-	<button onclick="load()">Load</button>
 
 	<button onclick="buildTransitionTable()">Print</button>
     
@@ -58,16 +65,16 @@
             <th> Next State </th>
         </tr>
     </table>
+        
+    <hr>
 
+    <div id="saves">
+        <span id="save0">
+            <button onclick="save()">Save</button>
+            <button onclick="load()" id="loadbtn">Load</button>
+        </span>
+    </div>
     
-    <table id="io_table">
-        <tr>
-            <th> Input </th>
-            <th> Output </th>
-        </tr>
-    </table>
-
-
 	<!-- menu for new arrows -->
 	<div id="arrow_menu" class="arrow_menu">
 		<input id="if_" type="text" name="">

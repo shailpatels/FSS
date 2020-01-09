@@ -1,15 +1,22 @@
 canvas{
     pointer-events : auto;
+    margin-left:120px;
 }
 
 table,td,th{
 	border: 1px solid #ddd;
     border-collapse: collapse;
+    padding: 2px;
 }
 
 textarea{
     resize:none;
     overflow:auto;
+}
+
+hr{
+    width:80%;
+    margin-top:10px;
 }
 
 #arrow_menu{
@@ -25,7 +32,7 @@ textarea{
 }
 
 #io_table{
-    position : absolute; 
+   float:right; 
 }
 
 #io_table td{

@@ -6,7 +6,6 @@ var Q = [],
 	inbuff = "",
 	index = 0,
     char_index = 0,
-	table = document.getElementById("io_table"),
 	tds = getTableCells();
 
 /**
@@ -156,15 +155,6 @@ function step(start_ = 0){
     char_index += 1;
 }
 
-//TODO: correct position through HTML not JS
-function initTable(){
-    if(table === null)
-        table = document.getElementById("io_table");
-    
-    table.style.left = (canvas.width + canvas.offsetLeft + 10) + "px"; 
-    table.style.top = (canvas.offsetTop) + "px";
-}
-
 
 /**
 add a new row to the input list from the input textarea on the page
@@ -176,7 +166,9 @@ function addRow(add_in = true){
     let full_word = document.getElementById("is_full_word").checked;
     let is_first = true;
     let tmp_index = 0;
+	var table = document.getElementById("io_table");
 	tds = document.getElementsByTagName("td");
+
     if(add_in){
         txt = document.getElementById("string_input").value;  
         if ( txt === "")

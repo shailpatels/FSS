@@ -47,7 +47,7 @@ window.onload = function init(){
 	context.fillRect(0, 0, width, height);
 	graph = new Graph();
 	initControls(canvas);
-    initTable();
+    fileManager();
 	app();
 }
 
