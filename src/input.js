@@ -33,6 +33,7 @@ canvas.addEventListener('mousedown', (e) => {
 		}
 	}
 
+    hideArrowMenu();
 });
 
 canvas.addEventListener('dblclick', (e) => {
