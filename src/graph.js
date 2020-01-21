@@ -164,34 +164,33 @@ function rebuildNode(data){
     addNewNode(ret);
 }
 
-function rebuildArrow(start_node, data){
-    let s = JSON.parse(data["start_node"]);
-    if( start_node.label !== s.label && !s.is_active)
-        return;    
-
-	let ret = new Arrow(new Node(), new Node(), false, 0.0); 
-    for(property in data){
-        if(property === "start_node" || property === "end_node"){
-            ret[property] = JSON.parse(data[property]); 
+function rebuildArrow(data){
+    let arr = new Arrow(new Node(), new Node(), false, 0.0); 
+    
+    for (property in data){
+        if (property == "start_node" || property == "end_node"){
+            arr[property] = JSON.parse(data[property]); 
             continue;
         }
-        ret[property] = data[property];
+        
+        arr[property] = data[property];
     }
-
-    //connect everything together
+    
     for (n of nodes){
-        if(n.label === ret.start_node.label){
-            n.connected_arrows.push(ret);
-            ret.start_node = n;
+        if(n.label === arr.start_node.label){
+            n.connected_arrows.push(arr);
+            arr.start_node = n;
         }
-        if(n.label === ret.end_node.label){
-            n.connected_arrows.push(ret);
-            ret.end_node = n;
+        
+        if(n.label === arr.end_node.label){
+            n.connected_arrows.push(arr);
+            arr.end_node = n;
         }
-    }
-       
-    placeNewArrow(ret);
+    } 
+    
+    placeNewArrow(arr); 
 }
+
 
 function doesNodeExist(label){
 	for(var i = 0; i < nodes.length; i++)
@@ -214,14 +213,19 @@ function load(f = 0){
         rebuildNode(JSON.parse(obj.node));
     }
         
-    //once all the nodes have been created we can connected them together
-    for(obj of data){
-        rebuildArrow(
-            JSON.parse(obj.node),
-            JSON.parse(obj.connected_arrows)
-        );
-    }
 
+    for(obj of data){
+        let source_node = JSON.parse(obj.node);
+        for(arr of JSON.parse(obj.connected_arrows)){
+            let arr_obj = JSON.parse(arr);
+            let arr_src = JSON.parse(arr_obj.start_node);
+            
+            if (source_node.label !== arr_src.label && !arr_obj.is_self)
+                continue;
+
+            rebuildArrow(arr_obj) 
+        }
+    }
 }
 
 if(typeof module !== 'undefined')

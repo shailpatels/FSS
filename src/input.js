@@ -33,6 +33,7 @@ canvas.addEventListener('mousedown', (e) => {
 		}
 	}
 
+    hideArrowMenu();
 });
 
 canvas.addEventListener('dblclick', (e) => {
@@ -166,11 +167,20 @@ function updateSelectedArrow(){
 	selected_arrow.OUT = out.value;
 }
 
+function updateArrowMenu(){
+	if(selected_arrow === null || arrow_menu_drawn)
+        return;
+
+    if_.value = selected_arrow.IF;
+    out.value = selected_arrow.OUT; 
+}
+
 function drawArrowMenu(pos,if_text, out_text){
 	if(selected_arrow === null || arrow_menu_drawn)
 		return;
 
 	let w = Math.round(arrow_menu.offsetWidth/2);
+    updateArrowMenu();
 
 	arrow_menu.style.display = "block";	
 	arrow_menu.style.left = ((canvas.offsetLeft + pos.X + 15) - w) + "px";

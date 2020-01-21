@@ -299,7 +299,7 @@ function serializeArrows(arrs){
 	for(var i = 0; i < arrs.length; i++){
 		ret.push(arrs[i].serialize());
 	}
-	return ret;
+	return JSON.stringify( ret );
 }
 
 /** @typedef { import('./geometry.js').Point } Point */
