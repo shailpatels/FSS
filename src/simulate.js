@@ -167,7 +167,7 @@ function addRow(add_in = true){
     let is_first = true;
     let tmp_index = 0;
 	var table = document.getElementById("io_table");
-	tds = document.getElementsByTagName("td");
+	tds = getTableCells(); 
 
     if(add_in){
         txt = document.getElementById("string_input").value;  
