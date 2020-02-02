@@ -1,15 +1,16 @@
 var canvas,
     context,
 
-    height,
-    width;
+    height = 500,
+    width = 1000,
 
-const NODE_RADIUS = 25;	
-const LEFT_MOUSE_BUTTON = 0;
-const RIGHT_MOUSE_BUTTON = 2;
+    arrow_menu,
+    graph;
 
-var arrow_menu;
-var graph;
+
+const NODE_RADIUS = 25,	
+      LEFT_MOUSE_BUTTON = 0,
+      RIGHT_MOUSE_BUTTON = 2;
 
 
 
@@ -39,9 +40,11 @@ window.onload = function init(){
 		return;
 
 	arrow_menu = document.getElementById("arrow_menu");
-	context = canvas.getContext("2d");
-	height = canvas.height;
-	width = canvas.width;
+	context = canvas.getContext("2d");  
+
+    canvas.width = width;
+    canvas.height = height;
+
 	context.fillStyle = '#aaaaaa';
 	canvas.focus();
 	context.fillRect(0, 0, width, height);

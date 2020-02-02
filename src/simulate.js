@@ -32,8 +32,16 @@ function resetSim(){
 		u.is_active = false;
 
 	index = 0;
-	outbuff = "";
-	inbuff = "";
+	outbuff = inbuff = "";
+}
+
+//instead of resetting the entire sim, only start back at state0
+function resetFSS(){
+    Q = [];
+
+    outbuff = inbuff = "";
+    is_starting = true;
+    moved_next_row = false;
 }
 
 function printList(l){
@@ -97,6 +105,8 @@ function filter(node, test, shuffle=true){
 	return [ret, out];
 }
 
+var moved_next_row = false;
+
 /**
 function that moves the simulation forward by one transition
 if theres a valid input table will move to the next input otherwise uses an empty string 
@@ -105,6 +115,10 @@ if theres a valid input table will move to the next input otherwise uses an empt
 **/
 function step(start_ = 0){
     let full_word = document.getElementById("is_full_word").checked;
+    
+    for(u of prev)
+        u.is_active = false;
+
 
 	if(nodes.length === 0)
 		return;
@@ -113,15 +127,12 @@ function step(start_ = 0){
 		Q.push(nodes[start_]);
 		is_starting = false;
 	}else{
-		for(u of prev)
-			u.is_active = false;
-
 		prev = [];
         if( (index + 1) < tds.length )
             tds[index + 1].innerText += outbuff;
 
         outbuff = "";
-        highlightNext();
+        moved_next_row = highlightNext();
 	}
 
     let connections = [];
@@ -153,6 +164,11 @@ function step(start_ = 0){
 
     Q = connections;     
     char_index += 1;
+    
+    if (moved_next_row){
+        resetFSS();
+        char_index -= 1;
+    }
 }
 
 
@@ -215,10 +231,11 @@ function addRow(add_in = true){
 }
 
 //move the highlight from the current word/char to the next in the input list
+//returns if moved to the next row
 function highlightNext(){
     let h = document.getElementsByClassName("highlight");
     if (h.length === 0){
-        return;
+        return false;
     }
 
     h = h[0];
@@ -233,13 +250,14 @@ function highlightNext(){
         char_index = 0;
         let ref = document.getElementById( index.toString() + "_0");
         if( ref === null )
-            return;
+            return true;
 
         ref.setAttribute("class", "highlight");        
-        return;
+        return true;
     }
 
     next.setAttribute("class", "highlight"); 
+    return false;
 }
 
 if(typeof module !== 'undefined'){
