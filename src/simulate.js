@@ -230,6 +230,7 @@ function addRow(add_in = true){
     table.appendChild(tmp);
 }
 
+
 //move the highlight from the current word/char to the next in the input list
 //returns if moved to the next row
 function highlightNext(){
@@ -247,7 +248,9 @@ function highlightNext(){
     
     if( next === null || typeof next === "undefined" ){
         index += 2;
+        api.onMoveNextTestCase( index );
         char_index = 0;
+
         let ref = document.getElementById( index.toString() + "_0");
         if( ref === null )
             return true;

@@ -5,7 +5,9 @@ var canvas,
     width = 1000,
 
     arrow_menu,
-    graph;
+    graph,
+
+    api;
 
 
 const NODE_RADIUS = 25,	
@@ -33,6 +35,9 @@ Array.prototype.toFlatString = function() {
     return ret;
 }
 
+function TESTAPI(foo){
+    console.log(foo);
+}
 
 window.onload = function init(){
 	canvas = document.getElementById("canvas");
@@ -41,6 +46,9 @@ window.onload = function init(){
 
 	arrow_menu = document.getElementById("arrow_menu");
 	context = canvas.getContext("2d");  
+
+    api = new API();
+    api.addHook( "onMoveNextTestCase", [TESTAPI] );
 
     canvas.width = width;
     canvas.height = height;
