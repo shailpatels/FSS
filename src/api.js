@@ -30,5 +30,5 @@ class API{
 
 }
 
-
-
+if(typeof module !== 'undefined')
+    module.exports = {API};
