@@ -33,6 +33,21 @@ function resetSim(){
 
 	index = 0;
 	outbuff = inbuff = "";
+
+    clearIOTable();
+    clearTransitionTable();
+
+    resetCanvas();
+}
+
+function clearTransitionTable(){
+    document.getElementById("t_table").innerHTML = 
+        "<tr>\
+            <th> State </th>\
+            <th> Input </th>\
+            <th> Output </th>\
+            <th> Next State </th>\
+        </tr>"
 }
 
 function clearIOTable(){

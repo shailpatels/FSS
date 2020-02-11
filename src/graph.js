@@ -303,6 +303,9 @@ function load(f = 0){
 
     clearIOTable();
     rebuildIOTable( data.getLast());
+
+    for (n of nodes)
+        n.is_active = false;
 }
 
 if(typeof module !== 'undefined')
