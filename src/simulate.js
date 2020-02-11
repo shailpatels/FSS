@@ -35,6 +35,11 @@ function resetSim(){
 	outbuff = inbuff = "";
 }
 
+function clearIOTable(){
+    document.getElementById("io_table").innerHTML = 
+        "<tbody><tr><th>Input</th><th>Output</th></tr></tbody>";
+}
+
 //instead of resetting the entire sim, only start back at state0
 function resetFSS(){
     Q = [];

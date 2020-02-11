@@ -134,10 +134,28 @@ function save(){
 		data.push(tmp);
 	}
 
+    data.push( saveIO() );
+
 	let json = JSON.stringify(data);
 	localStorage.setItem('data', json);
     file_count ++;
-    
+}
+
+function saveIO(){
+    let ts = getTableCells();
+    let ret = [];
+
+    let i = 0;
+    for ( t of ts ){
+        ret.push( { "value" : t.textContent,
+                    "full_word" : t.childNodes.length === 1,
+                    "input" : i % 2 == 0
+                  });
+
+        i++;
+    }
+
+    return {"io_table" : ret }; 
 }
 
 
@@ -201,6 +219,55 @@ function doesNodeExist(label){
 }
 
 
+function rebuildIOTable(data){
+    let tgt = document.getElementById("io_table");
+
+    
+    let current_row = null;
+    let is_first = true;
+
+    let row_index = -1;
+    data = data.io_table;
+    for ( obj of data){
+        if (obj.input ){
+            current_row = document.createElement("tr");
+            row_index ++; 
+        }
+
+        let td_a = document.createElement("td");
+        if( obj.input ){
+        if ( obj.full_word ){
+            let highlight = document.createElement("span");
+            if ( is_first )
+                highlight.setAttribute("class", "highlight");
+
+            highlight.setAttribute("id", row_index.toString() + "_0"); 
+            highlight.appendChild( document.createTextNode( obj.value ) );
+            td_a.appendChild(highlight);
+        } else {
+            for(var i = 0; i < obj.value.length; i++){
+                let highlight = document.createElement("span");
+                if (i == 0 && is_first)
+                    highlight.setAttribute("class", "highlight");
+
+                highlight.setAttribute("id", row_index.toString() + "_" + i.toString());
+                highlight.appendChild( document.createTextNode( obj.value[i] ) );
+                td_a.appendChild( highlight );
+            }
+        }
+        }else{
+            let td_a = document.createElement("td");
+            td_a.appendChild( document.createTextNode( obj.value ) );
+        }
+            
+        
+        current_row.appendChild( td_a );
+        tgt.appendChild(current_row);
+        is_first = false; 
+    }
+}
+
+
 function load(f = 0){
 	let json = localStorage.getItem('data');
 	if(json === null)
@@ -210,11 +277,18 @@ function load(f = 0){
     
     let data = JSON.parse(json);
     for(obj of data){
+        if ( typeof obj.node === "undefined")
+            continue;
+
         rebuildNode(JSON.parse(obj.node));
     }
         
 
     for(obj of data){
+
+        if ( typeof obj.node === "undefined")
+            continue;
+
         let source_node = JSON.parse(obj.node);
         for(arr of JSON.parse(obj.connected_arrows)){
             let arr_obj = JSON.parse(arr);
@@ -226,6 +300,9 @@ function load(f = 0){
             rebuildArrow(arr_obj) 
         }
     }
+
+    clearIOTable();
+    rebuildIOTable( data.getLast());
 }
 
 if(typeof module !== 'undefined')
