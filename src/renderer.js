@@ -59,3 +59,19 @@ function drawSelfArrow(start_pos){
     context.rotate(-angle);
     context.translate(-start_pos.X, -start_pos.Y);
 } 
+
+//https://www.html5rocks.com/en/tutorials/canvas/hidpi/
+function initCanvas() {
+  // Get the device pixel ratio, falling back to 1.
+  var dpr = window.devicePixelRatio || 1;
+  // Get the size of the CANVAS in CSS pixels.
+  var rect = canvas.getBoundingClientRect();
+  // Give the CANVAS pixel dimensions of their CSS
+  // size * the device pixel ratio.
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+ 
+  // Scale all drawing operations by the dpr, so you
+  // don't have to worry about the difference.
+  context.scale(dpr, dpr);
+}

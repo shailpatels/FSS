@@ -7,7 +7,6 @@ var canvas,
     arrow_menu,
     graph;
 
-
 const NODE_RADIUS = 25,	
       LEFT_MOUSE_BUTTON = 0,
       RIGHT_MOUSE_BUTTON = 2;
@@ -48,17 +47,20 @@ window.onload = function init(){
 	context.fillStyle = '#aaaaaa';
 	canvas.focus();
 	context.fillRect(0, 0, width, height);
+	initCanvas();
 	graph = new Graph();
 	initControls(canvas);
     fileManager();
 	app();
 }
 
+
 var nodes = [], arrows = [],
 	mouse_pos, mouse_down, key_down,
 	current_node, current_arrow,
 	begin_arrow, start_node, mouse_down,
 	selected_arrow, arrow_menu_drawn;
+
 
 function app(){
 	mouse_down = begin_arrow = key_down = arrow_menu_drawn = false;
@@ -67,38 +69,40 @@ function app(){
 	drawArrowMenu(mouse_pos);
 
 	drawScreen();
-	function drawScreen(){
-		//reset
-		context.fillStyle = '#aaaaaa';
-		context.fillRect(0, 0, width, height);
+}
 
-		if(begin_arrow && current_node){
-			if(isOverNode() && (getClosestNode() == start_node) )
-				drawSelfArrow(start_node.pos);
 
-			drawLine(current_node.pos, mouse_pos);
-			current_node.draw();
-		}
+function drawScreen(){
+	//reset
+	context.fillStyle = '#aaaaaa';
+	context.fillRect(0, 0, width, height);
 
-		for(var i = 0; i < arrows.length; ++i){
-			arrows[i].draw();
-			if(arrows[i].isMouseOver() && !isOverNode() ){
-				current_arrow = arrows[i];
-			}
-		}
+	if(begin_arrow && current_node){
+		if(isOverNode() && (getClosestNode() == start_node) )
+			drawSelfArrow(start_node.pos);
 
-		//draw circles on top of arrows to avoid anything inside the 'nodes'
-		for(var i = 0; i < nodes.length; ++i){
-			nodes[i].draw();
-		}
-
-		if(selected_arrow === null)
-			hideArrowMenu();
-
-		window.requestAnimationFrame(drawScreen);
+		drawLine(current_node.pos, mouse_pos);
+		current_node.draw();
 	}
 
+	for(var i = 0; i < arrows.length; ++i){
+		arrows[i].draw();
+		if(arrows[i].isMouseOver() && !isOverNode() ){
+			current_arrow = arrows[i];
+		}
+	}
+
+	//draw circles on top of arrows to avoid anything inside the 'nodes'
+	for(var i = 0; i < nodes.length; ++i){
+		nodes[i].draw();
+	}
+
+	if(selected_arrow === null)
+		hideArrowMenu();
+
+	window.requestAnimationFrame(drawScreen);
 }
+
 
 //helper functions:
 function isOverNode(){
@@ -229,6 +233,7 @@ function drawLabel(str, _pos){
 	context.font = "15px Times New Roman";
 	context.fillText(str, _pos.X+4, _pos.Y+10);
 }
+
 
 function drawText(str, _pos){
 	context.font = "italic 25px Times New Roman";

@@ -144,6 +144,7 @@ document.addEventListener('keyup', (e) =>{
 	current_node = null;
 });
 
+
 //record the user input when typing in the input box
 arrow_menu.addEventListener('keyup', (e) => {
     updateSelectedArrow();
@@ -159,6 +160,7 @@ arrow_menu.addEventListener('keyup', (e) => {
 //end function
 }
 
+
 function updateSelectedArrow(){
     if(selected_arrow === null)
         return;
@@ -167,6 +169,7 @@ function updateSelectedArrow(){
 	selected_arrow.OUT = out.value;
 }
 
+
 function updateArrowMenu(){
 	if(selected_arrow === null || arrow_menu_drawn)
         return;
@@ -174,6 +177,7 @@ function updateArrowMenu(){
     if_.value = selected_arrow.IF;
     out.value = selected_arrow.OUT; 
 }
+
 
 function drawArrowMenu(pos,if_text, out_text){
 	if(selected_arrow === null || arrow_menu_drawn)
@@ -189,6 +193,7 @@ function drawArrowMenu(pos,if_text, out_text){
     arrow_menu_drawn = true;
     if_.focus();
 }
+
 
 function hideArrowMenu(){
     if( !arrow_menu_drawn )
