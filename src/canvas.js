@@ -9,10 +9,10 @@ var CANVAS,
 
     API;
 
+
 const NODE_RADIUS = 25,	
       LEFT_MOUSE_BUTTON = 0,
       RIGHT_MOUSE_BUTTON = 2;
-
 
 
 Array.prototype.getLast = function() {
@@ -267,6 +267,7 @@ function distanceToClosestNode(){
 	var closest_node;
 	if(nodes.length === 0)
 		return width;
+
 	return getDistance(mouse_pos, getClosestNode().pos);
 }
 
