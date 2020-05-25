@@ -4,12 +4,12 @@
 
 
 /**
-Draws an arrowhead at a given point - usually a node
-
-@param {Point} pos - position of node to draw the arrow at
-@param {Number} angle - angle arrow should point at in rads
-@param {Number} line_width - thickness to draw arrow 
-**/
+* Draws an arrowhead at a given point - usually a node
+*
+* @param {Point} pos - position of node to draw the arrow at
+* @param {Number} angle - angle arrow should point at in rads
+* @param {Number} line_width - thickness to draw arrow 
+*/
 function drawArrowhead(pos, angle, line_width) {
 	context.fillStyle = "black";
 
@@ -36,7 +36,7 @@ function drawArrowhead(pos, angle, line_width) {
     context.rotate(-angle);
     context.translate(-pos.X,-pos.Y);
 }  
-
+/** @typedef { import('./lib/geometry.js').Point } Point */``
 /**
 Draws an arrow that starts and ends at the same node
 
@@ -60,27 +60,16 @@ function drawSelfArrow(start_pos){
     context.translate(-start_pos.X, -start_pos.Y);
 } 
 
-
-function foo () {
-    console.log(context);
-    var ctx = context,
-        dpr = window.devicePixelRatio || 1,
-        bsr = ctx.webkitBackingStorePixelRatio ||
-              ctx.mozBackingStorePixelRatio ||
-              ctx.msBackingStorePixelRatio ||
-              ctx.oBackingStorePixelRatio ||
-              ctx.backingStorePixelRatio || 1;
+/** returns the device's pixel ratio for HiDPI displays */
+function getDeviceRatio () {
+    dpr = window.devicePixelRatio || 1,
+    bsr = context.webkitBackingStorePixelRatio ||
+          context.mozBackingStorePixelRatio ||
+          context.msBackingStorePixelRatio ||
+          context.oBackingStorePixelRatio ||
+          context.backingStorePixelRatio || 1;
 
     return dpr / bsr;
-}
-
-createHiDPICanvas = function(w, h) {
-    ratio = foo();
-    canvas.width = w * ratio;
-    canvas.height = h * ratio;
-    canvas.style.width = w + "px";
-    canvas.style.height = h + "px";
-    context.setTransform(ratio, 0, 0, ratio, 0, 0);
 }
 
 
@@ -89,17 +78,18 @@ createHiDPICanvas = function(w, h) {
 * 15661339/how-do-i-fix-blurry-text-in-my-html5-canvas
 */
 function initCanvas() {
-    return createHiDPICanvas(width,height );
-    // Get the device pixel ratio, falling back to 1.
-    var dpr = window.devicePixelRatio || 1;
-    // Get the size of the CANVAS in CSS pixels.
-    var rect = canvas.getBoundingClientRect();
-    // Give the CANVAS pixel dimensions of their CSS
-    // size * the device pixel ratio.
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-
-    // Scale all drawing operations by the dpr, so you
-    // don't have to worry about the difference.
-    context.scale(dpr, dpr);
+    ratio = getDeviceRatio();
+    CANVAS.width = width * ratio;
+    CANVAS.height = height * ratio;
+    CANVAS.style.width = width + "px";
+    CANVAS.style.height = height + "px";
+    //                    a     b  c  d      e  f
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    /**
+    [ a c e 
+      b d f
+      0 0 1
+    ]
+    */
 }
+

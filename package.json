@@ -4,6 +4,7 @@
   "description": "Finite State Simulator",
   "main": "canvas.js",
   "directories": {
+    "source" : "src",
     "test": "tests"
   },
   "dependencies": {

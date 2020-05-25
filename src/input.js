@@ -1,8 +1,8 @@
 	
 /**
-Add JS event listeners for user input
-
-@param {HTMLCanvasElement} canvas
+* Add JS event listeners for user input
+* 
+* @param {HTMLCanvasElement} canvas
 */
 function initControls(canvas){
 
@@ -38,6 +38,7 @@ canvas.addEventListener('mousedown', (e) => {
 
 canvas.addEventListener('dblclick', (e) => {
 	mouse_pos = getMouse(e);
+	console.log(mouse_pos);
 	if( !isOverNode() && !key_down && current_arrow === null) {
 		addNewNode();
         curent_node = null;
@@ -187,8 +188,8 @@ function drawArrowMenu(pos,if_text, out_text){
     updateArrowMenu();
 
 	arrow_menu.style.display = "block";	
-	arrow_menu.style.left = ((canvas.offsetLeft + pos.X + 15) - w) + "px";
-	arrow_menu.style.top = (canvas.offsetTop + pos.Y + 15) + "px";
+	arrow_menu.style.left = ((CANVAS.offsetLeft + pos.X + 15) - w) + "px";
+	arrow_menu.style.top = (CANVAS.offsetTop + pos.Y + 15) + "px";
     
     arrow_menu_drawn = true;
     if_.focus();
@@ -206,13 +207,19 @@ function hideArrowMenu(){
     refocus();
 }
 
-/**
-corrects the raw mouse position to a mouse position relative to the canvas
-upper left corner is (0,0)
 
-@param {Point} pos - raw mouse position
-@returns {Point}
+/**
+* corrects the raw mouse position to a mouse position relative to the canvas
+* upper left corner is (0,0)
+*
+* also corrects for HiDPI displays since every canvas pixel
+* may not map to every pixel on the physical display
+*
+* @param {Point} pos - raw mouse position
+* @returns {Point}
 */
 function getMouse(pos){
-	return new Point(pos.offsetX, pos.offsetY);
+	return transformPoint(new Point(pos.offsetX, pos.offsetY));
 }
+
+/** @typedef { import('./lib/geometry.js').Point } Point */

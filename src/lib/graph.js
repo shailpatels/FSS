@@ -182,6 +182,7 @@ function rebuildNode(data){
     addNewNode(ret);
 }
 
+
 function rebuildArrow(data){
     let arr = new Arrow(new Node(), new Node(), false, 0.0); 
     
@@ -308,5 +309,6 @@ function load(f = 0){
         n.is_active = false;
 }
 
+
 if(typeof module !== 'undefined')
-	module.exports = Graph;
+	module.exports = {Graph};

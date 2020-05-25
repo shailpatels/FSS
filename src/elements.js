@@ -87,13 +87,12 @@ class Node{
 }
 
 
-//an arrow represents a connection in a FSM
-/*ARROW
-	start_pos: the position where the arrow started from
-	end_pos: the position where the arrow ends
-	ctrl_pos: the position between the start & end points
+/** 
+* ARROW - an arrow represents a connection in a FSM
+* start_pos: the position where the arrow started from
+* end_pos: the position where the arrow ends
+* ctrl_pos: the position between the start & end points
 */
-
 class Arrow{
 	/**
 	@param {Node} start
@@ -304,7 +303,7 @@ function serializeArrows(arrs){
 
 /** @typedef { import('./geometry.js').Point } Point */
 if(typeof module !== 'undefined'){
-    const Geometry = jest.requireActual('./geometry');
+    const Geometry = jest.requireActual('./lib/geometry');
     getMidPoint = Geometry['getMidPoint'];
     module.exports = {Node,Arrow};
 }

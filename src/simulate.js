@@ -6,15 +6,19 @@ var Q = [],
 	inbuff = "",
 	index = 0,
     char_index = 0,
-	tds = getTableCells();
+	tds = getTableCells()
+    full_word = false;
 
 /**
-collect all the table cells ignoring the ones used in the transition table
-
-@returns {Object} - Array of HTML elements
-**/
+* collect all the table cells ignoring the ones used in the transition table
+*
+* @returns {Array} - Array of HTML elements
+*/
 function getTableCells(){
-    let tmp  = document.getElementsByTagName("td");
+    if (typeof document === "undefined")
+        return [];
+
+    let tmp  = document.getElementsByTagName("td") || [];
     let ret = [];
     for (t of tmp){
         if (t.className === "t_tbl")
@@ -72,8 +76,13 @@ function printList(l){
     console.log(str);
 }
 
-//given an array shuffle contents
-//SRC: https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+/**
+* given an array, shuffle its contents
+*
+* @param {Array}
+* @return {Array}
+* SRC: https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+*/
 function shuffleArray(array) {
     var currentIndex = array.length, temporaryValue, randomIndex;
 
@@ -91,6 +100,7 @@ function shuffleArray(array) {
 
     return array;
 }
+
 
 /**
 filter which nodes to visit based on a string to test against
@@ -128,13 +138,14 @@ function filter(node, test, shuffle=true){
 var moved_next_row = false;
 
 /**
-function that moves the simulation forward by one transition
-if theres a valid input table will move to the next input otherwise uses an empty string 
-
-@param {Number} start_ - index of node to start at, 0 by default
-**/
+* function that moves the simulation forward by one transition
+* if theres a valid input table will move to the next input otherwise uses an empty string 
+*
+* @param {Number|void} start_ - index of node to start at, 0 by default
+*/
 function step(start_ = 0){
-    let full_word = document.getElementById("is_full_word").checked;
+    if ( typeof document !== "undefined")
+        full_word = document.getElementById("is_full_word").checked;
     
     for(u of prev)
         u.is_active = false;
@@ -193,10 +204,10 @@ function step(start_ = 0){
 
 
 /**
-add a new row to the input list from the input textarea on the page
-
-@param {Boolean} add_in - if the input textarea should be read and added to the input table
-**/
+* add a new row to the input list from the input textarea on the page
+*
+* @param {Boolean} add_in - if the input textarea should be read and added to the input table
+*/
 function addRow(add_in = true){
     let txt = "";
     let full_word = document.getElementById("is_full_word").checked;
@@ -282,7 +293,5 @@ function highlightNext(){
 
 if(typeof module !== 'undefined'){
     var nodes = [];
-    let Graph = require('./graph.js');
-    var graph = new Graph();
-    module.exports = { step, nodes, Q};
+    module.exports = { step };
 }
