@@ -66,7 +66,6 @@ test('delete vertex', () => {
 });
 
 test('delete edge', () => {
-	console.log(_G);
 	var g = new _G.Graph();
 
 	g.addVertex(0);

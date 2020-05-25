@@ -5,7 +5,9 @@ var CANVAS,
     width = 1000,
 
     arrow_menu,
-    graph;
+    graph,
+
+    API;
 
 const NODE_RADIUS = 25,	
       LEFT_MOUSE_BUTTON = 0,
@@ -42,6 +44,8 @@ function init(){
 
 	arrow_menu = document.getElementById("arrow_menu");
 	context = CANVAS.getContext("2d");  
+
+	API = API_OBJ.getInstance();
 
 	//prevent highlighting outside of the canvas on click
 	CANVAS.onselectstart = function () { return false; }

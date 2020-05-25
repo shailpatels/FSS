@@ -12,8 +12,14 @@ let out = document.getElementById("out");
 canvas.addEventListener('mousedown', (e) => {
 	mouse_down = true;
 	selected_arrow = null;
-	if(e.button === RIGHT_MOUSE_BUTTON)
+
+	API.call("mouse_down", e);
+	if(e.button === RIGHT_MOUSE_BUTTON){
+		API.call("left_mouse_down", e);
 		return;
+	}else{
+		API.call("right_mouse_down", e);
+	}
 
 	if(e.shiftKey && isOverNode()){
 		begin_arrow = true;
@@ -38,7 +44,7 @@ canvas.addEventListener('mousedown', (e) => {
 
 canvas.addEventListener('dblclick', (e) => {
 	mouse_pos = getMouse(e);
-	console.log(mouse_pos);
+	API.call("double_click", e);
 	if( !isOverNode() && !key_down && current_arrow === null) {
 		addNewNode();
         curent_node = null;
@@ -58,6 +64,7 @@ canvas.addEventListener('dblclick', (e) => {
 });
 
 canvas.addEventListener('mousemove', (e) => {
+	API.call("mouse_move", e);
 	mouse_pos = getMouse(e);
 	dragging = mouse_down;
     
@@ -75,6 +82,7 @@ canvas.addEventListener('mousemove', (e) => {
 });
 
 canvas.addEventListener('mouseup', (e) => {
+	API.call("mouse_up", e);
 	mouse_down = false;
 	dragging = false;
 
@@ -119,6 +127,7 @@ canvas.addEventListener('mouseup', (e) => {
 
 
 window.addEventListener('keydown', (e) =>{
+	API.call("key_down", e);
     //draw arrow instead
     current_node = null;
     key_down = true;
@@ -133,6 +142,7 @@ window.addEventListener('keydown', (e) =>{
 //incase the user is over a node and releases the shift key 
 //before the mouse button
 document.addEventListener('keyup', (e) =>{
+	API.call("key_up", e);
 	key_down = false;
 
 	if(begin_arrow){
@@ -148,15 +158,15 @@ document.addEventListener('keyup', (e) =>{
 
 //record the user input when typing in the input box
 arrow_menu.addEventListener('keyup', (e) => {
+	API.call("arrow_menu_key_up", e);
     updateSelectedArrow();
-});
 
-arrow_menu.addEventListener('keyup', (e) => {
     if(e.keyCode === 13){
-        updateSelectedArrow();  
-        hideArrowMenu(); 
+	    updateSelectedArrow();  
+	    hideArrowMenu(); 
     }
 });
+
 
 //end function
 }
