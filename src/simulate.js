@@ -29,6 +29,7 @@ function getTableCells(){
     return ret;
 }
 
+
 function resetSim(){
 	Q = [];
 	is_starting = true;
@@ -144,6 +145,7 @@ var moved_next_row = false;
 * @param {Number|void} start_ - index of node to start at, 0 by default
 */
 function step(start_ = 0){
+    API.call("step_simulation");
     if ( typeof document !== "undefined")
         full_word = document.getElementById("is_full_word").checked;
     
@@ -162,6 +164,8 @@ function step(start_ = 0){
         if( (index + 1) < tds.length )
             tds[index + 1].innerText += outbuff;
 
+
+        API.call("simulate_write");
         outbuff = "";
         moved_next_row = highlightNext();
 	}
@@ -293,5 +297,9 @@ function highlightNext(){
 
 if(typeof module !== 'undefined'){
     var nodes = [];
+    const _A = jest.requireActual('./api.js');
+    var API = _A.API_OBJ.getInstance();
+
     module.exports = { step };
+    _A.API_OBJ.clear();
 }

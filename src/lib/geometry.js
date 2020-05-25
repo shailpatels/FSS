@@ -1,5 +1,6 @@
 
-/** point represents 2D position
+/** 
+* point represents 2D position
 * @typedef {Object} Point
 */ 
 class Point{

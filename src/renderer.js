@@ -36,6 +36,8 @@ function drawArrowhead(pos, angle, line_width) {
     context.rotate(-angle);
     context.translate(-pos.X,-pos.Y);
 }  
+
+
 /** @typedef { import('./lib/geometry.js').Point } Point */``
 /**
 Draws an arrow that starts and ends at the same node
@@ -59,6 +61,7 @@ function drawSelfArrow(start_pos){
     context.rotate(-angle);
     context.translate(-start_pos.X, -start_pos.Y);
 } 
+
 
 /** returns the device's pixel ratio for HiDPI displays */
 function getDeviceRatio () {

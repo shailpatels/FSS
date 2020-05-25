@@ -5,12 +5,14 @@ var CANVAS,
     width = 1000,
 
     arrow_menu,
-    graph;
+    graph,
+
+    API;
+
 
 const NODE_RADIUS = 25,	
       LEFT_MOUSE_BUTTON = 0,
       RIGHT_MOUSE_BUTTON = 2;
-
 
 
 Array.prototype.getLast = function() {
@@ -42,6 +44,8 @@ function init(){
 
 	arrow_menu = document.getElementById("arrow_menu");
 	context = CANVAS.getContext("2d");  
+
+	API = API_OBJ.getInstance();
 
 	//prevent highlighting outside of the canvas on click
 	CANVAS.onselectstart = function () { return false; }
@@ -263,6 +267,7 @@ function distanceToClosestNode(){
 	var closest_node;
 	if(nodes.length === 0)
 		return width;
+
 	return getDistance(mouse_pos, getClosestNode().pos);
 }
 
