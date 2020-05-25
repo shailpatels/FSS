@@ -1,9 +1,9 @@
 
-//point represents 2D position 
+/** point represents 2D position */ 
 class Point{
 	/**
-	@param {Number} X_
-	@param {Number} Y_
+	* @param {Number} X_
+	* @param {Number} Y_
 	*/
 	constructor(X_ = 0,Y_ = 0){
 		this.X = X_;
@@ -11,8 +11,8 @@ class Point{
 	}
 
 	/**
-	@param {Number} X_
-	@param {Number} Y_
+	* @param {Number} X_
+	* @param {Number} Y_
 	*/
 	set(X_,Y_){
 		this.X = X_;
@@ -23,10 +23,10 @@ class Point{
 
 /**
 finds euclidean distance between two points
-
-@param {Point} a
-@param {Point} b
-@returns {Number}
+* 
+* @param {Point} a
+* @param {Point} b
+* @returns {Number}
 */
 function getDistance(a, b){
 	let x_ = Math.abs(a.X - b.X);
@@ -35,11 +35,11 @@ function getDistance(a, b){
 }
 
 /**
-finds angle between two points
-
-@param {Point} start_pos
-@param {Point} end_pos
-@returns {Number}
+* finds angle between two points
+*
+* @param {Point} start_pos
+* @param {Point} end_pos
+* @returns {Number}
 */
 function findAngle(start_pos, end_pos) {
     // make sx and sy at the zero point
@@ -47,11 +47,11 @@ function findAngle(start_pos, end_pos) {
 }
 
 /**
-find the midpoint between two points
-
-@param {Point} a
-@param {Point} b
-@returns {Point}
+* find the midpoint between two points
+* 
+* @param {Point} a
+* @param {Point} b
+* @returns {Point}
 */
 function getMidPoint(a, b){
 	let X = Math.abs(a.X + b.X)/2;
@@ -60,10 +60,10 @@ function getMidPoint(a, b){
 }
 
 /**
-converts radians to degrees
-
-@param {Number} rad
-@returns {Number}
+* converts radians to degrees
+*
+* @param {Number} rad
+* @returns {Number}
 */
 function radToDeg(rad){
 	return rad * (180/Math.PI);

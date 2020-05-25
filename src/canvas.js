@@ -217,8 +217,8 @@ function getArrowIndex(arr){
 }
 
 /**
-@param {Point} pos - position to convert from canvas to HTML coords
-@returns {Point}
+* @param {Point} pos - position to convert from canvas to HTML coords
+* @returns {Point}
 **/
 function mouseToPage(pos){
 	var rect = canvas.getBoundingClientRect();

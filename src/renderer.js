@@ -60,18 +60,46 @@ function drawSelfArrow(start_pos){
     context.translate(-start_pos.X, -start_pos.Y);
 } 
 
-//https://www.html5rocks.com/en/tutorials/canvas/hidpi/
+
+function foo () {
+    console.log(context);
+    var ctx = context,
+        dpr = window.devicePixelRatio || 1,
+        bsr = ctx.webkitBackingStorePixelRatio ||
+              ctx.mozBackingStorePixelRatio ||
+              ctx.msBackingStorePixelRatio ||
+              ctx.oBackingStorePixelRatio ||
+              ctx.backingStorePixelRatio || 1;
+
+    return dpr / bsr;
+}
+
+createHiDPICanvas = function(w, h) {
+    ratio = foo();
+    canvas.width = w * ratio;
+    canvas.height = h * ratio;
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+}
+
+
+/**
+* https://stackoverflow.com/questions/
+* 15661339/how-do-i-fix-blurry-text-in-my-html5-canvas
+*/
 function initCanvas() {
-  // Get the device pixel ratio, falling back to 1.
-  var dpr = window.devicePixelRatio || 1;
-  // Get the size of the CANVAS in CSS pixels.
-  var rect = canvas.getBoundingClientRect();
-  // Give the CANVAS pixel dimensions of their CSS
-  // size * the device pixel ratio.
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
- 
-  // Scale all drawing operations by the dpr, so you
-  // don't have to worry about the difference.
-  context.scale(dpr, dpr);
+    return createHiDPICanvas(width,height );
+    // Get the device pixel ratio, falling back to 1.
+    var dpr = window.devicePixelRatio || 1;
+    // Get the size of the CANVAS in CSS pixels.
+    var rect = canvas.getBoundingClientRect();
+    // Give the CANVAS pixel dimensions of their CSS
+    // size * the device pixel ratio.
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+
+    // Scale all drawing operations by the dpr, so you
+    // don't have to worry about the difference.
+    context.scale(dpr, dpr);
 }
