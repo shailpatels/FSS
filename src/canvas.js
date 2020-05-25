@@ -35,7 +35,7 @@ Array.prototype.toFlatString = function() {
 }
 
 
-window.onload = function init(){
+function init(){
 	CANVAS = document.getElementById("canvas");
 	if(!CANVAS || !CANVAS.getContext("2d"))
 		return;
