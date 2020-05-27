@@ -44,7 +44,6 @@ function init(){
 
 	arrow_menu = document.getElementById("arrow_menu");
 	context = CANVAS.getContext("2d");  
-
 	API = API_OBJ.getInstance();
 
 	//prevent highlighting outside of the canvas on click
@@ -307,4 +306,3 @@ function refocus(){
 }
 
 /** @typedef { import('./lib/geometry.js').Point } Point */
-

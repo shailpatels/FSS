@@ -74,9 +74,12 @@ class _API{
     		args.push(x);
     	}
 
+        let response = [];
     	for (let x of tgt){
-    		x.apply(null, args);
+    		response.push( x.apply(null, args) );
     	}
+
+        return response;
     }
 }
 

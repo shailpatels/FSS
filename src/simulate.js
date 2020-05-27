@@ -12,10 +12,11 @@ var Q = [],
 /**
 * collect all the table cells ignoring the ones used in the transition table
 *
+* @param {Boolean} external - if this is being ran from an external app
 * @returns {Array} - Array of HTML elements
 */
-function getTableCells(){
-    if (typeof document === "undefined")
+function getTableCells(external){
+    if (external)
         return [];
 
     let tmp  = document.getElementsByTagName("td") || [];
@@ -69,13 +70,6 @@ function resetFSS(){
     moved_next_row = false;
 }
 
-function printList(l){
-    let str = "";
-    for (n of l){
-       str += n.label + " "; 
-    }
-    console.log(str);
-}
 
 /**
 * given an array, shuffle its contents
@@ -142,12 +136,11 @@ var moved_next_row = false;
 * function that moves the simulation forward by one transition
 * if theres a valid input table will move to the next input otherwise uses an empty string 
 *
-* @param {Number|void} start_ - index of node to start at, 0 by default
+* @param {Bool|void} external - is the simulation being ran from an external app
 */
-function step(start_ = 0){
+function step(external = false){
     API.call("step_simulation");
-    if ( typeof document !== "undefined")
-        full_word = document.getElementById("is_full_word").checked;
+    full_word = external ? false : document.getElementById("is_full_word").checked;
     
     for(u of prev)
         u.is_active = false;
@@ -157,22 +150,21 @@ function step(start_ = 0){
 		return;
 
 	if (is_starting){
-		Q.push(nodes[start_]);
+		Q.push(nodes[0]);
 		is_starting = false;
 	}else{
 		prev = [];
-        if( (index + 1) < tds.length )
+        if( (index + 1) < tds.length && !external)
             tds[index + 1].innerText += outbuff;
 
 
-        API.call("simulate_write");
+        API.call("simulate_write", outbuff);
         outbuff = "";
-        moved_next_row = highlightNext();
+        moved_next_row = external ? API.call("is_finished") : highlightNext();
 	}
 
     let connections = [];
 	tds = getTableCells(); 
-
     if(Q.length === 0)
     	return;
 
@@ -186,8 +178,10 @@ function step(start_ = 0){
         let f = ""; 
         if(tds.length > 0 && index < tds.length){
             f = full_word ? tds[index].innerText : tds[index].innerText[char_index];
-        }else{
+        }else if(!external){
             addRow(false);
+        }else{
+            f = API.call("request_input")[0];
         }
         
 		let tmp = filter(u, f);

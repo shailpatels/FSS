@@ -47,3 +47,30 @@ test('test multiple args', () => {
     api.call("test", 1, "foo", 3.14 );
     _A.API_OBJ.clear();
 });
+
+
+test('test return', () => {
+    let api = _A.API_OBJ.getInstance();
+    let foo = function(){ return 1};
+
+    api.addFunc("test", foo);
+    expect(api.call("test")).toStrictEqual([1]);
+    _A.API_OBJ.clear();
+});
+
+
+test('test multiple return', () => {
+    let api = _A.API_OBJ.getInstance();
+    let a = function(){ return 1};
+    let b = function(){ return "test" };
+    let c = function(){ return {} };
+    let d = function(x){ return x * 2 };
+
+    api.addFunc("test", a);
+    api.addFunc("test", b);
+    api.addFunc("test", c);
+    api.addFunc("test", d);
+
+    expect(api.call("test", 2)).toStrictEqual([1,"test", {}, 4]);
+    _A.API_OBJ.clear();
+});
