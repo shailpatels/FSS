@@ -1,4 +1,4 @@
-
+import {canvasManager} from './canvasManager.js';
 //Draw an arrow at the end of the curve to show the direction
 // SRC : https://stackoverflow.com/questions/6576827/html-canvas-draw-curved-arrows
 

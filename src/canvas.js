@@ -1,14 +1,14 @@
-var CANVAS,
-    context,
+import {canvasManager} from './canvasManager.js';
+import {API} from './api.js';
+import {initCanvas} from './renderer.js';
+
+var context,
 
     height = 500,
     width = 1000,
 
     arrow_menu,
-    graph,
-
-    API;
-
+    graph;
 
 const NODE_RADIUS = 25,	
       LEFT_MOUSE_BUTTON = 0,
@@ -37,20 +37,20 @@ Array.prototype.toFlatString = function() {
 }
 
 
-function init(){
-	CANVAS = document.getElementById("canvas");
-	if(!CANVAS || !CANVAS.getContext("2d"))
+window.onload = () => {
+	let canvas = document.getElementById("canvas");
+	if(!canvas || !canvas.getContext("2d"))
 		return;
 
 	arrow_menu = document.getElementById("arrow_menu");
-	context = CANVAS.getContext("2d");  
-	API = API_OBJ.getInstance();
+
+	let CM = canvasManager.init(canvas);
 
 	//prevent highlighting outside of the canvas on click
-	CANVAS.onselectstart = function () { return false; }
+	CM.canvas.onselectstart = function () { return false; }
 	initCanvas();
 	graph = new Graph();
-	initControls(CANVAS);
+	initControls(canvas);
     fileManager();
 	app();
 }

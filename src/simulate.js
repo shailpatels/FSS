@@ -6,7 +6,7 @@ var Q = [],
 	inbuff = "",
 	index = 0,
     char_index = 0,
-	tds = getTableCells()
+	tds = getTableCells(),
     full_word = false;
 
 /**

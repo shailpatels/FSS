@@ -3,19 +3,20 @@
 <head>
 	<meta charset="UTF-8">
 	<title>FSS</title>
-	<script src = "src/canvas.js"></script>
-	<script src = "src/elements.js"></script>
-	<script src = "src/lib/geometry.js"></script>
-	<script src = "src/input.js"></script>
-	<script src = "src/lib/graph.js"></script>
-	<script src = "src/renderer.js"></script>
-	<script src = "src/simulate.js"></script>
-	<script src = "src/api.js"></script>
+	<script type = "module" src = "src/canvas.js"></script>
+	<script type = "module" src = "src/elements.js"></script>
+	<script type = "module" src = "src/lib/geometry.js"></script>
+	<script type = "module" src = "src/input.js"></script>
+	<script type = "module" src = "src/lib/graph.js"></script>
+	<script type = "module" src = "src/renderer.js"></script>
+	<script type = "module" src = "src/simulate.js"></script>
+	<script type = "module" src = "src/api.js"></script>
+	<script type="module" src="src/canvasManager.js"></script>
 
 	<link rel="stylesheet" type="text/css" href="main.css">
 </head>
 
-<body onload="init()" style="text-align:center;font-family: Tahoma, Geneva, sans-serif">
+<body style="text-align:center;font-family: Tahoma, Geneva, sans-serif">
 	<h1>Finite State Machine Builder</h1>
 	<div style="max-width:1300px;margin-left:auto;margin-right:auto;">
 		<canvas id = "canvas" tabindex="1" oncontextmenu="return false;">

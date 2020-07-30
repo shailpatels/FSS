@@ -8,7 +8,7 @@
 *
 * https://www.dofactory.com/javascript/singleton-design-pattern
 */
-var API_OBJ = (function(){
+var API = (function(){
     var instance = null;
 
     function createInstance() {
@@ -86,3 +86,7 @@ class _API{
 
 if ( typeof module !== "undefined")
 	module.exports = {API_OBJ};
+
+export{
+    API
+}
