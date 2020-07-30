@@ -312,3 +312,8 @@ function load(f = 0){
 
 if(typeof module !== 'undefined')
 	module.exports = {Graph};
+
+
+export{
+    Graph
+}

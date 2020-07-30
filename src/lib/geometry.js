@@ -1,3 +1,4 @@
+import {getDeviceRatio} from '../renderer.js';
 
 /** 
 * point represents 2D position
@@ -87,6 +88,7 @@ function matrixDot (A, B) {
 
 
 function transformPoint(p){
+	let ratio = getDeviceRatio();
 	//use the transformation matrix to get the real canvas position
 	let m = matrixDot(
 		[[p.X, p.Y]], 
@@ -101,3 +103,9 @@ function transformPoint(p){
 
 if(typeof module !== 'undefined')
     module.exports = {Point, getMidPoint};
+
+export{
+	Point,
+	transformPoint,
+	getDistance
+}

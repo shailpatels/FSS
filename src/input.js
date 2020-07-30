@@ -1,15 +1,47 @@
-	
+import {API} from './api.js';
+import {transformPoint, Point} from './lib/geometry.js';
+import {isOverNode, addNewNode, getClosestNode} from './canvas.js';
+
+
+var inputManager = (function(){
+	var instance;
+	return {
+		getInstance: function(){
+			if (!instance) {
+				instance = new __INPUT_MANAGER();
+			}
+			return instance;
+		}
+	};
+})();
+
+
+class __INPUT_MANAGER{
+	constructor(){
+		this.mouse_pos = new Point(0,0);
+	}
+}
+
 /**
 * Add JS event listeners for user input
 * 
 * @param {HTMLCanvasElement} canvas
 */
 function initControls(canvas){
+var selected_arrow = null;
 
 let if_ = document.getElementById("if_");
 let out = document.getElementById("out");
+var nodes = [], arrows = [],
+	mouse_down, key_down,
+	current_node, current_arrow,
+	begin_arrow, start_node, mouse_down,
+	arrow_menu_drawn;
+
+var selected_arrow = null;
 
 canvas.addEventListener('mousedown', (e) => {
+	return;
 	mouse_down = true;
 	selected_arrow = null;
 
@@ -43,13 +75,16 @@ canvas.addEventListener('mousedown', (e) => {
 });
 
 canvas.addEventListener('dblclick', (e) => {
-	mouse_pos = getMouse(e);
+	let IM = inputManager.getInstance();
+	IM.mouse_pos = getMouse(e);
 	API.call("double_click", e);
+	let current_arrow = null;
+	console.log(!isOverNode() && !key_down && current_arrow === null);
 	if( !isOverNode() && !key_down && current_arrow === null) {
 		addNewNode();
-        curent_node = null;
-        current_arrow = null;
-        start_node = null;
+        // curent_node = null;
+        // current_arrow = null;
+        // start_node = null;
         return;
 	}
     
@@ -65,8 +100,8 @@ canvas.addEventListener('dblclick', (e) => {
 
 canvas.addEventListener('mousemove', (e) => {
 	API.call("mouse_move", e);
-	mouse_pos = getMouse(e);
-	dragging = mouse_down;
+	inputManager.getInstance().mouse_pos = getMouse(e);
+	let dragging = mouse_down;
     
 	if(nodes.length == 0 || key_down) 
 		return;
@@ -82,6 +117,7 @@ canvas.addEventListener('mousemove', (e) => {
 });
 
 canvas.addEventListener('mouseup', (e) => {
+	return;
 	API.call("mouse_up", e);
 	mouse_down = false;
 	dragging = false;
@@ -191,6 +227,8 @@ function updateArrowMenu(){
 
 
 function drawArrowMenu(pos,if_text, out_text){
+	var selected_arrow = null;
+
 	if(selected_arrow === null || arrow_menu_drawn)
 		return;
 
@@ -233,3 +271,8 @@ function getMouse(pos){
 }
 
 /** @typedef { import('./lib/geometry.js').Point } Point */
+export{
+	initControls,
+	drawArrowMenu,
+	inputManager
+}

@@ -1,10 +1,13 @@
-
+import {canvasManager} from './canvasManager.js';
+import {isOverNode, getClosestNode, drawLabel} from './canvas.js';
 
 /*Node:
 	pos: the position on the canvas of the node (its centerpoint)
 	connected_arrows: a list of arrows connected to this node
 	label: the label of the node e.g: S_1
 */
+var NODE_RADIUS = 25;
+
 class Node{
 	/**
 	@param {Point} pos
@@ -50,29 +53,29 @@ class Node{
 	}
 
 	draw(){
-		context.beginPath();
-		context.arc(this.pos.X, this.pos.Y, NODE_RADIUS, 0, 2 * Math.PI);
-		context.stroke();
+		let CM = canvasManager.getInstance();
+		CM.context.beginPath();
+		CM.context.arc(this.pos.X, this.pos.Y, NODE_RADIUS, 0, 2 * Math.PI);
+		CM.context.stroke();
        
 		if(!this.mouse_over){
-			context.beginPath();
-			context.arc(this.pos.X, this.pos.Y, NODE_RADIUS - 0.5, 0, 2 * Math.PI);
-			context.fillStyle = this.is_active ? "yellow" : "white";
-			context.fill();
+			CM.context.beginPath();
+			CM.context.arc(this.pos.X, this.pos.Y, NODE_RADIUS - 0.5, 0, 2 * Math.PI);
+			CM.context.fillStyle = this.is_active ? "yellow" : "white";
+			CM.context.fill();
 		}
 		else{
-			context.save();
-			context.globalAlpha = 0.75;
-			context.fillStyle = "CornflowerBlue";
-			context.fill();
-			context.restore();
-
+			CM.context.save();
+			CM.context.globalAlpha = 0.75;
+			CM.context.fillStyle = "CornflowerBlue";
+			CM.context.fill();
+			CM.context.restore();
 		}
     
         if(this.is_accept){
-            context.beginPath();
-            context.arc(this.pos.X, this.pos.Y, NODE_RADIUS - 7, 0, 2 * Math.PI);
-            context.stroke();
+            CM.context.beginPath();
+            CM.context.arc(this.pos.X, this.pos.Y, NODE_RADIUS - 7, 0, 2 * Math.PI);
+            CM.context.stroke();
         }
 	
 		this.mouse_over = this.mouseOver();
@@ -208,35 +211,36 @@ class Arrow{
 
 	drawSelfArrow(){
 		let line_width = 2;
+		let CM = canvasManager.getInstance();
 
 		if(this.mouse_over || this === selected_arrow)
 			line_width = 4;
 
-		context.lineWidth = line_width;
+		CM.context.lineWidth = line_width;
 		let pad = 30;
 
-	 	context.translate(this.start_pos.X, this.start_pos.Y);
-	 	context.rotate(this.angle_offset);
+	 	CM.context.translate(this.start_pos.X, this.start_pos.Y);
+	 	CM.context.rotate(this.angle_offset);
 
-	    context.beginPath();
-	    context.arc(pad,pad, NODE_RADIUS, 0, 2 * Math.PI);
-	    context.stroke();
+	    CM.context.beginPath();
+	    CM.context.arc(pad,pad, NODE_RADIUS, 0, 2 * Math.PI);
+	    CM.context.stroke();
 
 	    this.hooverPath = new Path2D();
 	    this.hooverPath.arc(pad,pad, NODE_RADIUS, 0, 2 * Math.PI);
 
-	    context.lineWidth = 7;
-	    context.save();
-		context.globalAlpha = 0.0;
-		context.stroke(this.hooverPath); 
-		context.restore();
+	    CM.context.lineWidth = 7;
+	    CM.context.save();
+		CM.context.globalAlpha = 0.0;
+		CM.context.stroke(this.hooverPath); 
+		CM.context.restore();
 
 		this.mouse_over = this.isMouseOver();
 
-	    context.rotate(-this.angle_offset);
-	    context.translate(-this.start_pos.X, -this.start_pos.Y);
+	    CM.context.rotate(-this.angle_offset);
+	    CM.context.translate(-this.start_pos.X, -this.start_pos.Y);
 
-	    context.lineWidth = 1;
+	    CM.context.lineWidth = 1;
 	    drawArrowhead(this.end_pos, this.angle_offset + Math.PI + (Math.PI/17), line_width );
     
         let d = 75;
@@ -251,7 +255,7 @@ class Arrow{
             drawArrowMenu(pt ,this.IF,this.OUT);
         }else if(this.IF != ""){
             let text = this.OUT === "" ? this.IF : this.IF + " : " + this.OUT;
-            let w = context.measureText(text).width;
+            let w = CM.context.measureText(text).width;
             
             drawText(text,pt); 
         }
@@ -306,4 +310,9 @@ if(typeof module !== 'undefined'){
     const Geometry = jest.requireActual('./lib/geometry');
     getMidPoint = Geometry['getMidPoint'];
     module.exports = {Node,Arrow};
+}
+
+
+export{
+	Node
 }

@@ -1,4 +1,5 @@
 import {canvasManager} from './canvasManager.js';
+import {width,height} from './canvas.js';
 //Draw an arrow at the end of the curve to show the direction
 // SRC : https://stackoverflow.com/questions/6576827/html-canvas-draw-curved-arrows
 
@@ -65,12 +66,13 @@ function drawSelfArrow(start_pos){
 
 /** returns the device's pixel ratio for HiDPI displays */
 function getDeviceRatio () {
-    dpr = window.devicePixelRatio || 1,
-    bsr = context.webkitBackingStorePixelRatio ||
-          context.mozBackingStorePixelRatio ||
-          context.msBackingStorePixelRatio ||
-          context.oBackingStorePixelRatio ||
-          context.backingStorePixelRatio || 1;
+    let CM = canvasManager.getInstance();
+    let dpr = window.devicePixelRatio || 1;
+    let bsr = CM.context.webkitBackingStorePixelRatio ||
+          CM.context.mozBackingStorePixelRatio ||
+          CM.context.msBackingStorePixelRatio ||
+          CM.context.oBackingStorePixelRatio ||
+          CM.context.backingStorePixelRatio || 1;
 
     return dpr / bsr;
 }
@@ -81,18 +83,24 @@ function getDeviceRatio () {
 * 15661339/how-do-i-fix-blurry-text-in-my-html5-canvas
 */
 function initCanvas() {
-    ratio = getDeviceRatio();
-    CANVAS.width = width * ratio;
-    CANVAS.height = height * ratio;
-    CANVAS.style.width = width + "px";
-    CANVAS.style.height = height + "px";
+    let ratio = getDeviceRatio();
+    let CM = canvasManager.getInstance();
+    CM.canvas.width = width * ratio;
+    CM.canvas.height = height * ratio;
+    CM.canvas.style.width = width + "px";
+    CM.canvas.style.height = height + "px";
     //                    a     b  c  d      e  f
-    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    CM.context.setTransform(ratio, 0, 0, ratio, 0, 0);
     /**
     [ a c e 
       b d f
       0 0 1
     ]
     */
+}
+
+export{
+    initCanvas,
+    getDeviceRatio
 }
 

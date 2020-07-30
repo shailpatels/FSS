@@ -1,6 +1,10 @@
 import {canvasManager} from './canvasManager.js';
 import {API} from './api.js';
 import {initCanvas} from './renderer.js';
+import {Graph} from './lib/graph.js';
+import {initControls, drawArrowMenu, inputManager} from './input.js';
+import {Point, getDistance} from './lib/geometry.js';
+import {Node} from './elements.js';
 
 var context,
 
@@ -51,21 +55,21 @@ window.onload = () => {
 	initCanvas();
 	graph = new Graph();
 	initControls(canvas);
-    fileManager();
+   // fileManager();
 	app();
 }
 
 
 var nodes = [], arrows = [],
-	mouse_pos, mouse_down, key_down,
-	current_node, current_arrow,
+	mouse_pos, mouse_down, key_down;
+var current_node = null, current_arrow,
 	begin_arrow, start_node, mouse_down,
 	selected_arrow, arrow_menu_drawn;
 
 
 function app(){
 	mouse_down = begin_arrow = key_down = arrow_menu_drawn = false;
-	current_node = current_arrow = selected_arrow = null;
+	current_arrow = selected_arrow = null;
 	mouse_pos = new Point(0,0);
 	drawArrowMenu(mouse_pos);
 
@@ -74,9 +78,10 @@ function app(){
 
 
 function drawScreen(){
+	let CM = canvasManager.getInstance();
 	//reset
-	context.fillStyle = '#aaaaaa';
-	context.fillRect(0, 0, width, height);
+	CM.context.fillStyle = '#aaaaaa';
+	CM.context.fillRect(0, 0, width, height);
 
 	if(begin_arrow && current_node){
 		if(isOverNode() && (getClosestNode() == start_node) )
@@ -94,12 +99,12 @@ function drawScreen(){
 	}
 
 	//draw circles on top of arrows to avoid anything inside the 'nodes'
-	for( n of nodes)
+	for(let n of nodes)
 		n.draw();
 	
 
-	if(selected_arrow === null)
-		hideArrowMenu();
+	// if(selected_arrow === null)
+	// 	hideArrowMenu();
 
 	window.requestAnimationFrame(drawScreen);
 }
@@ -117,14 +122,16 @@ function isOverNode(){
 * @param {Node|void} node_
 */
 function addNewNode(node_ = null){
+	let IM = inputManager.getInstance();
+
 	if(node_ === null)
-		var node_ = new Node(mouse_pos, nodes.length.toString(10));
+		var node_ = new Node(IM.mouse_pos, nodes.length.toString(10));
     
 	nodes.push( node_ );
 	graph.addVertex(nodes.getLast());
 
-	if(!is_starting)
-		resetSim();
+	// if(!is_starting)
+	// 	resetSim();
 }
 
 
@@ -236,11 +243,12 @@ function mouseToPage(pos){
 
 //theres probably a better way to handle this...
 function drawLabel(str, _pos){
-	context.font = "italic 25px Times New Roman";
-	context.fillStyle = "black";
-	context.fillText("S", _pos.X-8, _pos.Y+5);
-	context.font = "15px Times New Roman";
-	context.fillText(str, _pos.X+4, _pos.Y+10);
+	let CM = canvasManager.getInstance();
+	CM.context.font = "italic 25px Times New Roman";
+	CM.context.fillStyle = "black";
+	CM.context.fillText("S", _pos.X-8, _pos.Y+5);
+	CM.context.font = "15px Times New Roman";
+	CM.context.fillText(str, _pos.X+4, _pos.Y+10);
 }
 
 
@@ -306,3 +314,11 @@ function refocus(){
 }
 
 /** @typedef { import('./lib/geometry.js').Point } Point */
+export{
+	width,
+	height,
+	isOverNode,
+	addNewNode,
+	getClosestNode,
+	drawLabel
+}
