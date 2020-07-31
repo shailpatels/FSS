@@ -107,5 +107,7 @@ if(typeof module !== 'undefined')
 export{
 	Point,
 	transformPoint,
-	getDistance
+	getDistance,
+	findAngle,
+	getMidPoint
 }

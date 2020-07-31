@@ -1,5 +1,8 @@
 import {canvasManager} from './canvasManager.js';
 import {isOverNode, getClosestNode, drawLabel} from './canvas.js';
+import {inputManager} from './input.js';
+import {getMidPoint, findAngle, Point} from './lib/geometry.js';
+import {drawArrowhead} from './renderer.js';
 
 /*Node:
 	pos: the position on the canvas of the node (its centerpoint)
@@ -13,20 +16,20 @@ class Node{
 	@param {Point} pos
 	@param {string} str - label to give node
 	*/
-	constructor(pos = null, str = ""){
-		if (pos === null)
-			pos = new Point();
-		this.pos = pos
+	constructor(pos_, str){
+		this.pos = pos_;
 		this.connected_arrows = [];
 		this.label = str;
 		this.is_active = false;
         this.is_accept = false;
+        this.is_mouse_over = false;
 	}
 
 	serialize(){
         function replacer(key,value){
-            if(key === "connected_arrows")
+            if(key === "connected_arrows"){
                 return undefined;
+            }
             
             return value;
         }
@@ -54,11 +57,12 @@ class Node{
 
 	draw(){
 		let CM = canvasManager.getInstance();
+
 		CM.context.beginPath();
 		CM.context.arc(this.pos.X, this.pos.Y, NODE_RADIUS, 0, 2 * Math.PI);
 		CM.context.stroke();
        
-		if(!this.mouse_over){
+		if(!this.is_mouse_over){
 			CM.context.beginPath();
 			CM.context.arc(this.pos.X, this.pos.Y, NODE_RADIUS - 0.5, 0, 2 * Math.PI);
 			CM.context.fillStyle = this.is_active ? "yellow" : "white";
@@ -78,7 +82,7 @@ class Node{
             CM.context.stroke();
         }
 	
-		this.mouse_over = this.mouseOver();
+		this.is_mouse_over = this.mouseOver();
 		drawLabel(this.label, this.pos);
 	}
 
@@ -108,7 +112,7 @@ class Arrow{
 		this.end_pos = end.pos;
 		this.t = 0.5;
 		this.ctrl_pos = getMidPoint(this.start_pos, this.end_pos);
-		this.mouse_over = false;
+		this.is_mouse_over = false;
 		this.start_node = start;
 		this.end_node = end;
 		this.is_self = is_self_;
@@ -125,8 +129,9 @@ class Arrow{
 	
 	serialize(){
         function replacer(key,value){
-            if(key === "start_node" || key === "end_node")
+            if(key === "start_node" || key === "end_node"){
                 return value.serialize();
+            }
 
             return value;
         }
@@ -146,24 +151,27 @@ class Arrow{
 	}
 
 	draw(){
+		let CM = canvasManager.getInstance();
+
 		if (this.is_self){
 			this.drawSelfArrow();
 			return;
 		}
 
-		context.fillStyle = "black";
+		CM.context.fillStyle = "black";
 		let line_width = 2;
 
-		if(this.mouse_over || this === selected_arrow)
+		if(this.mouse_over || this === CM.selected_arrow){
 			line_width = 4;
+		}
 
-		context.lineWidth = line_width;
+		CM.context.lineWidth = line_width;
 		this.path = new Path2D();
 		this.path.moveTo(this.start_pos.X, this.start_pos.Y);
 		this.path.quadraticCurveTo(this.ctrl_pos.X,this.ctrl_pos.Y, 
 								   this.end_pos.X, this.end_pos.Y);
 
-		context.stroke(this.path);
+		CM.context.stroke(this.path);
 		let ang = findAngle(this.ctrl_pos, this.end_pos);
 		drawArrowhead(this.end_pos, ang, line_width );
 
@@ -172,16 +180,16 @@ class Arrow{
 		this.hooverPath.quadraticCurveTo(this.ctrl_pos.X,this.ctrl_pos.Y, 
 								         this.end_pos.X, this.end_pos.Y);
 
-		context.lineWidth = 50;
-		context.save();
-		context.globalAlpha = 0.0;
-		context.stroke(this.hooverPath); 
-		context.restore();
+		CM.context.lineWidth = 50;
+		CM.context.save();
+		CM.context.globalAlpha = 0.0;
+		CM.context.stroke(this.hooverPath); 
+		CM.context.restore();
 	
 		this.mouse_over = this.isMouseOver();		
-		context.lineWidth = 1;
+		CM.context.lineWidth = 1;
 
-		if(this === selected_arrow){
+		if(this === CM.selected_arrow){
 			drawArrowMenu(this.mid_point,this.IF,this.OUT);
 		}
 		else if(this.IF != ""){
@@ -213,8 +221,9 @@ class Arrow{
 		let line_width = 2;
 		let CM = canvasManager.getInstance();
 
-		if(this.mouse_over || this === selected_arrow)
+		if(this.mouse_over || this === CM.selected_arrow){
 			line_width = 4;
+		}
 
 		CM.context.lineWidth = line_width;
 		let pad = 30;
@@ -235,7 +244,7 @@ class Arrow{
 		CM.context.stroke(this.hooverPath); 
 		CM.context.restore();
 
-		this.mouse_over = this.isMouseOver();
+		this.is_mouse_over = this.isMouseOver();
 
 	    CM.context.rotate(-this.angle_offset);
 	    CM.context.translate(-this.start_pos.X, -this.start_pos.Y);
@@ -251,7 +260,7 @@ class Arrow{
         Y += (this.start_node.pos.Y );
             
         let pt = new Point(X,Y);
-        if(this === selected_arrow){
+        if(this === CM.selected_arrow){
             drawArrowMenu(pt ,this.IF,this.OUT);
         }else if(this.IF != ""){
             let text = this.OUT === "" ? this.IF : this.IF + " : " + this.OUT;
@@ -263,7 +272,10 @@ class Arrow{
 
 
 	isMouseOver(){	
-		return context.isPointInStroke( this.hooverPath, mouse_pos.X, mouse_pos.Y );
+		let mp = inputManager.getInstance().mouse_pos;
+		return canvasManager.getInstance().context.isPointInStroke( 
+			this.hooverPath, mp.X, mp.Y 
+		);
 	}
 
 	/**
@@ -289,9 +301,13 @@ class Arrow{
 	}
      
     moveToMouse(){
-    	current_arrow.ctrl_pos = mouse_pos;
-    	if(this.is_self)
+    	let CM = canvasManager.getInstance();
+    	let IM = inputManager.getInstance();
+
+    	CM.current_arrow.ctrl_pos = IM.mouse_pos;
+    	if(this.is_self){
     		this.angle_offset = findAngle(this.start_pos, mouse_pos);
+    	}
 
     	this.mid_point = this.getCurveMidPoint();
     }
@@ -314,5 +330,6 @@ if(typeof module !== 'undefined'){
 
 
 export{
-	Node
+	Node,
+	Arrow
 }
