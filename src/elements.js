@@ -1,20 +1,18 @@
 import {canvasManager} from './canvasManager.js';
-import {isOverNode, getClosestNode, drawLabel} from './canvas.js';
-import {inputManager} from './input.js';
+import {isOverNode, getClosestNode, drawLabel, drawText} from './canvas.js';
+import {inputManager, drawArrowMenu} from './input.js';
 import {getMidPoint, findAngle, Point} from './lib/geometry.js';
 import {drawArrowhead} from './renderer.js';
 
-/*Node:
-	pos: the position on the canvas of the node (its centerpoint)
-	connected_arrows: a list of arrows connected to this node
-	label: the label of the node e.g: S_1
+/**
+* Node:
+* Represents a state in a FSM
 */
-var NODE_RADIUS = 25;
 
 class Node{
 	/**
-	@param {Point} pos
-	@param {string} str - label to give node
+	* @param {Point} pos
+	* @param {string} str - label to give node
 	*/
 	constructor(pos_, str){
 		this.pos = pos_;
@@ -23,7 +21,8 @@ class Node{
 		this.is_active = false;
         this.is_accept = false;
         this.is_mouse_over = false;
-	}
+        this.index = parseInt(this.label, 10);	
+    }
 
 	serialize(){
         function replacer(key,value){
@@ -38,11 +37,11 @@ class Node{
 	}
 
 	/**
-	Move this node along to a new position, will drag the ends of 
-	connected arrows with it
-
-	@param {Point} new_pos
-	**/
+	* Move this node along to a new position, will drag the ends of 
+	* connected arrows with it
+	*
+	* @param {Point} new_pos
+	*/
 	moveTo(new_pos){
 		this.pos = new_pos;
 		for (var i = this.connected_arrows.length - 1; i >= 0; i--) {
@@ -59,12 +58,12 @@ class Node{
 		let CM = canvasManager.getInstance();
 
 		CM.context.beginPath();
-		CM.context.arc(this.pos.X, this.pos.Y, NODE_RADIUS, 0, 2 * Math.PI);
+		CM.context.arc(this.pos.X, this.pos.Y, CM.node_radius, 0, 2 * Math.PI);
 		CM.context.stroke();
        
 		if(!this.is_mouse_over){
 			CM.context.beginPath();
-			CM.context.arc(this.pos.X, this.pos.Y, NODE_RADIUS - 0.5, 0, 2 * Math.PI);
+			CM.context.arc(this.pos.X, this.pos.Y, CM.node_radius - 0.5, 0, 2 * Math.PI);
 			CM.context.fillStyle = this.is_active ? "yellow" : "white";
 			CM.context.fill();
 		}
@@ -78,7 +77,7 @@ class Node{
     
         if(this.is_accept){
             CM.context.beginPath();
-            CM.context.arc(this.pos.X, this.pos.Y, NODE_RADIUS - 7, 0, 2 * Math.PI);
+            CM.context.arc(this.pos.X, this.pos.Y, CM.node_radius - 7, 0, 2 * Math.PI);
             CM.context.stroke();
         }
 	
@@ -102,10 +101,10 @@ class Node{
 */
 class Arrow{
 	/**
-	@param {Node} start
-	@param {Node} end
-	@param {boolean} is_self_ - does the arrow enter and leave the same node
-	@param {number}	angle_off angle offset the mouse clicked on, used for self arrows
+	* @param {Node} start
+	* @param {Node} end
+	* @param {boolean} is_self_ - does the arrow enter and leave the same node
+	* @param {number}	angle_off angle offset the mouse clicked on, used for self arrows
 	*/
 	constructor(start, end, is_self_, angle_off){
 		this.start_pos = start.pos;
@@ -140,6 +139,9 @@ class Arrow{
         return tmp;
 	}
 
+	/* 
+	* @returns {Point}
+	*/
 	getCurveMidPoint(){
 		var ax = getMidPoint( this.ctrl_pos, this.start_pos );
 		var bx = getMidPoint( this.ctrl_pos, this.end_pos)
@@ -161,15 +163,19 @@ class Arrow{
 		CM.context.fillStyle = "black";
 		let line_width = 2;
 
-		if(this.mouse_over || this === CM.selected_arrow){
+		if(this.is_mouse_over || this === CM.selected_arrow){
 			line_width = 4;
 		}
 
 		CM.context.lineWidth = line_width;
 		this.path = new Path2D();
 		this.path.moveTo(this.start_pos.X, this.start_pos.Y);
-		this.path.quadraticCurveTo(this.ctrl_pos.X,this.ctrl_pos.Y, 
-								   this.end_pos.X, this.end_pos.Y);
+		this.path.quadraticCurveTo(
+			this.ctrl_pos.X,
+			this.ctrl_pos.Y, 
+			this.end_pos.X, 
+			this.end_pos.Y
+		);
 
 		CM.context.stroke(this.path);
 		let ang = findAngle(this.ctrl_pos, this.end_pos);
@@ -177,8 +183,12 @@ class Arrow{
 
 		this.hooverPath = new Path2D();
 		this.hooverPath.moveTo(this.start_pos.X, this.start_pos.Y);
-		this.hooverPath.quadraticCurveTo(this.ctrl_pos.X,this.ctrl_pos.Y, 
-								         this.end_pos.X, this.end_pos.Y);
+		this.hooverPath.quadraticCurveTo(
+			this.ctrl_pos.X,
+			this.ctrl_pos.Y, 
+			this.end_pos.X, 
+			this.end_pos.Y
+		);
 
 		CM.context.lineWidth = 50;
 		CM.context.save();
@@ -186,13 +196,12 @@ class Arrow{
 		CM.context.stroke(this.hooverPath); 
 		CM.context.restore();
 	
-		this.mouse_over = this.isMouseOver();		
+		this.is_mouse_over = this.isMouseOver();		
 		CM.context.lineWidth = 1;
 
 		if(this === CM.selected_arrow){
 			drawArrowMenu(this.mid_point,this.IF,this.OUT);
-		}
-		else if(this.IF != ""){
+		}else if(this.IF != ""){
             let text = this.OUT === "" ? this.IF : this.IF + " : " + this.OUT;
             let w = context.measureText(text).width;
             
@@ -221,7 +230,7 @@ class Arrow{
 		let line_width = 2;
 		let CM = canvasManager.getInstance();
 
-		if(this.mouse_over || this === CM.selected_arrow){
+		if(this.is_mouse_over || this === CM.selected_arrow){
 			line_width = 4;
 		}
 
@@ -232,11 +241,11 @@ class Arrow{
 	 	CM.context.rotate(this.angle_offset);
 
 	    CM.context.beginPath();
-	    CM.context.arc(pad,pad, NODE_RADIUS, 0, 2 * Math.PI);
+	    CM.context.arc(pad,pad, CM.node_radius, 0, 2 * Math.PI);
 	    CM.context.stroke();
 
 	    this.hooverPath = new Path2D();
-	    this.hooverPath.arc(pad,pad, NODE_RADIUS, 0, 2 * Math.PI);
+	    this.hooverPath.arc(pad,pad, CM.node_radius, 0, 2 * Math.PI);
 
 	    CM.context.lineWidth = 7;
 	    CM.context.save();
@@ -250,7 +259,11 @@ class Arrow{
 	    CM.context.translate(-this.start_pos.X, -this.start_pos.Y);
 
 	    CM.context.lineWidth = 1;
-	    drawArrowhead(this.end_pos, this.angle_offset + Math.PI + (Math.PI/17), line_width );
+	    drawArrowhead(
+	    	this.end_pos, 
+	    	this.angle_offset + Math.PI + (Math.PI/17), 
+	    	line_width
+	    );
     
         let d = 75;
         let X = Math.cos((this.angle_offset)) * d;
@@ -279,12 +292,12 @@ class Arrow{
 	}
 
 	/**
-	moveByNode updates the arrows position when a conencted node is moved
-	should be called by moveTo on a node object
-
-	@param {Point} new_pos - tgt pos
-	@param {Node} selected_node - node moving this arrow
-	**/
+	* moveByNode updates the arrows position when a conencted node is moved
+	* should be called by moveTo on a node object
+	*
+	* @param {Point} new_pos - tgt pos
+	* @param {Node} selected_node - node moving this arrow
+	*/
 	moveByNode(new_pos, selected_node){
 		if(this.is_self){
 			this.start_pos = new_pos;
@@ -292,10 +305,11 @@ class Arrow{
 		}
 
 		//the point connected to the selected node should be moved
-		if(selected_node === this.start_node )
+		if(selected_node === this.start_node ){
 			this.start_pos = new_pos;
-		else
+		}else{
 			this.end_pos = new_pos;
+		}
 
 		this.mid_point = this.getCurveMidPoint();
 	}
@@ -306,7 +320,7 @@ class Arrow{
 
     	CM.current_arrow.ctrl_pos = IM.mouse_pos;
     	if(this.is_self){
-    		this.angle_offset = findAngle(this.start_pos, mouse_pos);
+    		this.angle_offset = findAngle(this.start_pos, IM.mouse_pos);
     	}
 
     	this.mid_point = this.getCurveMidPoint();
@@ -320,14 +334,6 @@ function serializeArrows(arrs){
 	}
 	return JSON.stringify( ret );
 }
-
-/** @typedef { import('./geometry.js').Point } Point */
-if(typeof module !== 'undefined'){
-    const Geometry = jest.requireActual('./lib/geometry');
-    getMidPoint = Geometry['getMidPoint'];
-    module.exports = {Node,Arrow};
-}
-
 
 export{
 	Node,

@@ -1,6 +1,7 @@
 import {inputManager} from './input.js';
 import {Node, Arrow} from './elements.js';
 import {findAngle} from './lib/geometry.js';
+import {getClosestNode} from './canvas.js'
 
 var canvasManager = (function(){
 	var instance;
@@ -91,6 +92,51 @@ class __CANVAS_MANAGER{
 		// if(!is_starting)
 		// 	resetSim();
 	    
+	}
+
+	/**
+	* Delete a node and all connections to it
+	* 
+	* @param {Node} tgt - node to delete
+	*/
+	deleteNode(tgt){
+		for(let arr of tgt.connected_arrows){
+			this.arrows.splice( this.arrows.indexOf(arr), 1);
+		}
+
+		//update labels
+		for(let i = tgt.index; i < this.nodes.length ; i ++){
+			this.nodes[i].label = i-1;
+			this.nodes[i].index = parseInt(this.nodes[i],10);
+		}
+
+		//remove from list
+		this.nodes.splice(this.nodes.indexOf(tgt), 1);
+
+		// if(!is_starting)
+		// 	resetSim();
+	}
+
+	deleteArrow(arr_){
+		let start = arr_.start_node;
+		let end = arr_.end_node;
+
+		start.connected_arrows.splice(
+			start.connected_arrows.indexOf(arr_), 
+			1
+		);
+		if(start !== end){
+			end.connected_arrows.splice(
+				start.connected_arrows.indexOf(arr_),
+				1
+			);
+		}
+
+		this.arrows.splice(this.arrows.indexOf(arr_),1);
+		//graph.deleteEdge(start, end);
+
+		// if(!is_starting)
+		// 	resetSim();
 	}
 }
 

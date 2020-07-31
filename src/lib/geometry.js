@@ -87,6 +87,12 @@ function matrixDot (A, B) {
 }
 
 
+/**
+* transform the mouse position to match the initial canvas transformation
+*
+* @param {Point} p
+* @returns {Point}
+*/
 function transformPoint(p){
 	let ratio = getDeviceRatio();
 	//use the transformation matrix to get the real canvas position
@@ -97,12 +103,8 @@ function transformPoint(p){
        	 [0,0,1]]
     )[0];
 
-    return new Point(m[0],m[1]);
+    return new Point(m[0]/ratio,m[1]/ratio);
 }
-
-
-if(typeof module !== 'undefined')
-    module.exports = {Point, getMidPoint};
 
 export{
 	Point,

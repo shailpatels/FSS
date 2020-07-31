@@ -2,7 +2,7 @@ import {canvasManager} from './canvasManager.js';
 import {API} from './api.js';
 import {initCanvas, drawSelfArrow} from './renderer.js';
 import {Graph} from './lib/graph.js';
-import {initControls, drawArrowMenu, inputManager} from './input.js';
+import {initControls, drawArrowMenu, inputManager, hideArrowMenu} from './input.js';
 import {Point, getDistance} from './lib/geometry.js';
 import {Node} from './elements.js';
 
@@ -19,15 +19,6 @@ const NODE_RADIUS = 25,
 
 Array.prototype.getLast = function() {
     return this[this.length - 1];
-}
-
-
-Array.prototype.remove = function(tgt) {
-    for(var i = 0; i < this.length; i++)
-    	if (this[i] === tgt){
-    		this.splice(i,1);
-    		break;
-    	}
 }
 
 
@@ -108,8 +99,9 @@ function drawScreen(){
 	}
 	
 
-	// if(selected_arrow === null)
-	// 	hideArrowMenu();
+	if(CM.selected_arrow === null){
+		hideArrowMenu();
+	}
 
 	window.requestAnimationFrame(drawScreen);
 }
@@ -135,56 +127,6 @@ function placeNewArrow(arr){
 
 	if(!is_starting)
 		resetSim();
-}
-
-
-function deleteNode(){
-	for(var i = 0; i < getClosestNode().connected_arrows.length; ++i)
-		arrows.splice( getArrowIndex(getClosestNode().connected_arrows[i]) , 1);
-
-	//update labels
-	for(var i = getNodeIndex(getClosestNode()); i < nodes.length; ++i)
-		nodes[i].label = i-1;
-
-	//remove from list
-	nodes.splice(getNodeIndex(getClosestNode()), 1);
-
-	if(!is_starting)
-		resetSim();
-}
-
-
-function deleteArrow(arr_){
-	let start = arr_.start_node;
-	let end = arr_.end_node;
-
-	start.connected_arrows.remove(arr_);
-	if(start !== end)
-		end.connected_arrows.remove(arr_);
-
-	arrows.remove(arr_);
-	graph.deleteEdge(start, end);
-
-	if(!is_starting)
-		resetSim();
-}
-
-
-function getNodeIndex(_node){
-	for(var i = 0; i < nodes.length; ++i){
-		if(nodes[i] === _node)
-			return i;
-	}
-	return -1;
-}
-
-
-function getArrowIndex(arr){
-	for(var i = 0; i < arrows.length; ++i){
-		if(arrows[i] === arr)
-			return i;
-	}
-	return -1;
 }
 
 
@@ -280,8 +222,9 @@ function resetCanvas(){
 
 
 function refocus(){
-    CANVAS.focus();
-    CANVAS.click();
+	let CM = canvasManager.getInstance();
+    CM.canvas.focus();
+    CM.canvas.click();
 }
 
 /** @typedef { import('./lib/geometry.js').Point } Point */
@@ -290,5 +233,7 @@ export{
 	height,
 	isOverNode,
 	getClosestNode,
-	drawLabel
+	drawLabel,
+	refocus,
+	drawText
 }

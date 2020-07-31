@@ -1,6 +1,6 @@
 import {API} from './api.js';
 import {transformPoint, Point} from './lib/geometry.js';
-import {isOverNode, getClosestNode} from './canvas.js';
+import {isOverNode, getClosestNode, refocus} from './canvas.js';
 import {canvasManager} from './canvasManager.js';
 
 
@@ -32,44 +32,32 @@ class __INPUT_MANAGER{
 /**
 * Add JS event listeners for user input
 * 
-* @param {HTMLCanvasElement} canvas
 */
-function initControls(canvas){
-var selected_arrow = null;
+function initControls(){
+	let CM = canvasManager.getInstance();
 
-let if_ = document.getElementById("if_");
-let out = document.getElementById("out");
-var nodes = [], arrows = [],
-	mouse_down, key_down,
-	current_node, current_arrow,
-	begin_arrow, start_node, mouse_down,
-	arrow_menu_drawn;
+	let if_ = document.getElementById("if_");
+	let out = document.getElementById("out");
 
-var selected_arrow = null;
+	CM.canvas.addEventListener('mousedown', onMouseDown);
+	CM.canvas.addEventListener('dblclick', onDoubleClick);
+	CM.canvas.addEventListener('mousemove', onMouseMove);
+	CM.canvas.addEventListener('mouseup', onMouseUp);
 
-canvas.addEventListener('mousedown', onMouseDown);
-canvas.addEventListener('dblclick', onDoubleClick);
-canvas.addEventListener('mousemove', onMouseMove);
-canvas.addEventListener('mouseup', onMouseUp);
+	document.addEventListener('keydown', onKeyDown);
+	document.addEventListener('keyup', onKeyUp);
 
 
-document.addEventListener('keydown', onKeyDown);
+	//record the user input when typing in the input box
+	arrow_menu.addEventListener('keyup', (e) => {
+		API.call("arrow_menu_key_up", e);
+	    updateSelectedArrow();
 
-//incase the user is over a node and releases the shift key 
-//before the mouse button
-document.addEventListener('keyup', onKeyUp);
-
-
-//record the user input when typing in the input box
-arrow_menu.addEventListener('keyup', (e) => {
-	API.call("arrow_menu_key_up", e);
-    updateSelectedArrow();
-
-    if(e.keyCode === 13){
-	    updateSelectedArrow();  
-	    hideArrowMenu(); 
-    }
-});
+	    if(e.keyCode === 13){
+		    updateSelectedArrow();  
+		    hideArrowMenu(); 
+	    }
+	});
 
 
 //end function
@@ -87,12 +75,12 @@ function onMouseUp(e){
 	if(e.button === IM.RIGHT_MOUSE_BUTTON){
 		//remove all conections from this node
 		if(CM.is_over_node){
-			deleteNode();
+			CM.deleteNode(getClosestNode());
 		}
 
 		for(let i = 0; i < CM.arrows.length; i++){
-			if(CM.arrows[i].mouse_over){
-				deleteArrow(CM.arrows[i]);
+			if(CM.arrows[i].is_mouse_over){
+				CM.deleteArrow(CM.arrows[i]);
 				break;
 			}
 		}
@@ -151,10 +139,10 @@ function onMouseDown(e){
         return;
     }
 
-	for (let i = CM.arrows.length - 1; i >= 0; i--) {
-		if(CM.arrows[i].mouse_over && CM.current_arrow === null){
-			CM.current_arrow = CM.arrows[i];
-			CM.selected_arrow = CM.arrows[i];
+	for (let a of CM.arrows) {
+		if(a.is_mouse_over && CM.current_arrow === null){
+			CM.current_arrow = a;
+			CM.selected_arrow = a;
 			break;
 		}
 	}
@@ -181,7 +169,7 @@ function onMouseMove(e){
 		CM.current_node.moveTo(IM.mouse_pos);
 	}
 
-	if(!CM.is_over_node && IM.mouse_down && CM.current_arrow !== null){
+	if(!CM.is_over_node && IM.is_mouse_down && CM.current_arrow !== null){
 		CM.current_arrow.moveToMouse();
         CM.selected_arrow = null;
 	}
@@ -194,8 +182,7 @@ function onDoubleClick(e){
 
 	IM.mouse_pos = getMouse(e);
 	API.call("double_click", e);
-	let current_arrow = null;
-	if( !isOverNode() && !IM.is_key_down && current_arrow === null) {
+	if( !isOverNode() && !IM.is_key_down && CM.current_arrow === null) {
 		CM.addNewNode();
         CM.curent_node = null;
         CM.current_arrow = null;
@@ -250,37 +237,43 @@ function onKeyDown(e){
 
 
 function updateSelectedArrow(){
-    if(selected_arrow === null)
-        return;
+	let CM = canvasManager.getInstance();
 
-    selected_arrow.IF = if_.value;
-	selected_arrow.OUT = out.value;
+    if(CM.selected_arrow === null){
+        return;
+    }
+
+    CM.selected_arrow.IF = if_.value;
+	CM.selected_arrow.OUT = out.value;
 }
 
 
 function updateArrowMenu(){
-	if(selected_arrow === null || arrow_menu_drawn)
+	let CM = canvasManager.getInstance();
+	if(CM.selected_arrow === null || CM.arrow_menu_drawn){
         return;
+	}
 
-    if_.value = selected_arrow.IF;
-    out.value = selected_arrow.OUT; 
+    if_.value = CM.selected_arrow.IF;
+    out.value = CM.selected_arrow.OUT; 
 }
 
 
-function drawArrowMenu(pos,if_text, out_text){
-	var selected_arrow = null;
+function drawArrowMenu(pos, if_text, out_text){
+	let CM = canvasManager.getInstance();
 
-	if(selected_arrow === null || arrow_menu_drawn)
+	if(CM.selected_arrow === null || CM.is_arrow_menu_drawn){
 		return;
+	}
 
 	let w = Math.round(arrow_menu.offsetWidth/2);
     updateArrowMenu();
 
 	arrow_menu.style.display = "block";	
-	arrow_menu.style.left = ((CANVAS.offsetLeft + pos.X + 15) - w) + "px";
-	arrow_menu.style.top = (CANVAS.offsetTop + pos.Y + 15) + "px";
+	arrow_menu.style.left = ((CM.canvas.offsetLeft + pos.X + 15) - w) + "px";
+	arrow_menu.style.top = (CM.canvas.offsetTop + pos.Y + 15) + "px";
     
-    arrow_menu_drawn = true;
+    CM.is_arrow_menu_drawn = true;
     if_.focus();
 }
 
@@ -292,8 +285,8 @@ function hideArrowMenu(){
         return;
 
 	arrow_menu.style.display = "none";
-    selected_arrow = null;
-    arrow_menu_drawn = false;
+    CM.selected_arrow = null;
+    CM.is_arrow_menu_drawn = false;
     
     refocus();
 }
@@ -317,5 +310,6 @@ function getMouse(pos){
 export{
 	initControls,
 	drawArrowMenu,
-	inputManager
+	inputManager,
+	hideArrowMenu
 }
