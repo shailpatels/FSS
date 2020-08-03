@@ -46,17 +46,19 @@ class Graph{
 	}
 
 	/**
-	given two nodes delete the edge between them if it exists
-
-	@param {Node} u - starting node of edge
-	@param {Node} v - ending node of edge 
-	**/
+	* given two nodes delete the edge between them if it exists
+    *
+	* @param {Node} u - starting node of edge
+	* @param {Node} v - ending node of edge 
+	*/
 	deleteEdge(u, v){
 		let keys = this.graph.keys();
 		let connections = this.graph.get(u);
 
-		connections.remove(v);
+        const index = connections.indexOf(v);
+        connections.splice(index,1);
 	}
+
 
 	getConnections(node){
 		return this.graph.get(node);
@@ -308,10 +310,6 @@ function load(f = 0){
     for (n of nodes)
         n.is_active = false;
 }
-
-
-if(typeof module !== 'undefined')
-	module.exports = {Graph};
 
 
 export{

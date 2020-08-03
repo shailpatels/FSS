@@ -1,76 +1,67 @@
-const _A = jest.requireActual('../src/api.js');
+import {_API} from '../src/api.js';
+
+var API = new _API();
+
+beforeEach(() => {
+    API = new _API();
+});
 
 test('basic test', () => {
     let foo = function (response){ expect(response).toBe(2); } ;
-    let api = _A.API_OBJ.getInstance();
 
-    api.addFunc( "test1" , foo);
-    api.call("test1", 2);
-    _A.API_OBJ.clear();
+    API.addFunc( "test1" , foo);
+    API.call("test1", 2);
 });
 
 
 test('test empty', () => {
-    let api = _A.API_OBJ.getInstance();
-
-    api.call("foo", "foo");
-    _A.API_OBJ.clear();
+    API.call("foo", "foo");
 });
 
 
 test('test multiple funcs', () => {
-    let api = _A.API_OBJ.getInstance();
-
     let foo = function (response){ expect(response).toBe("test"); } ;
     let bar = function (response){ expect(response).toBe("test"); } ;
     let baz = function (response){ expect(response).toBe("test"); } ;
         
-    api.addFunc( "a" , foo);
-    api.addFunc( "a" , bar);
-    api.addFunc( "a" , baz);
+    API.addFunc( "a" , foo);
+    API.addFunc( "a" , bar);
+    API.addFunc( "a" , baz);
 
-    api.call("a", "test");
-
-    _A.API_OBJ.clear();
+    API.call("a", "test");
 });
 
 
 test('test multiple args', () => {
-    let api = _A.API_OBJ.getInstance();
     let foo = function (a,b,c){ 
         expect(a).toBe(1);
         expect(b).toBe("foo");
         expect(c).toBe(3.14); 
     } ;
 
-    api.addFunc("test", foo);
-    api.call("test", 1, "foo", 3.14 );
-    _A.API_OBJ.clear();
+    API.addFunc("test", foo);
+    API.call("test", 1, "foo", 3.14 );
 });
 
 
 test('test return', () => {
-    let api = _A.API_OBJ.getInstance();
     let foo = function(){ return 1};
 
-    api.addFunc("test", foo);
-    expect(api.call("test")).toStrictEqual([1]);
-    _A.API_OBJ.clear();
+    API.addFunc("test", foo);
+    expect(API.call("test")).toStrictEqual([1]);
 });
 
 
 test('test multiple return', () => {
-    let api = _A.API_OBJ.getInstance();
     let a = function(){ return 1};
     let b = function(){ return "test" };
     let c = function(){ return {} };
     let d = function(x){ return x * 2 };
 
-    api.addFunc("test", a);
-    api.addFunc("test", b);
-    api.addFunc("test", c);
-    api.addFunc("test", d);
+    API.addFunc("test", a);
+    API.addFunc("test", b);
+    API.addFunc("test", c);
+    API.addFunc("test", d);
 
-    expect(api.call("test", 2)).toStrictEqual([1,"test", {}, 4]);
-    _A.API_OBJ.clear();
+    expect(API.call("test", 2)).toStrictEqual([1,"test", {}, 4]);
 });

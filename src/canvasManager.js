@@ -1,7 +1,9 @@
 import {inputManager} from './input.js';
 import {Node, Arrow} from './elements.js';
 import {findAngle} from './lib/geometry.js';
-import {getClosestNode} from './canvas.js'
+import {getClosestNode} from './canvas.js';
+import {simManager} from './simulate.js';
+import {Graph} from './lib/graph.js';
 
 var canvasManager = (function(){
 	var instance;
@@ -9,6 +11,10 @@ var canvasManager = (function(){
 		init : function (canvas) {
 			instance = new __CANVAS_MANAGER(canvas);
 			return instance;
+		},
+
+		clear(){
+			instance = null;
 		},
 
 		getInstance: function(){
@@ -38,6 +44,8 @@ class __CANVAS_MANAGER{
 		this.is_starting_arrow = false;
 
 		this.node_radius = 25;
+
+		this.graph = new Graph();
 	}
 
 
@@ -49,16 +57,18 @@ class __CANVAS_MANAGER{
 	*/
 	addNewNode(node_ = null){
 		let IM = inputManager.getInstance();
+		let SM = simManager.getInstance();
 
 		if(node_ === null){
 			var node_ = new Node(IM.mouse_pos, this.nodes.length.toString(10));
 		}
 	    
 		this.nodes.push( node_ );
-		//graph.addVertex(nodes.getLast());
+		this.graph.addVertex( node_ );
 
-		// if(!is_starting)
-		// 	resetSim();
+		if(!SM.is_starting){
+			SM.resetSim();
+		}
 	}
 
 
@@ -87,19 +97,26 @@ class __CANVAS_MANAGER{
 	    }
 
 		this.arrows.push(new_arrow);
-		//graph.addEdge(start_node, end_node);
+		this.graph.addEdge(start_node, end_node);
 
-		// if(!is_starting)
-		// 	resetSim();
+		if(!SM.is_starting){
+			SM.resetSim();
+		}
 	    
 	}
 
 	/**
 	* Delete a node and all connections to it
 	* 
-	* @param {Node} tgt - node to delete
+	* @param {Node|Number} tgt - node to delete
 	*/
 	deleteNode(tgt){
+		let SM = simManager.getInstance();
+
+		if(typeof tgt === "number"){
+			tgt = this.nodes[tgt];
+		}
+
 		for(let arr of tgt.connected_arrows){
 			this.arrows.splice( this.arrows.indexOf(arr), 1);
 		}
@@ -111,10 +128,13 @@ class __CANVAS_MANAGER{
 		}
 
 		//remove from list
-		this.nodes.splice(this.nodes.indexOf(tgt), 1);
+		const index = this.nodes.indexOf(tgt);
+		this.nodes.splice(index, 1);
+		this.graph.deleteVertex(tgt);
 
-		// if(!is_starting)
-		// 	resetSim();
+		if(!SM.is_starting){
+			SM.resetSim();
+		}
 	}
 
 	deleteArrow(arr_){
@@ -132,11 +152,13 @@ class __CANVAS_MANAGER{
 			);
 		}
 
-		this.arrows.splice(this.arrows.indexOf(arr_),1);
-		//graph.deleteEdge(start, end);
+		const index = this.indexOf(arr_);
+		this.arrows.splice(index,1);
+		this.graph.deleteEdge(start, end);
 
-		// if(!is_starting)
-		// 	resetSim();
+		if(!is_starting){
+			resetSim();
+		}
 	}
 }
 

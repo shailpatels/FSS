@@ -203,7 +203,7 @@ class Arrow{
 			drawArrowMenu(this.mid_point,this.IF,this.OUT);
 		}else if(this.IF != ""){
             let text = this.OUT === "" ? this.IF : this.IF + " : " + this.OUT;
-            let w = context.measureText(text).width;
+            let w = CM.context.measureText(text).width;
             
             let Y = this.mid_point.Y;
             let X = this.mid_point.X; 

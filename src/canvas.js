@@ -235,5 +235,6 @@ export{
 	getClosestNode,
 	drawLabel,
 	refocus,
-	drawText
+	drawText,
+	resetCanvas
 }

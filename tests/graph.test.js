@@ -1,19 +1,7 @@
-const _G = require('../src/lib/graph.js');
-
-Array.prototype.getLast = function() {
-    return this[this.length - 1];
-}
-
-Array.prototype.remove = function(tgt) {
-    for(var i = 0; i < this.length; i++)
-    	if (this[i] === tgt){
-    		this.splice(i,1);
-    		break;
-    	}
-}
+import {Graph} from '../src/lib/graph.js';
 
 test('add vertex', () => {
-	var g = new _G.Graph();
+	let g = new Graph();
 	expect( g.size ).toBe(0);
 
 	g.addVertex(0);
@@ -22,7 +10,7 @@ test('add vertex', () => {
 });
 
 test('add edge', () => {
-	var g = new _G.Graph();
+	let g = new Graph();
 	expect( g.size ).toBe(0);
 
 	g.addVertex(0);
@@ -41,7 +29,7 @@ test('add edge', () => {
 });
 
 test('delete vertex', () => {
-	var g = new _G.Graph();
+	let g = new Graph();
 	g.addVertex(0);
 	g.addVertex(1);
 	g.addVertex(2);
@@ -66,7 +54,7 @@ test('delete vertex', () => {
 });
 
 test('delete edge', () => {
-	var g = new _G.Graph();
+	let g = new Graph();
 
 	g.addVertex(0);
 	g.addVertex(1);

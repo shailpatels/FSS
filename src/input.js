@@ -2,7 +2,7 @@ import {API} from './api.js';
 import {transformPoint, Point} from './lib/geometry.js';
 import {isOverNode, getClosestNode, refocus} from './canvas.js';
 import {canvasManager} from './canvasManager.js';
-
+import {step} from './simulate.js';
 
 var inputManager = (function(){
 	var instance;
@@ -47,6 +47,7 @@ function initControls(){
 	document.addEventListener('keydown', onKeyDown);
 	document.addEventListener('keyup', onKeyUp);
 
+	document.getElementById('stp_btn').addEventListener('click', step);
 
 	//record the user input when typing in the input box
 	arrow_menu.addEventListener('keyup', (e) => {
