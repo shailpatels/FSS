@@ -79,8 +79,9 @@ class __CANVAS_MANAGER{
 	* @param {Node} end_node
 	*/
 	addNewArrow(start_node, end_node){
-
+		let SM = simManager.getInstance();
 		let IM = inputManager.getInstance();
+		
 		let is_self = false;
 		let angle = 0.0;
 		if(start_node === end_node){
@@ -138,26 +139,24 @@ class __CANVAS_MANAGER{
 	}
 
 	deleteArrow(arr_){
+		let SM = simManager.getInstance();
+
 		let start = arr_.start_node;
 		let end = arr_.end_node;
 
-		start.connected_arrows.splice(
-			start.connected_arrows.indexOf(arr_), 
-			1
-		);
+		const s_index  = start.connected_arrows.indexOf(arr_);
+		start.connected_arrows.splice(s_index, 1);
 		if(start !== end){
-			end.connected_arrows.splice(
-				start.connected_arrows.indexOf(arr_),
-				1
-			);
+			const e_index  = end.connected_arrows.indexOf(arr_);
+			end.connected_arrows.splice(e_index,1);
 		}
 
-		const index = this.indexOf(arr_);
+		const index = this.arrows.indexOf(arr_);
 		this.arrows.splice(index,1);
 		this.graph.deleteEdge(start, end);
 
-		if(!is_starting){
-			resetSim();
+		if(!SM.is_starting){
+			SM.resetSim();
 		}
 	}
 }

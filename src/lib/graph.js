@@ -1,3 +1,5 @@
+import {canvasManager} from '../canvasManager.js';
+
 class Graph{
 
 	constructor(){ 
@@ -5,37 +7,42 @@ class Graph{
 		this.size = 0;
 	}
 
+    getKeys(){
+        return this.graph.keys();
+    }
+
 	/**
-	@param {Node} v - index of state as a new vertex to add to graph
-	**/
+	* @param {Node} v - index of state as a new vertex to add to graph
+	*/
 	addVertex(v){
 		this.graph.set(v, []);
 		this.size ++;
 	}
 
 	/**
-	create a new directed edge between two vertices
-
-	@param {Node} start
-	@param {Node} end
-	**/
+	* create a new directed edge between two vertices
+    *
+	* @param {Node} start
+	* @param {Node} end
+	*/
 	addEdge(start, end){
 		this.graph.get(start).push(end);
 	}
 
 	/**
-	@param {Node} v - node to delete
-	**/
+	* @param {Node} v_ - node to delete
+	*/
 	deleteVertex(v_){
 		this.graph.delete(v_);
 
 		let keys = this.graph.keys();
-		for (var u of keys){
+		for (let u of keys){
 			let connections = this.graph.get(u);
 			let index = 0;
-			for (var v of connections){
-				if(v === v_)
+			for (let v of connections){
+				if(v === v_){
 					connections.splice(index, 1);
+                }
 
 				index ++;
 			}
@@ -70,59 +77,89 @@ function printGraph(){
 }
 //end class
 
-function buildTransitionTable(){
-    let tbl = document.getElementById("t_table");
-    let keys = this.graph.graph.keys();
-    
-    function buildText(str){
-        let ret = document.createElement("span");
-        ret.innerHTML = "S<sub>" + str + "</sub>";
-        return ret;
+function buildText(str){
+    return `
+        <span>
+            S<sub>${str}</sub>
+        </span>
+    `;
+}
+
+/**
+* @param {Node} Node to start from
+* @param {String} val what value to read from (IF,OUT,NEXT STATE label)
+*/
+function buildTransitionTableHelper(key, val){
+    let arrs = key.connected_arrows;
+    let output = `<td class='t_tbl'>`;
+
+    for(let arr of arrs){
+        if(arr.isDeparting(key)){
+            continue;
+        }
+
+        let data = null;
+        if(val === "IF"){
+            data = arr.IF;
+        }else if(val === "OUT"){
+            data = arr.OUT;
+        }else{
+            data = buildText(arr.end_node.label);
+        }
+
+        output += `${data}`;
+        output += `<br>`
+
     }
 
-    for(key of keys){
-        console.log(key);
-        let tmp = document.createElement("tr");
-        let td_tmp = document.createElement("td");
-        td_tmp.setAttribute("class", "t_tbl");
-        tmp.appendChild( td_tmp.appendChild( buildText(key.label))); 
-        tbl.appendChild(tmp);
-        let arrs = key.connected_arrows;
-        let td = document.createElement("td");
-        td.setAttribute("class", "t_tbl");
+    return output;
+}
 
-        for(arr of arrs){
-            if(arr.isDeparting(key))
-                continue;
-            td.appendChild( document.createTextNode(arr.IF));
-            td.appendChild( document.createElement("br") );
-            tmp.appendChild( td );
-        }
+
+/**
+* Construct a transition table based on the FSM
+* @param {String|null} tgt_element to draw too
+* @returns {String} HTML output
+*/
+function buildTransitionTable(tgt_element = null){
+    let CM = canvasManager.getInstance();
+
+    let tbl = null;
+    if(tgt_element){
+        tbl = document.getElementById(tgt_element);
+    }
+
+    let keys = CM.graph.getKeys();
+    
+
+    let output = `
+        <tr>
+            <th> State </th>
+            <th> Input </th>
+            <th> Output </th>
+            <th> Next State </th>
+        </tr>
+    `;
+
+    for(let key of keys){
+        output += 
+            `<tr>
+                <td class='t_tbl'>
+                    ${buildText(key.label)}
+                </td>
+        `;
         
-        td = document.createElement("td");
-        td.setAttribute("class", "t_tbl");
-
-        for(arr of arrs){
-            if(arr.isDeparting(key))
-                continue;
-            td.appendChild( document.createTextNode(arr.OUT));
-            td.appendChild( document.createElement("br") );
-            tmp.appendChild( td );
-        }
-            
-        td = document.createElement("td");
-        td.setAttribute("class", "t_tbl");
-
-        for(arr of arrs){
-            if(arr.isDeparting(key))
-                continue;
-            td.appendChild( buildText(arr.end_node.label) );
-            td.appendChild( document.createElement("br") );
-            tmp.appendChild( td );
-        }
-        tbl.appendChild(tmp);
+        output += buildTransitionTableHelper(key, "IF");
+        output += buildTransitionTableHelper(key, "OUT");
+        output += buildTransitionTableHelper(key, "");
+        output += "</tr>";
     }
-    
+
+    if(tbl){
+        tbl.innerHTML = output;
+    }
+
+    return output;   
 }
 
 var file_count = 0;
@@ -313,5 +350,6 @@ function load(f = 0){
 
 
 export{
-    Graph
+    Graph,
+    buildTransitionTable
 }

@@ -44,7 +44,7 @@
 
 	<button id="stp_btn">Step</button>
 
-	<button onclick="buildTransitionTable()">Print</button>
+	<button id="draw_btn">Draw Table</button>
     
     <br>
     <br>
@@ -52,19 +52,14 @@
     <span> Input String: 
         <textarea type="text" id="string_input"></textarea> 
         <input type="checkbox" id="is_full_word"> Full word </input>
-        <button onclick="addRow()"> Submit </button> 
+        <button id="submit_btn"> Submit </button> 
     </span>
 
     <br>
     <br>
     
     <table id="t_table" style="margin-left:auto; margin-right:auto;">
-        <tr>
-            <th> State </th>
-            <th> Input </th>
-            <th> Output </th>
-            <th> Next State </th>
-        </tr>
+        
     </table>
         
     <hr>

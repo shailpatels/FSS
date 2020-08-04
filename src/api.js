@@ -49,8 +49,9 @@ class _API{
     */
     call(func, ...data){
     	let tgt = this.translation_table.get(func);
-    	if ( typeof tgt === "undefined")
+    	if ( typeof tgt === "undefined"){
     		return;
+        }
 
     	let args = [];
     	for (let x of data){

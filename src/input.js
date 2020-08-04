@@ -2,7 +2,8 @@ import {API} from './api.js';
 import {transformPoint, Point} from './lib/geometry.js';
 import {isOverNode, getClosestNode, refocus} from './canvas.js';
 import {canvasManager} from './canvasManager.js';
-import {step} from './simulate.js';
+import {step, addRow} from './simulate.js';
+import {buildTransitionTable} from './lib/graph.js';
 
 var inputManager = (function(){
 	var instance;
@@ -47,7 +48,15 @@ function initControls(){
 	document.addEventListener('keydown', onKeyDown);
 	document.addEventListener('keyup', onKeyUp);
 
-	document.getElementById('stp_btn').addEventListener('click', step);
+	document.getElementById('stp_btn').addEventListener('click', () => {
+		step(false);
+	});
+	document.getElementById('submit_btn').addEventListener('click', () => {
+		addRow();
+	});
+	document.getElementById('draw_btn').addEventListener('click', () => {
+		buildTransitionTable("t_table");
+	});
 
 	//record the user input when typing in the input box
 	arrow_menu.addEventListener('keyup', (e) => {
@@ -213,7 +222,7 @@ function onKeyUp(e){
 		CM.is_starting_arrow = false;
 		if(CM.is_over_node){
 			//if we landed on another node create a new arrow
-			addNewArrow(current_node, getClosestNode());
+			CM.addNewArrow(CM.current_node, getClosestNode());
 		}
 	}
 
@@ -282,8 +291,9 @@ function drawArrowMenu(pos, if_text, out_text){
 function hideArrowMenu(){
 	let CM = canvasManager.getInstance();
 
-    if( !CM.is_arrow_menu_drawn )
+    if( !CM.is_arrow_menu_drawn ){
         return;
+    }
 
 	arrow_menu.style.display = "none";
     CM.selected_arrow = null;

@@ -86,11 +86,13 @@ function clearIOTable(){
 
 //instead of resetting the entire sim, only start back at state0
 function resetFSS(){
-    Q = [];
+    let SM = simManager.getInstance();
+    SM.Q = [];
 
-    outbuff = inbuff = "";
-    is_starting = true;
-    moved_next_row = false;
+    SM.outbuff = "";
+    SM.inbuff = "";
+    SM.is_starting = true;
+    SM.moved_next_row = false;
 }
 
 
@@ -254,7 +256,7 @@ function addRow(add_in = true){
             return;
         }
         
-        is_first = tds.length === 0;
+        is_first = SM.tds.length === 0;
         
         if(!is_first){
             tmp_index = tds.length;
@@ -297,8 +299,10 @@ function addRow(add_in = true){
     table.appendChild(tmp);
 }
 
-//move the highlight from the current word/char to the next in the input list
-//returns if moved to the next row
+/**
+* move the highlight from the current word/char to the next in the input list
+* @returns {Boolean} True if moved to the next row, false otherwise
+*/
 function highlightNext(){
     let SM = simManager.getInstance();
     let h = document.getElementsByClassName("highlight");
@@ -310,13 +314,13 @@ function highlightNext(){
 
     h.setAttribute("class","");
     let id = parseInt(h.getAttribute("id").split("_")[1], 10);
-    let next = document.getElementById( index.toString() + "_" + (id+1).toString() );
+    let next = document.getElementById( SM.index.toString() + "_" + (id+1).toString() );
         
     
     if( next === null || typeof next === "undefined" ){
         SM.index += 2;
         SM.char_index = 0;
-        let ref = document.getElementById( index.toString() + "_0");
+        let ref = document.getElementById( SM.index.toString() + "_0");
         if( ref === null ){
             return true;
         }
@@ -332,5 +336,6 @@ function highlightNext(){
 
 export {
     simManager,
-    step
+    step,
+    addRow
 }
