@@ -275,12 +275,12 @@ class Arrow{
 	    	line_width
 	    );       
         
-        let r = 500;
-        let x = r * Math.cos(this.angle_offset);
-        let y = r * Math.sin(this.angle_offset);
+        let r = 90;
+        let x = r * Math.cos(-this.angle_offset);
+        let y = r * Math.sin(-this.angle_offset);
 
 
-        let pt = new Point(x,y);
+        let pt = new Point(x + this.start_node.pos.X,y + this.start_node.pos.Y);
        
         if(this === CM.selected_arrow){
             drawArrowMenu(pt ,this.IF,this.OUT);

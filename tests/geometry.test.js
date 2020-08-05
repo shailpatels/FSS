@@ -29,27 +29,27 @@ test('angle test', () => {
 	let p2 = new Point(0,1);
 
 	let a = findAngle(p1,p2);
-	expect(a* (180 / Math.PI)).toBe(90);
+	expect(a* (180 / Math.PI)).toBe(270);
 
 	let p3 = new Point(0,-1);
 	let c = findAngle(p1,p3);
-	expect(c*(180 / Math.PI)).toBe(270);
+	expect(c*(180 / Math.PI)).toBe(90);
 
 	let p4 = new Point(1,1);
 	let d = findAngle(p1,p4);
-	expect(d*(180 / Math.PI)).toBe(45);
+	expect(d*(180 / Math.PI)).toBe(315);
 
 	let p5 = new Point(-1,1);
 	let e = findAngle(p1,p5);
-	expect(e*(180 / Math.PI)).toBe(135);
+	expect(e*(180 / Math.PI)).toBe(225);
 
 	let p6 = new Point(-1,-1);
 	let f = findAngle(p1,p6);
-	expect(f*(180 / Math.PI)).toBe(225);
+	expect(f*(180 / Math.PI)).toBe(135);
 
 	let p7 = new Point(1,-1);
 	let g = findAngle(p1,p7);
-	expect(g*(180 / Math.PI)).toBe(315);
+	expect(g*(180 / Math.PI)).toBe(45);
 });
 
 test('test midpoint', () => {
