@@ -1,9 +1,9 @@
 import {canvasManager} from './canvasManager.js';
 import {API} from './api.js';
-import {initCanvas, drawSelfArrow} from './renderer.js';
+import {initCanvas, drawSelfArrowHelper} from './renderer.js';
 import {Graph} from './lib/graph.js';
 import {initControls, drawArrowMenu, inputManager, hideArrowMenu} from './input.js';
-import {Point, getDistance} from './lib/geometry.js';
+import {Point, getDistance, findAngle} from './lib/geometry.js';
 import {Node} from './elements.js';
 
 var height = 500,
@@ -79,7 +79,7 @@ function drawScreen(){
 
 	if(CM.is_starting_arrow && CM.current_node){
 		if(CM.is_over_node && (getClosestNode() == CM.start_node) ){
-			drawSelfArrow(CM.start_node.pos);
+			drawSelfArrowHelper(CM.start_node.pos);
 		}
 
 		drawLine(CM.current_node.pos, IM.mouse_pos);
@@ -102,6 +102,10 @@ function drawScreen(){
 	if(CM.selected_arrow === null){
 		hideArrowMenu();
 	}
+
+	// if(CM.nodes.length > 0){
+	// 	drawLine(IM.mouse_pos, CM.nodes[0].pos );
+	// }
 
 	window.requestAnimationFrame(drawScreen);
 }
@@ -211,21 +215,12 @@ function getClosestNode(){
 }
 
 
-function resetCanvas(){
-	//delete graph;
-	graph = new Graph();
-	nodes = [];
-	arrows = [];
-
-	mouse_pos = new Point();
-}
-
-
 function refocus(){
 	let CM = canvasManager.getInstance();
     CM.canvas.focus();
     CM.canvas.click();
 }
+
 
 /** @typedef { import('./lib/geometry.js').Point } Point */
 export{
@@ -235,6 +230,5 @@ export{
 	getClosestNode,
 	drawLabel,
 	refocus,
-	drawText,
-	resetCanvas
+	drawText
 }

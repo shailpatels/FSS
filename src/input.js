@@ -3,7 +3,7 @@ import {transformPoint, Point} from './lib/geometry.js';
 import {isOverNode, getClosestNode, refocus} from './canvas.js';
 import {canvasManager} from './canvasManager.js';
 import {step, addRow} from './simulate.js';
-import {buildTransitionTable} from './lib/graph.js';
+import {buildTransitionTable, save, load} from './lib/graph.js';
 
 var inputManager = (function(){
 	var instance;
@@ -56,6 +56,12 @@ function initControls(){
 	});
 	document.getElementById('draw_btn').addEventListener('click', () => {
 		buildTransitionTable("t_table");
+	});
+	document.getElementById('save_btn').addEventListener('click', () => {
+		save();
+	});
+	document.getElementById('load_btn').addEventListener('click', () => {
+		load();
 	});
 
 	//record the user input when typing in the input box

@@ -1,6 +1,5 @@
 import {API} from './api.js';
 import {canvasManager} from './canvasManager.js';
-import {resetCanvas} from './canvas.js';
 
 var simManager = (function(){
     var instance = null;
@@ -44,8 +43,9 @@ class __SIM_STATE{
 * @returns {Array} - Array of HTML elements
 */
 function getTableCells(external){
-    if (external)
+    if (external){
         return [];
+    }
 
     let tmp  = document.getElementsByTagName("td") || [];
     let ret = [];
@@ -66,7 +66,7 @@ function resetSim(){
     clearIOTable();
     clearTransitionTable();
 
-    resetCanvas();
+    canvasManager.getInstance().resetCanvas();
 }
 
 function clearTransitionTable(){
@@ -337,5 +337,6 @@ function highlightNext(){
 export {
     simManager,
     step,
-    addRow
+    addRow,
+    getTableCells
 }

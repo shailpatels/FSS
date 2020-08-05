@@ -1,5 +1,6 @@
-import {Node, Arrow} from '../src/elements.js';
+import {Node, Arrow, deserializeNode, deserializeArrow} from '../src/elements.js';
 import {Point} from '../src/lib/geometry.js';
+import {canvasManager} from '../src/canvasManager.js';
     
 function buildFakeNode(X,Y){
     let index = 0;
@@ -7,6 +8,17 @@ function buildFakeNode(X,Y){
     index ++;
     return ret;
 }
+
+function buildFakeCanvas(){
+    return {
+        getContext : function() { return null; }
+    }
+}
+
+
+beforeEach(() => {
+    canvasManager.init(buildFakeCanvas());
+});
 
 
 test('serialize node', () => {
@@ -32,4 +44,34 @@ test('serialize arrow', () => {
     json = JSON.parse(json);
      
     expect(json["start_pos"]["X"]).toBe( 100 );
+});
+
+test('deserialize node', () => {
+    let n = new Node(new Point(), "1");
+    let data = n.serialize();
+
+    let o = deserializeNode(data);
+
+    for(let x in o){
+        expect(o[x]).toEqual(n[x]);
+    }
+
+});
+
+test('deserialize arrow', () => {
+    let a = new Arrow(
+        new Node(new Point(0,0), "1"),
+        new Node(new Point(0,1), "2")
+    );
+
+    let data = a.serialize();
+    let o = deserializeArrow(data);
+
+    for(let x in o){
+        if(x === "id"){
+            continue;
+        }
+
+        expect(o[x]).toEqual(a[x]);
+    }
 });

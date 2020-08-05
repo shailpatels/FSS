@@ -2,6 +2,9 @@ import {canvasManager} from './canvasManager.js';
 import {inputManager} from './input.js';
 import {width,height} from './canvas.js';
 import {findAngle} from './lib/geometry.js';
+
+/** @typedef { import('./lib/geometry.js').Point } Point */``
+
 //Draw an arrow at the end of the curve to show the direction
 // SRC : https://stackoverflow.com/questions/6576827/html-canvas-draw-curved-arrows
 
@@ -43,29 +46,29 @@ function drawArrowhead(pos, angle, line_width) {
 }  
 
 
-/** @typedef { import('./lib/geometry.js').Point } Point */``
 /**
-Draws an arrow that starts and ends at the same node
-
-@param {Point} start_pos - position of node to draw at
-**/
-function drawSelfArrow(start_pos){
+* Draws an arrow that starts and ends at the same node
+*
+* @param {Point} start_pos - position of node to draw at
+*/
+function drawSelfArrowHelper(start_pos){
     let CM = canvasManager.getInstance();
     let IM = inputManager.getInstance();
 
     let angle = findAngle(start_pos, IM.mouse_pos);
-    //console.log( radToDeg(angle) );
+
+    let a_offset = angle + (Math.PI/5);
 
     let pad = 30;
 
     CM.context.translate(start_pos.X, start_pos.Y);
-    CM.context.rotate(angle);
+    CM.context.rotate(-a_offset);
 
     CM.context.beginPath();
     CM.context.arc(pad,pad, CM.node_radius, 0, 2 * Math.PI);
     CM.context.stroke(); 
 
-    CM.context.rotate(-angle);
+    CM.context.rotate(a_offset);
     CM.context.translate(-start_pos.X, -start_pos.Y);
 } 
 
@@ -75,10 +78,10 @@ function getDeviceRatio () {
     let CM = canvasManager.getInstance();
     let dpr = window.devicePixelRatio || 1;
     let bsr = CM.context.webkitBackingStorePixelRatio ||
-          CM.context.mozBackingStorePixelRatio ||
-          CM.context.msBackingStorePixelRatio ||
-          CM.context.oBackingStorePixelRatio ||
-          CM.context.backingStorePixelRatio || 1;
+        CM.context.mozBackingStorePixelRatio ||
+        CM.context.msBackingStorePixelRatio ||
+        CM.context.oBackingStorePixelRatio ||
+        CM.context.backingStorePixelRatio || 1;
 
     return dpr / bsr;
 }
@@ -108,7 +111,7 @@ function initCanvas() {
 export{
     initCanvas,
     getDeviceRatio,
-    drawSelfArrow,
-    drawArrowhead
+    drawArrowhead,
+    drawSelfArrowHelper
 }
 

@@ -1,6 +1,6 @@
 import {inputManager} from './input.js';
 import {Node, Arrow} from './elements.js';
-import {findAngle} from './lib/geometry.js';
+import {findAngle, Point} from './lib/geometry.js';
 import {getClosestNode} from './canvas.js';
 import {simManager} from './simulate.js';
 import {Graph} from './lib/graph.js';
@@ -46,6 +46,9 @@ class __CANVAS_MANAGER{
 		this.node_radius = 25;
 
 		this.graph = new Graph();
+
+		//map object ids 
+		this.map = {};
 	}
 
 
@@ -69,6 +72,7 @@ class __CANVAS_MANAGER{
 		if(!SM.is_starting){
 			SM.resetSim();
 		}
+
 	}
 
 
@@ -158,6 +162,33 @@ class __CANVAS_MANAGER{
 		if(!SM.is_starting){
 			SM.resetSim();
 		}
+	}
+
+
+	updateMap(new_obj){
+		this.map[new_obj.id] = new_obj.serialize();
+	}
+
+	getObjFromID(id){
+		for(let n of this.nodes){
+			if (n.id === id){
+				return n;
+			}
+		}
+
+		for(let a of this.arrows){
+			if(a.id === id){
+				return a
+			}
+		}
+
+		return null;
+	}
+
+	resetCanvas(){
+		this.graph = new Graph();
+		this.nodes = [];
+		this.arrows = [];
 	}
 }
 

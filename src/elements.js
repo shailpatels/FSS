@@ -22,18 +22,21 @@ class Node{
         this.is_accept = false;
         this.is_mouse_over = false;
         this.index = parseInt(this.label, 10);	
+        this.id = getRandomString();
+
+        canvasManager.getInstance().updateMap(this);
     }
 
 	serialize(){
-        function replacer(key,value){
+     	function replacer(key,value){
             if(key === "connected_arrows"){
-                return undefined;
+                return [];
             }
-            
+
             return value;
         }
-
-        return JSON.stringify(this, replacer);
+    
+        return JSON.stringify( this, replacer );
 	}
 
 	/**
@@ -116,10 +119,15 @@ class Arrow{
 		this.end_node = end;
 		this.is_self = is_self_;
 		this.angle_offset = angle_off;
+		        //console.log(this.angle_offset *( 180/ Math.PI) );
+
 		this.mid_point = this.getCurveMidPoint();
+		this.id = getRandomString();
 
 		this.IF = "";
 		this.OUT = "";
+
+		canvasManager.getInstance().updateMap(this);
 	}
         
     isDeparting(node){
@@ -129,14 +137,13 @@ class Arrow{
 	serialize(){
         function replacer(key,value){
             if(key === "start_node" || key === "end_node"){
-                return value.serialize();
+                return value.id;
             }
 
             return value;
         }
     
-        let tmp = JSON.stringify( this, replacer );
-        return tmp;
+        return JSON.stringify( this, replacer );
 	}
 
 	/* 
@@ -179,7 +186,7 @@ class Arrow{
 
 		CM.context.stroke(this.path);
 		let ang = findAngle(this.ctrl_pos, this.end_pos);
-		drawArrowhead(this.end_pos, ang, line_width );
+		drawArrowhead(this.end_pos, -ang, line_width );
 
 		this.hooverPath = new Path2D();
 		this.hooverPath.moveTo(this.start_pos.X, this.start_pos.Y);
@@ -238,7 +245,10 @@ class Arrow{
 		let pad = 30;
 
 	 	CM.context.translate(this.start_pos.X, this.start_pos.Y);
-	 	CM.context.rotate(this.angle_offset);
+	 	let a_offset = this.angle_offset + (Math.PI/5);
+
+
+	 	CM.context.rotate(-a_offset);
 
 	    CM.context.beginPath();
 	    CM.context.arc(pad,pad, CM.node_radius, 0, 2 * Math.PI);
@@ -255,30 +265,30 @@ class Arrow{
 
 		this.is_mouse_over = this.isMouseOver();
 
-	    CM.context.rotate(-this.angle_offset);
+	    CM.context.rotate(a_offset);
 	    CM.context.translate(-this.start_pos.X, -this.start_pos.Y);
 
 	    CM.context.lineWidth = 1;
 	    drawArrowhead(
 	    	this.end_pos, 
-	    	this.angle_offset + Math.PI + (Math.PI/17), 
+	    	-(a_offset + Math.PI - Math.PI/17), 
 	    	line_width
-	    );
-    
-        let d = 75;
-        let X = Math.cos((this.angle_offset)) * d;
-        let Y = Math.sin((this.angle_offset)) * d;
+	    );       
         
-        X += (this.start_node.pos.X );
-        Y += (this.start_node.pos.Y );
-            
-        let pt = new Point(X,Y);
+        let r = 500;
+        let x = r * Math.cos(this.angle_offset);
+        let y = r * Math.sin(this.angle_offset);
+
+
+        let pt = new Point(x,y);
+       
         if(this === CM.selected_arrow){
             drawArrowMenu(pt ,this.IF,this.OUT);
         }else if(this.IF != ""){
             let text = this.OUT === "" ? this.IF : this.IF + " : " + this.OUT;
             let w = CM.context.measureText(text).width;
             
+
             drawText(text,pt); 
         }
 	}
@@ -335,7 +345,55 @@ function serializeArrows(arrs){
 	return JSON.stringify( ret );
 }
 
+
+function deserializeNode(data){
+    let tmp = JSON.parse(data);
+    let ret = new Node();
+
+    for(let x in ret){
+        ret[x] = tmp[x];
+    }
+
+    return ret;
+}
+
+
+function deserializeArrow(data){
+	let tmp = JSON.parse(data);
+	let ret = new Arrow(
+		new Node(new Point()), 
+		new Node(new Point())
+	);
+
+	for(let x in ret){
+		ret[x] = tmp[x];
+	}
+
+	ret.start_node = null;
+	ret.end_node = null;
+
+	return tmp;
+}
+
+
+/**
+* create a unique random string
+* @return {String}
+*/
+function getRandomString(){
+    let array = "";
+    for(let i = 0; i < 5; i++){
+    	let t = (Math.floor(Math.random() * Math.floor(500)));
+    	array += t.toString();
+    }
+   
+    return array;
+}
+
+
 export{
 	Node,
-	Arrow
+	Arrow,
+	deserializeArrow,
+	deserializeNode
 }

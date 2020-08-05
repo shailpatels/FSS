@@ -1,4 +1,6 @@
 import {canvasManager} from '../canvasManager.js';
+import {getTableCells} from '../simulate.js';
+import {deserializeNode, deserializeArrow} from '../elements.js';
 
 class Graph{
 
@@ -162,36 +164,40 @@ function buildTransitionTable(tgt_element = null){
     return output;   
 }
 
-var file_count = 0;
+
 function save(){
-	data = [];
-	for(u of graph.graph.keys() ){
-		let tmp = {
-			"node" : u.serialize(),
-            "connected_arrows" : serializeArrows(u.connected_arrows)
-		};
-		data.push(tmp);
-	}
+    let CM = canvasManager.getInstance();
+    let map = canvasManager.getInstance().map;
 
-    data.push( saveIO() );
+    let nodes = [];
+    for(let x of CM.nodes){
+        nodes.push(x.serialize());
+    }
 
-	let json = JSON.stringify(data);
-	localStorage.setItem('data', json);
-    file_count ++;
+    let arrows = [];
+    for(let x of CM.arrows){
+        arrows.push(x.serialize());
+    }
+
+	
+	localStorage.setItem('object_map', JSON.stringify(map));
+    localStorage.setItem('nodes', JSON.stringify(nodes));
+    localStorage.setItem('arrows', JSON.stringify(arrows));
+
+    saveIO();
 }
 
 function saveIO(){
     let ts = getTableCells();
     let ret = [];
 
-    let i = 0;
-    for ( t of ts ){
-        ret.push( { "value" : t.textContent,
-                    "full_word" : t.childNodes.length === 1,
-                    "input" : i % 2 == 0
-                  });
+    for (let t of ts ){
+        ret.push({ 
+            "value" : t.textContent,
+            "full_word" : t.childNodes.length === 1,
+            "input" : i % 2 == 0
+        });
 
-        i++;
     }
 
     return {"io_table" : ret }; 
@@ -308,48 +314,47 @@ function rebuildIOTable(data){
 }
 
 
-function load(f = 0){
-	let json = localStorage.getItem('data');
-	if(json === null)
-		return;
+function load(){
+	let CM = canvasManager.getInstance();
+    CM.resetCanvas();
 
-	resetCanvas();
-    
-    let data = JSON.parse(json);
-    for(obj of data){
-        if ( typeof obj.node === "undefined")
-            continue;
+    let objects = localStorage.getItem('object_map');
+    let nodes = localStorage.getItem('nodes');
+    let arrows = localStorage.getItem('arrows');
 
-        rebuildNode(JSON.parse(obj.node));
+    if(!objects || !nodes || !arrows){
+        return;
     }
-        
 
-    for(obj of data){
+    nodes = JSON.parse(nodes);
+    arrows = JSON.parse(arrows);
+    objects = JSON.parse(objects);
 
-        if ( typeof obj.node === "undefined")
+    //rebuild nodes
+    for(let n of nodes){
+        let new_node = deserializeNode(n);
+        CM.addNewNode(new_node);
+    }
+
+    for(let a of arrows){
+        let new_arrow = deserializeArrow(a);
+        //try and find its start and end nodes
+
+        let start = CM.getObjFromID(new_arrow.start_node);
+        let end = CM.getObjFromID(new_arrow.end_node);
+
+        if(!start || !end){
             continue;
-
-        let source_node = JSON.parse(obj.node);
-        for(arr of JSON.parse(obj.connected_arrows)){
-            let arr_obj = JSON.parse(arr);
-            let arr_src = JSON.parse(arr_obj.start_node);
-            
-            if (source_node.label !== arr_src.label && !arr_obj.is_self)
-                continue;
-
-            rebuildArrow(arr_obj) 
         }
+
+        CM.addNewArrow(start,end);
+        CM.arrows[CM.arrows.length-1].angle_offset = new_arrow.angle_offset;
     }
-
-    clearIOTable();
-    rebuildIOTable( data.getLast());
-
-    for (n of nodes)
-        n.is_active = false;
 }
-
 
 export{
     Graph,
-    buildTransitionTable
+    buildTransitionTable,
+    save,
+    load
 }
