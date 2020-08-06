@@ -67,11 +67,12 @@ test('deserialize arrow', () => {
     let data = a.serialize();
     let o = deserializeArrow(data);
 
-    for(let x in o){
-        if(x === "id"){
+    for(let x in a){
+        if(x === "start_node" || x === "end_node"){
             continue;
         }
 
         expect(o[x]).toEqual(a[x]);
     }
+
 });
