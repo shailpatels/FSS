@@ -1,42 +1,50 @@
+import {canvasManager} from './canvasManager.js';
+import {isOverNode, getClosestNode, drawLabel, drawText} from './canvas.js';
+import {inputManager, drawArrowMenu} from './input.js';
+import {getMidPoint, findAngle, Point} from './lib/geometry.js';
+import {drawArrowhead} from './renderer.js';
 
-
-/*Node:
-	pos: the position on the canvas of the node (its centerpoint)
-	connected_arrows: a list of arrows connected to this node
-	label: the label of the node e.g: S_1
+/**
+* Node:
+* Represents a state in a FSM
 */
+
 class Node{
 	/**
-	@param {Point} pos
-	@param {string} str - label to give node
+	* @param {Point} pos
+	* @param {string} str - label to give node
 	*/
-	constructor(pos = null, str = ""){
-		if (pos === null)
-			pos = new Point();
-		this.pos = pos
+	constructor(pos_, str){
+		this.pos = pos_;
 		this.connected_arrows = [];
 		this.label = str;
 		this.is_active = false;
         this.is_accept = false;
-	}
+        this.is_mouse_over = false;
+        this.index = parseInt(this.label, 10);	
+        this.id = getRandomString();
+
+        canvasManager.getInstance().updateMap(this);
+    }
 
 	serialize(){
-        function replacer(key,value){
-            if(key === "connected_arrows")
-                return undefined;
-            
+     	function replacer(key,value){
+            if(key === "connected_arrows"){
+                return [];
+            }
+
             return value;
         }
-
-        return JSON.stringify(this, replacer);
+    
+        return JSON.stringify( this, replacer );
 	}
 
 	/**
-	Move this node along to a new position, will drag the ends of 
-	connected arrows with it
-
-	@param {Point} new_pos
-	**/
+	* Move this node along to a new position, will drag the ends of 
+	* connected arrows with it
+	*
+	* @param {Point} new_pos
+	*/
 	moveTo(new_pos){
 		this.pos = new_pos;
 		for (var i = this.connected_arrows.length - 1; i >= 0; i--) {
@@ -50,32 +58,33 @@ class Node{
 	}
 
 	draw(){
-		context.beginPath();
-		context.arc(this.pos.X, this.pos.Y, NODE_RADIUS, 0, 2 * Math.PI);
-		context.stroke();
+		let CM = canvasManager.getInstance();
+
+		CM.context.beginPath();
+		CM.context.arc(this.pos.X, this.pos.Y, CM.node_radius, 0, 2 * Math.PI);
+		CM.context.stroke();
        
-		if(!this.mouse_over){
-			context.beginPath();
-			context.arc(this.pos.X, this.pos.Y, NODE_RADIUS - 0.5, 0, 2 * Math.PI);
-			context.fillStyle = this.is_active ? "yellow" : "white";
-			context.fill();
+		if(!this.is_mouse_over){
+			CM.context.beginPath();
+			CM.context.arc(this.pos.X, this.pos.Y, CM.node_radius - 0.5, 0, 2 * Math.PI);
+			CM.context.fillStyle = this.is_active ? "yellow" : "white";
+			CM.context.fill();
 		}
 		else{
-			context.save();
-			context.globalAlpha = 0.75;
-			context.fillStyle = "CornflowerBlue";
-			context.fill();
-			context.restore();
-
+			CM.context.save();
+			CM.context.globalAlpha = 0.75;
+			CM.context.fillStyle = "CornflowerBlue";
+			CM.context.fill();
+			CM.context.restore();
 		}
     
         if(this.is_accept){
-            context.beginPath();
-            context.arc(this.pos.X, this.pos.Y, NODE_RADIUS - 7, 0, 2 * Math.PI);
-            context.stroke();
+            CM.context.beginPath();
+            CM.context.arc(this.pos.X, this.pos.Y, CM.node_radius - 7, 0, 2 * Math.PI);
+            CM.context.stroke();
         }
 	
-		this.mouse_over = this.mouseOver();
+		this.is_mouse_over = this.mouseOver();
 		drawLabel(this.label, this.pos);
 	}
 
@@ -95,25 +104,30 @@ class Node{
 */
 class Arrow{
 	/**
-	@param {Node} start
-	@param {Node} end
-	@param {boolean} is_self_ - does the arrow enter and leave the same node
-	@param {number}	angle_off angle offset the mouse clicked on, used for self arrows
+	* @param {Node} start
+	* @param {Node} end
+	* @param {boolean} is_self_ - does the arrow enter and leave the same node
+	* @param {number}	angle_off angle offset the mouse clicked on, used for self arrows
 	*/
 	constructor(start, end, is_self_, angle_off){
 		this.start_pos = start.pos;
 		this.end_pos = end.pos;
 		this.t = 0.5;
 		this.ctrl_pos = getMidPoint(this.start_pos, this.end_pos);
-		this.mouse_over = false;
+		this.is_mouse_over = false;
 		this.start_node = start;
 		this.end_node = end;
 		this.is_self = is_self_;
 		this.angle_offset = angle_off;
+		        //console.log(this.angle_offset *( 180/ Math.PI) );
+
 		this.mid_point = this.getCurveMidPoint();
+		this.id = getRandomString();
 
 		this.IF = "";
 		this.OUT = "";
+
+		canvasManager.getInstance().updateMap(this);
 	}
         
     isDeparting(node){
@@ -122,16 +136,19 @@ class Arrow{
 	
 	serialize(){
         function replacer(key,value){
-            if(key === "start_node" || key === "end_node")
-                return value.serialize();
+            if(key === "start_node" || key === "end_node"){
+                return value.id;
+            }
 
             return value;
         }
     
-        let tmp = JSON.stringify( this, replacer );
-        return tmp;
+        return JSON.stringify( this, replacer );
 	}
 
+	/* 
+	* @returns {Point}
+	*/
 	getCurveMidPoint(){
 		var ax = getMidPoint( this.ctrl_pos, this.start_pos );
 		var bx = getMidPoint( this.ctrl_pos, this.end_pos)
@@ -143,47 +160,57 @@ class Arrow{
 	}
 
 	draw(){
+		let CM = canvasManager.getInstance();
+
 		if (this.is_self){
 			this.drawSelfArrow();
 			return;
 		}
 
-		context.fillStyle = "black";
+		CM.context.fillStyle = "black";
 		let line_width = 2;
 
-		if(this.mouse_over || this === selected_arrow)
+		if(this.is_mouse_over || this === CM.selected_arrow){
 			line_width = 4;
+		}
 
-		context.lineWidth = line_width;
+		CM.context.lineWidth = line_width;
 		this.path = new Path2D();
 		this.path.moveTo(this.start_pos.X, this.start_pos.Y);
-		this.path.quadraticCurveTo(this.ctrl_pos.X,this.ctrl_pos.Y, 
-								   this.end_pos.X, this.end_pos.Y);
+		this.path.quadraticCurveTo(
+			this.ctrl_pos.X,
+			this.ctrl_pos.Y, 
+			this.end_pos.X, 
+			this.end_pos.Y
+		);
 
-		context.stroke(this.path);
+		CM.context.stroke(this.path);
 		let ang = findAngle(this.ctrl_pos, this.end_pos);
-		drawArrowhead(this.end_pos, ang, line_width );
+		drawArrowhead(this.end_pos, -ang, line_width );
 
 		this.hooverPath = new Path2D();
 		this.hooverPath.moveTo(this.start_pos.X, this.start_pos.Y);
-		this.hooverPath.quadraticCurveTo(this.ctrl_pos.X,this.ctrl_pos.Y, 
-								         this.end_pos.X, this.end_pos.Y);
+		this.hooverPath.quadraticCurveTo(
+			this.ctrl_pos.X,
+			this.ctrl_pos.Y, 
+			this.end_pos.X, 
+			this.end_pos.Y
+		);
 
-		context.lineWidth = 50;
-		context.save();
-		context.globalAlpha = 0.0;
-		context.stroke(this.hooverPath); 
-		context.restore();
+		CM.context.lineWidth = 50;
+		CM.context.save();
+		CM.context.globalAlpha = 0.0;
+		CM.context.stroke(this.hooverPath); 
+		CM.context.restore();
 	
-		this.mouse_over = this.isMouseOver();		
-		context.lineWidth = 1;
+		this.is_mouse_over = this.isMouseOver();		
+		CM.context.lineWidth = 1;
 
-		if(this === selected_arrow){
+		if(this === CM.selected_arrow){
 			drawArrowMenu(this.mid_point,this.IF,this.OUT);
-		}
-		else if(this.IF != ""){
+		}else if(this.IF != ""){
             let text = this.OUT === "" ? this.IF : this.IF + " : " + this.OUT;
-            let w = context.measureText(text).width;
+            let w = CM.context.measureText(text).width;
             
             let Y = this.mid_point.Y;
             let X = this.mid_point.X; 
@@ -208,67 +235,79 @@ class Arrow{
 
 	drawSelfArrow(){
 		let line_width = 2;
+		let CM = canvasManager.getInstance();
 
-		if(this.mouse_over || this === selected_arrow)
+		if(this.is_mouse_over || this === CM.selected_arrow){
 			line_width = 4;
+		}
 
-		context.lineWidth = line_width;
+		CM.context.lineWidth = line_width;
 		let pad = 30;
 
-	 	context.translate(this.start_pos.X, this.start_pos.Y);
-	 	context.rotate(this.angle_offset);
+	 	CM.context.translate(this.start_pos.X, this.start_pos.Y);
+	 	let a_offset = this.angle_offset + (Math.PI/5);
 
-	    context.beginPath();
-	    context.arc(pad,pad, NODE_RADIUS, 0, 2 * Math.PI);
-	    context.stroke();
+
+	 	CM.context.rotate(-a_offset);
+
+	    CM.context.beginPath();
+	    CM.context.arc(pad,pad, CM.node_radius, 0, 2 * Math.PI);
+	    CM.context.stroke();
 
 	    this.hooverPath = new Path2D();
-	    this.hooverPath.arc(pad,pad, NODE_RADIUS, 0, 2 * Math.PI);
+	    this.hooverPath.arc(pad,pad, CM.node_radius, 0, 2 * Math.PI);
 
-	    context.lineWidth = 7;
-	    context.save();
-		context.globalAlpha = 0.0;
-		context.stroke(this.hooverPath); 
-		context.restore();
+	    CM.context.lineWidth = 7;
+	    CM.context.save();
+		CM.context.globalAlpha = 0.0;
+		CM.context.stroke(this.hooverPath); 
+		CM.context.restore();
 
-		this.mouse_over = this.isMouseOver();
+		this.is_mouse_over = this.isMouseOver();
 
-	    context.rotate(-this.angle_offset);
-	    context.translate(-this.start_pos.X, -this.start_pos.Y);
+	    CM.context.rotate(a_offset);
+	    CM.context.translate(-this.start_pos.X, -this.start_pos.Y);
 
-	    context.lineWidth = 1;
-	    drawArrowhead(this.end_pos, this.angle_offset + Math.PI + (Math.PI/17), line_width );
-    
-        let d = 75;
-        let X = Math.cos((this.angle_offset)) * d;
-        let Y = Math.sin((this.angle_offset)) * d;
+	    CM.context.lineWidth = 1;
+	    drawArrowhead(
+	    	this.end_pos, 
+	    	-(a_offset + Math.PI - Math.PI/17), 
+	    	line_width
+	    );       
         
-        X += (this.start_node.pos.X );
-        Y += (this.start_node.pos.Y );
-            
-        let pt = new Point(X,Y);
-        if(this === selected_arrow){
+        let r = 90;
+        let x = r * Math.cos(-this.angle_offset);
+        let y = r * Math.sin(-this.angle_offset);
+
+
+        let pt = new Point(x + this.start_node.pos.X,y + this.start_node.pos.Y);
+       
+        if(this === CM.selected_arrow){
             drawArrowMenu(pt ,this.IF,this.OUT);
         }else if(this.IF != ""){
             let text = this.OUT === "" ? this.IF : this.IF + " : " + this.OUT;
-            let w = context.measureText(text).width;
+            let w = CM.context.measureText(text).width;
             
+
             drawText(text,pt); 
         }
 	}
 
 
 	isMouseOver(){	
-		return context.isPointInStroke( this.hooverPath, mouse_pos.X, mouse_pos.Y );
+		let mp = inputManager.getInstance().mouse_pos;
+		return canvasManager.getInstance().context.isPointInStroke( 
+			this.hooverPath, mp.X, mp.Y 
+		);
 	}
 
 	/**
-	moveByNode updates the arrows position when a conencted node is moved
-	should be called by moveTo on a node object
-
-	@param {Point} new_pos - tgt pos
-	@param {Node} selected_node - node moving this arrow
-	**/
+	* moveByNode updates the arrows position when a conencted node is moved
+	* should be called by moveTo on a node object
+	*
+	* @param {Point} new_pos - tgt pos
+	* @param {Node} selected_node - node moving this arrow
+	*/
 	moveByNode(new_pos, selected_node){
 		if(this.is_self){
 			this.start_pos = new_pos;
@@ -276,18 +315,23 @@ class Arrow{
 		}
 
 		//the point connected to the selected node should be moved
-		if(selected_node === this.start_node )
+		if(selected_node === this.start_node ){
 			this.start_pos = new_pos;
-		else
+		}else{
 			this.end_pos = new_pos;
+		}
 
 		this.mid_point = this.getCurveMidPoint();
 	}
      
     moveToMouse(){
-    	current_arrow.ctrl_pos = mouse_pos;
-    	if(this.is_self)
-    		this.angle_offset = findAngle(this.start_pos, mouse_pos);
+    	let CM = canvasManager.getInstance();
+    	let IM = inputManager.getInstance();
+
+    	CM.current_arrow.ctrl_pos = IM.mouse_pos;
+    	if(this.is_self){
+    		this.angle_offset = findAngle(this.start_pos, IM.mouse_pos);
+    	}
 
     	this.mid_point = this.getCurveMidPoint();
     }
@@ -301,9 +345,55 @@ function serializeArrows(arrs){
 	return JSON.stringify( ret );
 }
 
-/** @typedef { import('./geometry.js').Point } Point */
-if(typeof module !== 'undefined'){
-    const Geometry = jest.requireActual('./lib/geometry');
-    getMidPoint = Geometry['getMidPoint'];
-    module.exports = {Node,Arrow};
+
+function deserializeNode(data){
+    let tmp = JSON.parse(data);
+    let ret = new Node();
+
+    for(let x in ret){
+        ret[x] = tmp[x];
+    }
+
+    return ret;
+}
+
+
+function deserializeArrow(data){
+	let tmp = JSON.parse(data);
+	let ret = new Arrow(
+		new Node(new Point()), 
+		new Node(new Point())
+	);
+
+	for(let x in ret){
+		ret[x] = tmp[x];
+	}
+
+	ret.start_node = null;
+	ret.end_node = null;
+
+	return tmp;
+}
+
+
+/**
+* create a unique random string
+* @return {String}
+*/
+function getRandomString(){
+    let array = "";
+    for(let i = 0; i < 5; i++){
+    	let t = (Math.floor(Math.random() * Math.floor(500)));
+    	array += t.toString();
+    }
+   
+    return array;
+}
+
+
+export{
+	Node,
+	Arrow,
+	deserializeArrow,
+	deserializeNode
 }

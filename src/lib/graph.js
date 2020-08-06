@@ -1,3 +1,7 @@
+import {canvasManager} from '../canvasManager.js';
+import {getTableCells} from '../simulate.js';
+import {deserializeNode, deserializeArrow} from '../elements.js';
+
 class Graph{
 
 	constructor(){ 
@@ -5,37 +9,42 @@ class Graph{
 		this.size = 0;
 	}
 
+    getKeys(){
+        return this.graph.keys();
+    }
+
 	/**
-	@param {Node} v - index of state as a new vertex to add to graph
-	**/
+	* @param {Node} v - index of state as a new vertex to add to graph
+	*/
 	addVertex(v){
 		this.graph.set(v, []);
 		this.size ++;
 	}
 
 	/**
-	create a new directed edge between two vertices
-
-	@param {Node} start
-	@param {Node} end
-	**/
+	* create a new directed edge between two vertices
+    *
+	* @param {Node} start
+	* @param {Node} end
+	*/
 	addEdge(start, end){
 		this.graph.get(start).push(end);
 	}
 
 	/**
-	@param {Node} v - node to delete
-	**/
+	* @param {Node} v_ - node to delete
+	*/
 	deleteVertex(v_){
 		this.graph.delete(v_);
 
 		let keys = this.graph.keys();
-		for (var u of keys){
+		for (let u of keys){
 			let connections = this.graph.get(u);
 			let index = 0;
-			for (var v of connections){
-				if(v === v_)
+			for (let v of connections){
+				if(v === v_){
 					connections.splice(index, 1);
+                }
 
 				index ++;
 			}
@@ -46,17 +55,19 @@ class Graph{
 	}
 
 	/**
-	given two nodes delete the edge between them if it exists
-
-	@param {Node} u - starting node of edge
-	@param {Node} v - ending node of edge 
-	**/
+	* given two nodes delete the edge between them if it exists
+    *
+	* @param {Node} u - starting node of edge
+	* @param {Node} v - ending node of edge 
+	*/
 	deleteEdge(u, v){
 		let keys = this.graph.keys();
 		let connections = this.graph.get(u);
 
-		connections.remove(v);
+        const index = connections.indexOf(v);
+        connections.splice(index,1);
 	}
+
 
 	getConnections(node){
 		return this.graph.get(node);
@@ -68,77 +79,112 @@ function printGraph(){
 }
 //end class
 
-function buildTransitionTable(){
-    let tbl = document.getElementById("t_table");
-    let keys = this.graph.graph.keys();
-    
-    function buildText(str){
-        let ret = document.createElement("span");
-        ret.innerHTML = "S<sub>" + str + "</sub>";
-        return ret;
-    }
-
-    for(key of keys){
-        console.log(key);
-        let tmp = document.createElement("tr");
-        let td_tmp = document.createElement("td");
-        td_tmp.setAttribute("class", "t_tbl");
-        tmp.appendChild( td_tmp.appendChild( buildText(key.label))); 
-        tbl.appendChild(tmp);
-        let arrs = key.connected_arrows;
-        let td = document.createElement("td");
-        td.setAttribute("class", "t_tbl");
-
-        for(arr of arrs){
-            if(arr.isDeparting(key))
-                continue;
-            td.appendChild( document.createTextNode(arr.IF));
-            td.appendChild( document.createElement("br") );
-            tmp.appendChild( td );
-        }
-        
-        td = document.createElement("td");
-        td.setAttribute("class", "t_tbl");
-
-        for(arr of arrs){
-            if(arr.isDeparting(key))
-                continue;
-            td.appendChild( document.createTextNode(arr.OUT));
-            td.appendChild( document.createElement("br") );
-            tmp.appendChild( td );
-        }
-            
-        td = document.createElement("td");
-        td.setAttribute("class", "t_tbl");
-
-        for(arr of arrs){
-            if(arr.isDeparting(key))
-                continue;
-            td.appendChild( buildText(arr.end_node.label) );
-            td.appendChild( document.createElement("br") );
-            tmp.appendChild( td );
-        }
-        tbl.appendChild(tmp);
-    }
-    
+function buildText(str){
+    return `
+        <span>
+            S<sub>${str}</sub>
+        </span>
+    `;
 }
 
-var file_count = 0;
+/**
+* @param {Node} Node to start from
+* @param {String} val what value to read from (IF,OUT,NEXT STATE label)
+*/
+function buildTransitionTableHelper(key, val){
+    let arrs = key.connected_arrows;
+    let output = `<td class='t_tbl'>`;
+
+    for(let arr of arrs){
+        if(arr.isDeparting(key)){
+            continue;
+        }
+
+        let data = null;
+        if(val === "IF"){
+            data = arr.IF;
+        }else if(val === "OUT"){
+            data = arr.OUT;
+        }else{
+            data = buildText(arr.end_node.label);
+        }
+
+        output += `${data}`;
+        output += `<br>`
+
+    }
+
+    return output;
+}
+
+
+/**
+* Construct a transition table based on the FSM
+* @param {String|null} tgt_element to draw too
+* @returns {String} HTML output
+*/
+function buildTransitionTable(tgt_element = null){
+    let CM = canvasManager.getInstance();
+
+    let tbl = null;
+    if(tgt_element){
+        tbl = document.getElementById(tgt_element);
+    }
+
+    let keys = CM.graph.getKeys();
+    
+
+    let output = `
+        <tr>
+            <th> State </th>
+            <th> Input </th>
+            <th> Output </th>
+            <th> Next State </th>
+        </tr>
+    `;
+
+    for(let key of keys){
+        output += 
+            `<tr>
+                <td class='t_tbl'>
+                    ${buildText(key.label)}
+                </td>
+        `;
+        
+        output += buildTransitionTableHelper(key, "IF");
+        output += buildTransitionTableHelper(key, "OUT");
+        output += buildTransitionTableHelper(key, "");
+        output += "</tr>";
+    }
+
+    if(tbl){
+        tbl.innerHTML = output;
+    }
+
+    return output;   
+}
+
+
 function save(){
-	data = [];
-	for(u of graph.graph.keys() ){
-		let tmp = {
-			"node" : u.serialize(),
-            "connected_arrows" : serializeArrows(u.connected_arrows)
-		};
-		data.push(tmp);
-	}
+    let CM = canvasManager.getInstance();
+    let map = canvasManager.getInstance().map;
 
-    data.push( saveIO() );
+    let nodes = [];
+    for(let x of CM.nodes){
+        nodes.push(x.serialize());
+    }
 
-	let json = JSON.stringify(data);
-	localStorage.setItem('data', json);
-    file_count ++;
+    let arrows = [];
+    for(let x of CM.arrows){
+        arrows.push(x.serialize());
+    }
+
+	
+	localStorage.setItem('object_map', JSON.stringify(map));
+    localStorage.setItem('nodes', JSON.stringify(nodes));
+    localStorage.setItem('arrows', JSON.stringify(arrows));
+
+    saveIO();
 }
 
 function saveIO(){
@@ -146,13 +192,13 @@ function saveIO(){
     let ret = [];
 
     let i = 0;
-    for ( t of ts ){
-        ret.push( { "value" : t.textContent,
-                    "full_word" : t.childNodes.length === 1,
-                    "input" : i % 2 == 0
-                  });
-
-        i++;
+    for (let t of ts ){
+        ret.push({ 
+            "value" : t.textContent,
+            "full_word" : t.childNodes.length === 1,
+            "input" : i % 2 == 0
+        });
+        i ++;
     }
 
     return {"io_table" : ret }; 
@@ -269,46 +315,56 @@ function rebuildIOTable(data){
 }
 
 
-function load(f = 0){
-	let json = localStorage.getItem('data');
-	if(json === null)
-		return;
+function load(){
+	let CM = canvasManager.getInstance();
+    CM.resetCanvas();
 
-	resetCanvas();
-    
-    let data = JSON.parse(json);
-    for(obj of data){
-        if ( typeof obj.node === "undefined")
-            continue;
+    let objects = localStorage.getItem('object_map');
+    let nodes = localStorage.getItem('nodes');
+    let arrows = localStorage.getItem('arrows');
 
-        rebuildNode(JSON.parse(obj.node));
+    if(!objects || !nodes || !arrows){
+        return;
     }
-        
 
-    for(obj of data){
+    nodes = JSON.parse(nodes);
+    arrows = JSON.parse(arrows);
+    objects = JSON.parse(objects);
 
-        if ( typeof obj.node === "undefined")
+    //rebuild nodes
+    for(let n of nodes){
+        let new_node = deserializeNode(n);
+        CM.addNewNode(new_node);
+    }
+
+    for(let a of arrows){
+        let new_arrow = deserializeArrow(a);
+        //try and find its start and end nodes
+
+        let start = CM.getObjFromID(new_arrow.start_node);
+        let end = CM.getObjFromID(new_arrow.end_node);
+
+        if(!start || !end){
             continue;
-
-        let source_node = JSON.parse(obj.node);
-        for(arr of JSON.parse(obj.connected_arrows)){
-            let arr_obj = JSON.parse(arr);
-            let arr_src = JSON.parse(arr_obj.start_node);
-            
-            if (source_node.label !== arr_src.label && !arr_obj.is_self)
-                continue;
-
-            rebuildArrow(arr_obj) 
         }
+
+        CM.addNewArrow(start,end);
+        let last = CM.arrows[CM.arrows.length-1];
+
+        for(let prop in last){
+            if(prop === "start_node" || prop === "end_node"){
+                continue;
+            }
+
+            last[prop] = new_arrow[prop];
+        }
+
     }
-
-    clearIOTable();
-    rebuildIOTable( data.getLast());
-
-    for (n of nodes)
-        n.is_active = false;
 }
 
-
-if(typeof module !== 'undefined')
-	module.exports = {Graph};
+export{
+    Graph,
+    buildTransitionTable,
+    save,
+    load
+}

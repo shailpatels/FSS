@@ -1,14 +1,16 @@
-var CANVAS,
-    context,
+import {canvasManager} from './canvasManager.js';
+import {API} from './api.js';
+import {initCanvas, drawSelfArrowHelper} from './renderer.js';
+import {Graph} from './lib/graph.js';
+import {initControls, drawArrowMenu, inputManager, hideArrowMenu} from './input.js';
+import {Point, getDistance, findAngle} from './lib/geometry.js';
+import {Node} from './elements.js';
 
-    height = 500,
+var height = 500,
     width = 1000,
 
     arrow_menu,
-    graph,
-
-    API;
-
+    graph;
 
 const NODE_RADIUS = 25,	
       LEFT_MOUSE_BUTTON = 0,
@@ -20,15 +22,6 @@ Array.prototype.getLast = function() {
 }
 
 
-Array.prototype.remove = function(tgt) {
-    for(var i = 0; i < this.length; i++)
-    	if (this[i] === tgt){
-    		this.splice(i,1);
-    		break;
-    	}
-}
-
-
 Array.prototype.toFlatString = function() {
     let ret = "";
     for(var i = 0; i < this.length; i++)  
@@ -37,35 +30,37 @@ Array.prototype.toFlatString = function() {
 }
 
 
-function init(){
-	CANVAS = document.getElementById("canvas");
-	if(!CANVAS || !CANVAS.getContext("2d"))
+window.onload = () => {
+	let canvas = document.getElementById("canvas");
+	if(!canvas || !canvas.getContext("2d")){
+		alert("Your browser does not support the HTML5 canvas");
 		return;
+	}
 
 	arrow_menu = document.getElementById("arrow_menu");
-	context = CANVAS.getContext("2d");  
-	API = API_OBJ.getInstance();
+
+	let CM = canvasManager.init(canvas);
 
 	//prevent highlighting outside of the canvas on click
-	CANVAS.onselectstart = function () { return false; }
+	CM.canvas.onselectstart = function () { return false; }
 	initCanvas();
 	graph = new Graph();
-	initControls(CANVAS);
-    fileManager();
+	initControls(canvas);
+   // fileManager();
 	app();
 }
 
 
 var nodes = [], arrows = [],
-	mouse_pos, mouse_down, key_down,
-	current_node, current_arrow,
+	mouse_pos, mouse_down, key_down;
+var current_node = null, current_arrow,
 	begin_arrow, start_node, mouse_down,
 	selected_arrow, arrow_menu_drawn;
 
 
 function app(){
 	mouse_down = begin_arrow = key_down = arrow_menu_drawn = false;
-	current_node = current_arrow = selected_arrow = null;
+	current_arrow = selected_arrow = null;
 	mouse_pos = new Point(0,0);
 	drawArrowMenu(mouse_pos);
 
@@ -74,32 +69,43 @@ function app(){
 
 
 function drawScreen(){
+	let CM = canvasManager.getInstance();
+	let IM = inputManager.getInstance();
+
 	//reset
-	context.fillStyle = '#aaaaaa';
-	context.fillRect(0, 0, width, height);
+	CM.context.fillStyle = '#aaaaaa';
+	CM.context.fillRect(0, 0, width, height);
+	isOverNode();
 
-	if(begin_arrow && current_node){
-		if(isOverNode() && (getClosestNode() == start_node) )
-			drawSelfArrow(start_node.pos);
+	if(CM.is_starting_arrow && CM.current_node){
+		if(CM.is_over_node && (getClosestNode() == CM.start_node) ){
+			drawSelfArrowHelper(CM.start_node.pos);
+		}
 
-		drawLine(current_node.pos, mouse_pos);
-		current_node.draw();
+		drawLine(CM.current_node.pos, IM.mouse_pos);
+		CM.current_node.draw();
 	}
 
-	for(var i = 0; i < arrows.length; ++i){
-		arrows[i].draw();
-		if(arrows[i].isMouseOver() && !isOverNode() ){
-			current_arrow = arrows[i];
+	for(let i = 0; i < CM.arrows.length; ++i){
+		CM.arrows[i].draw();
+		if(CM.arrows[i].isMouseOver() && !CM.is_over_node ){
+			CM.current_arrow = CM.arrows[i];
 		}
 	}
 
 	//draw circles on top of arrows to avoid anything inside the 'nodes'
-	for( n of nodes)
+	for(let n of CM.nodes){
 		n.draw();
+	}
 	
 
-	if(selected_arrow === null)
+	if(CM.selected_arrow === null){
 		hideArrowMenu();
+	}
+
+	// if(CM.nodes.length > 0){
+	// 	drawLine(IM.mouse_pos, CM.nodes[0].pos );
+	// }
 
 	window.requestAnimationFrame(drawScreen);
 }
@@ -107,24 +113,9 @@ function drawScreen(){
 
 //helper functions:
 function isOverNode(){
-	return distanceToClosestNode() < NODE_RADIUS;
-}
-
-/**
-* create a new node if given nothing, otherwise 
-* the given node will be placed and added to the graph
-*
-* @param {Node|void} node_
-*/
-function addNewNode(node_ = null){
-	if(node_ === null)
-		var node_ = new Node(mouse_pos, nodes.length.toString(10));
-    
-	nodes.push( node_ );
-	graph.addVertex(nodes.getLast());
-
-	if(!is_starting)
-		resetSim();
+	let CM = canvasManager.getInstance();
+	CM.is_over_node = distanceToClosestNode() < NODE_RADIUS;
+	return CM.is_over_node;
 }
 
 
@@ -144,87 +135,6 @@ function placeNewArrow(arr){
 
 
 /**
-* create a new arrow and connect it between two nodes
-*
-* @param {Node} start_node 
-* @param {Node} end_node
-*/
-function addNewArrow(start_node, end_node){
-
-	let is_self = false;
-	let angle = 0.0;
-	if(start_node === end_node){
-		is_self = true;
-		angle = findAngle(start_node.pos, mouse_pos);
-	}
-
-	new_arrow = new Arrow(start_node, end_node, is_self, angle);
-	
-	start_node.connected_arrows.push(new_arrow);
-    
-    if(!is_self)
-        end_node.connected_arrows.push(new_arrow);
-
-	arrows.push(new_arrow);
-	graph.addEdge(start_node, end_node);
-
-	if(!is_starting)
-		resetSim();
-    
-}
-
-
-function deleteNode(){
-	for(var i = 0; i < getClosestNode().connected_arrows.length; ++i)
-		arrows.splice( getArrowIndex(getClosestNode().connected_arrows[i]) , 1);
-
-	//update labels
-	for(var i = getNodeIndex(getClosestNode()); i < nodes.length; ++i)
-		nodes[i].label = i-1;
-
-	//remove from list
-	nodes.splice(getNodeIndex(getClosestNode()), 1);
-
-	if(!is_starting)
-		resetSim();
-}
-
-
-function deleteArrow(arr_){
-	let start = arr_.start_node;
-	let end = arr_.end_node;
-
-	start.connected_arrows.remove(arr_);
-	if(start !== end)
-		end.connected_arrows.remove(arr_);
-
-	arrows.remove(arr_);
-	graph.deleteEdge(start, end);
-
-	if(!is_starting)
-		resetSim();
-}
-
-
-function getNodeIndex(_node){
-	for(var i = 0; i < nodes.length; ++i){
-		if(nodes[i] === _node)
-			return i;
-	}
-	return -1;
-}
-
-
-function getArrowIndex(arr){
-	for(var i = 0; i < arrows.length; ++i){
-		if(arrows[i] === arr)
-			return i;
-	}
-	return -1;
-}
-
-
-/**
 * @param {Point} pos - position to convert from canvas to HTML coords
 * @returns {Point}
 **/
@@ -236,73 +146,89 @@ function mouseToPage(pos){
 
 //theres probably a better way to handle this...
 function drawLabel(str, _pos){
-	context.font = "italic 25px Times New Roman";
-	context.fillStyle = "black";
-	context.fillText("S", _pos.X-8, _pos.Y+5);
-	context.font = "15px Times New Roman";
-	context.fillText(str, _pos.X+4, _pos.Y+10);
+	let CM = canvasManager.getInstance();
+
+	CM.context.font = "italic 25px Times New Roman";
+	CM.context.fillStyle = "black";
+	CM.context.fillText("S", _pos.X-8, _pos.Y+5);
+	CM.context.font = "15px Times New Roman";
+	CM.context.fillText(str, _pos.X+4, _pos.Y+10);
 }
 
 
 function drawText(str, _pos){
-	context.font = "italic 25px Times New Roman";
-	context.fillStyle = "black";
-	context.fillText(str, _pos.X, _pos.Y);
+	let CM = canvasManager.getInstance();
+
+	CM.context.font = "italic 25px Times New Roman";
+	CM.context.fillStyle = "black";
+	CM.context.fillText(str, _pos.X, _pos.Y);
 }
 
 
 function drawLine(a, b, thickness = 1){
-	context.beginPath();
-	context.moveTo(a.X,a.Y);
-	context.lineTo(b.X,b.Y);
-	context.lineWidth = thickness;
-	context.stroke();
+	let CM = canvasManager.getInstance();
+
+	CM.context.beginPath();
+	CM.context.moveTo(a.X,a.Y);
+	CM.context.lineTo(b.X,b.Y);
+	CM.context.lineWidth = thickness;
+	CM.context.stroke();
 }
 
 
 //returns closest node relative to the current mouse position
 function distanceToClosestNode(){
-	var min = 1000;
-	var closest_node;
-	if(nodes.length === 0)
-		return width;
+	let CM = canvasManager.getInstance();
 
-	return getDistance(mouse_pos, getClosestNode().pos);
+	if(CM.nodes.length === 0){
+		return width;
+	}
+
+	let IM = inputManager.getInstance();
+
+	return getDistance(IM.mouse_pos, getClosestNode().pos);
 }
 
 
 //returns a refrence to the closest node relative to the mouse position
 function getClosestNode(){
+	let CM = canvasManager.getInstance();
+	let IM = inputManager.getInstance();
+
 	let min = 1000;
 	let index = 0;
-	if(nodes.length === 0)
-		return;
-	if(nodes.length === 1)
-		return nodes[0];
-	for (let i = 0; i < nodes.length; ++i) {
-		let dist = getDistance(nodes[i].pos, mouse_pos);
+
+	if(CM.nodes.length === 0){
+		return null;
+	}else if(CM.nodes.length === 1){
+		return CM.nodes[0];
+	}
+
+	for (let i = 0; i < CM.nodes.length; ++i) {
+		let dist = getDistance(CM.nodes[i].pos, IM.mouse_pos);
 		if(dist < min){
 			min = dist;
 			index = i;
 		}
 	}	
-	return nodes[index];
-}
-
-
-function resetCanvas(){
-	//delete graph;
-	graph = new Graph();
-	nodes = [];
-	arrows = [];
-
-	mouse_pos = new Point();
+	return CM.nodes[index];
 }
 
 
 function refocus(){
-    CANVAS.focus();
-    CANVAS.click();
+	let CM = canvasManager.getInstance();
+    CM.canvas.focus();
+    CM.canvas.click();
 }
 
+
 /** @typedef { import('./lib/geometry.js').Point } Point */
+export{
+	width,
+	height,
+	isOverNode,
+	getClosestNode,
+	drawLabel,
+	refocus,
+	drawText
+}

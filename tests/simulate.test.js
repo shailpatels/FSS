@@ -1,15 +1,16 @@
-const _S = jest.requireActual('../src/simulate.js');
-const _E = jest.requireActual('../src/elements.js');
-const _G = jest.requireActual('../src/lib/geometry.js');
-const _C = jest.requireActual('../src/canvas.js');
+import {simManager,step} from '../src/simulate.js';
+import {canvasManager} from '../src/canvasManager.js';
+import {Node} from '../src/elements.js';
+import {Point} from '../src/lib/geometry.js';
 
+canvasManager.init({getContext : function(){return null}});
 
 test('test empty sim', () => {
-	_S.step(true);
+	step(true);
 });
 
 test('test sim 1', () => {
-	let n = new _E.Node(new _G.Point(), "foo" );
-	let m = new _E.Node(new _G.Point(), "bar" );
+	let n = new Node(new Point(), "foo" );
+	let m = new Node(new Point(), "bar" );
 	
 });

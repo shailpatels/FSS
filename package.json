@@ -4,18 +4,20 @@
   "description": "Finite State Simulator",
   "main": "canvas.js",
   "directories": {
-    "source" : "src",
+    "source": "src",
     "test": "tests"
   },
   "dependencies": {
-    "jest": "^24.9.0"
+    "jest": "^24.9.0",
+    "jest-esm-transformer": "^1.0.0"
   },
   "devDependencies": {
     "@types/jest": "^24.9.1",
+    "esm": "^3.2.25",
     "ts-jest": "^24.3.0"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest  --config jest.config.js --coverage",
     "build": "./build.sh"
   },
   "repository": {

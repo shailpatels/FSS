@@ -1,3 +1,4 @@
+import {getDeviceRatio} from '../renderer.js';
 
 /** 
 * point represents 2D position
@@ -39,7 +40,7 @@ function getDistance(a, b){
 
 
 /**
-* finds angle between two points
+* finds angle between two points in radians
 *
 * @param {Point} start_pos
 * @param {Point} end_pos
@@ -47,7 +48,15 @@ function getDistance(a, b){
 */
 function findAngle(start_pos, end_pos) {
     // make sx and sy at the zero point
-    return Math.atan2((end_pos.Y - start_pos.Y), (end_pos.X - start_pos.X));
+    let r = Math.atan2((end_pos.Y-start_pos.Y), (end_pos.X - start_pos.X));
+
+    if(r < 0){
+    	r = Math.abs(r);
+    }else{
+    	r = (2 * Math.PI) - r;
+    }
+
+    return r;
 }
 
 /**
@@ -63,30 +72,29 @@ function getMidPoint(a, b){
 	return new Point(X, Y);
 }
 
-/**
-* converts radians to degrees
-*
-* @param {Number} rad
-* @returns {Number}
-*/
-function radToDeg(rad){
-	return rad * (180/Math.PI);
-}
-
 
 //https://stackoverflow.com/questions/27205018/multiply-2-matrices-in-javascript
 function matrixDot (A, B) {
-    var result = new Array(A.length).fill(0).map(row => new Array(B[0].length).fill(0));
+    var result = new Array(A.length).fill(0).map(
+    	row => new Array(B[0].length).fill(0)
+    );
 
     return result.map((row, i) => {
         return row.map((val, j) => {
             return A[i].reduce((sum, elm, k) => sum + (elm*B[k][j]) ,0)
         })
-    })
+    });
 }
 
 
+/**
+* transform the mouse position to match the initial canvas transformation
+*
+* @param {Point} p
+* @returns {Point}
+*/
 function transformPoint(p){
+	let ratio = getDeviceRatio();
 	//use the transformation matrix to get the real canvas position
 	let m = matrixDot(
 		[[p.X, p.Y]], 
@@ -95,9 +103,13 @@ function transformPoint(p){
        	 [0,0,1]]
     )[0];
 
-    return new Point(m[0],m[1]);
+    return new Point(m[0]/ratio,m[1]/ratio);
 }
 
-
-if(typeof module !== 'undefined')
-    module.exports = {Point, getMidPoint};
+export{
+	Point,
+	transformPoint,
+	getDistance,
+	findAngle,
+	getMidPoint
+}

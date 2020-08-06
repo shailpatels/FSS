@@ -8,27 +8,6 @@
 *
 * https://www.dofactory.com/javascript/singleton-design-pattern
 */
-var API_OBJ = (function(){
-    var instance = null;
-
-    function createInstance() {
-        return new _API;
-    }
- 
-    return {
-        clear : function(){
-            instance = null;
-        },
-
-        getInstance: function () {
-            if (!instance) {
-                instance = createInstance();
-            }
-            return instance;
-        }
-
-    };
-})();
 
 
 /**
@@ -39,6 +18,10 @@ var API_OBJ = (function(){
 class _API{
     constructor(){
     	this.translation_table = new Map();
+    }
+
+    clear(){
+        this.translation_table.clear();
     }
 
     /**
@@ -66,8 +49,9 @@ class _API{
     */
     call(func, ...data){
     	let tgt = this.translation_table.get(func);
-    	if ( typeof tgt === "undefined")
+    	if ( typeof tgt === "undefined"){
     		return;
+        }
 
     	let args = [];
     	for (let x of data){
@@ -83,6 +67,9 @@ class _API{
     }
 }
 
+var API = new _API();
 
-if ( typeof module !== "undefined")
-	module.exports = {API_OBJ};
+export{
+    API,
+    _API
+}
