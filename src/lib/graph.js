@@ -191,13 +191,14 @@ function saveIO(){
     let ts = getTableCells();
     let ret = [];
 
+    let i = 0;
     for (let t of ts ){
         ret.push({ 
             "value" : t.textContent,
             "full_word" : t.childNodes.length === 1,
             "input" : i % 2 == 0
         });
-
+        i ++;
     }
 
     return {"io_table" : ret }; 
@@ -348,7 +349,16 @@ function load(){
         }
 
         CM.addNewArrow(start,end);
-        CM.arrows[CM.arrows.length-1].angle_offset = new_arrow.angle_offset;
+        let last = CM.arrows[CM.arrows.length-1];
+
+        for(let prop in last){
+            if(prop === "start_node" || prop === "end_node"){
+                continue;
+            }
+
+            last[prop] = new_arrow[prop];
+        }
+
     }
 }
 
