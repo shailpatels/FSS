@@ -6,21 +6,6 @@ import {initControls, drawArrowMenu, inputManager, hideArrowMenu} from './input.
 import {Point, getDistance, findAngle} from './lib/geometry.js';
 import {Node} from './elements.js';
 
-var height = 500,
-    width = 1000,
-
-    arrow_menu,
-    graph;
-
-const NODE_RADIUS = 25,	
-      LEFT_MOUSE_BUTTON = 0,
-      RIGHT_MOUSE_BUTTON = 2;
-
-
-Array.prototype.getLast = function() {
-    return this[this.length - 1];
-}
-
 
 Array.prototype.toFlatString = function() {
     let ret = "";
@@ -44,26 +29,9 @@ window.onload = () => {
 	//prevent highlighting outside of the canvas on click
 	CM.canvas.onselectstart = function () { return false; }
 	initCanvas();
-	graph = new Graph();
 	initControls(canvas);
    // fileManager();
-	app();
-}
-
-
-var nodes = [], arrows = [],
-	mouse_pos, mouse_down, key_down;
-var current_node = null, current_arrow,
-	begin_arrow, start_node, mouse_down,
-	selected_arrow, arrow_menu_drawn;
-
-
-function app(){
-	mouse_down = begin_arrow = key_down = arrow_menu_drawn = false;
-	current_arrow = selected_arrow = null;
-	mouse_pos = new Point(0,0);
-	drawArrowMenu(mouse_pos);
-
+	
 	drawScreen();
 }
 
@@ -74,7 +42,7 @@ function drawScreen(){
 
 	//reset
 	CM.context.fillStyle = '#aaaaaa';
-	CM.context.fillRect(0, 0, width, height);
+	CM.context.fillRect(0, 0, CM.width, CM.height);
 	isOverNode();
 
 	if(CM.is_starting_arrow && CM.current_node){
@@ -114,7 +82,7 @@ function drawScreen(){
 //helper functions:
 function isOverNode(){
 	let CM = canvasManager.getInstance();
-	CM.is_over_node = distanceToClosestNode() < NODE_RADIUS;
+	CM.is_over_node = distanceToClosestNode() < CM.node_radius;
 	return CM.is_over_node;
 }
 
@@ -181,7 +149,7 @@ function distanceToClosestNode(){
 	let CM = canvasManager.getInstance();
 
 	if(CM.nodes.length === 0){
-		return width;
+		return CM.width;
 	}
 
 	let IM = inputManager.getInstance();
@@ -224,8 +192,6 @@ function refocus(){
 
 /** @typedef { import('./lib/geometry.js').Point } Point */
 export{
-	width,
-	height,
 	isOverNode,
 	getClosestNode,
 	drawLabel,

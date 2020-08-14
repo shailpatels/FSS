@@ -31,6 +31,8 @@ class __CANVAS_MANAGER{
 	constructor(canvas_){
 		this.canvas = canvas_;
 		this.context = this.canvas.getContext("2d");  
+		this.height = 500;
+		this.width = 1000;
 
 		this.selected_arrow = null;
 		this.current_arrow = null;

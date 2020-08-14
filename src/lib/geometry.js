@@ -21,6 +21,7 @@ class Point{
 	set(X_,Y_){
 		this.X = X_;
 		this.Y = Y_;
+		return this;
 	}
 }
 

@@ -48,25 +48,26 @@ function initControls(){
 	document.addEventListener('keydown', onKeyDown);
 	document.addEventListener('keyup', onKeyUp);
 
-	document.getElementById('stp_btn').addEventListener('click', () => {
-		step(false);
-	});
-	document.getElementById('submit_btn').addEventListener('click', () => {
-		addRow();
-	});
-	document.getElementById('draw_btn').addEventListener('click', () => {
-		buildTransitionTable("t_table");
-	});
-	document.getElementById('save_btn').addEventListener('click', () => {
-		save();
-	});
-	document.getElementById('load_btn').addEventListener('click', () => {
-		load();
-	});
+	if(!API.is_external){
+		document.getElementById('stp_btn').addEventListener('click', () => {
+			step(API.is_external);
+		});
+		document.getElementById('submit_btn').addEventListener('click', () => {
+			addRow();
+		});
+		document.getElementById('draw_btn').addEventListener('click', () => {
+			buildTransitionTable('t_table');
+		});
+		document.getElementById('save_btn').addEventListener('click', () => {
+			save();
+		});
+		document.getElementById('load_btn').addEventListener('click', () => {
+			load();
+		});
+	}
 
 	//record the user input when typing in the input box
 	arrow_menu.addEventListener('keyup', (e) => {
-		API.call("arrow_menu_key_up", e);
 	    updateSelectedArrow();
 
 	    if(e.keyCode === 13){
@@ -76,7 +77,6 @@ function initControls(){
 	});
 
 
-//end function
 }
 
 function onMouseUp(e){
@@ -255,12 +255,17 @@ function onKeyDown(e){
 function updateSelectedArrow(){
 	let CM = canvasManager.getInstance();
 
+	let if_ = document.getElementById("if_");
+	let out = document.getElementById("out");
+
     if(CM.selected_arrow === null){
         return;
     }
 
     CM.selected_arrow.IF = if_.value;
 	CM.selected_arrow.OUT = out.value;
+
+	API.call("update_selected_arrow", if_.value, out.value);
 }
 
 
@@ -270,8 +275,13 @@ function updateArrowMenu(){
         return;
 	}
 
+	let if_ = document.getElementById("if_");
+	let out = document.getElementById("out");
+
     if_.value = CM.selected_arrow.IF;
     out.value = CM.selected_arrow.OUT; 
+
+   	API.call("update_arrow_menu", if_.value, out.value);
 }
 
 
