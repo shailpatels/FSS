@@ -287,8 +287,8 @@ class Arrow{
         }else if(this.IF != ""){
             let text = this.OUT === "" ? this.IF : this.IF + " : " + this.OUT;
             let w = CM.context.measureText(text).width;
-            
-
+          
+            pt = pt.set(pt.X - (w), pt.Y);
             drawText(text,pt); 
         }
 	}

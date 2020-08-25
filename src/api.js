@@ -1,23 +1,13 @@
 
 /**
-* There should only ever be only API object
-*
-* @type {Object} API_OBJ - singleton representing external interaction with FSS
-* @prop {Object} clear - removes this obj
-* @prop {Object} getInstance - returns the singleton, creates it if it doesn't exist
-*
-* https://www.dofactory.com/javascript/singleton-design-pattern
-*/
-
-
-/**
-* _API base class that handles interacting with FSS
+* _API base class that handles interacting with FSS from outsite programs
 *
 * @typedef {Object} _API
 */
 class _API{
     constructor(){
     	this.translation_table = new Map();
+        this.is_external = false;
     }
 
     clear(){
@@ -67,9 +57,10 @@ class _API{
     }
 }
 
+//global object shared between program
 var API = new _API();
 
 export{
     API,
-    _API
+    _API /* used for testing */
 }

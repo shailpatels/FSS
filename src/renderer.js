@@ -1,6 +1,5 @@
 import {canvasManager} from './canvasManager.js';
 import {inputManager} from './input.js';
-import {width,height} from './canvas.js';
 import {findAngle} from './lib/geometry.js';
 
 /** @typedef { import('./lib/geometry.js').Point } Point */``
@@ -94,10 +93,10 @@ function getDeviceRatio () {
 function initCanvas() {
     let ratio = getDeviceRatio();
     let CM = canvasManager.getInstance();
-    CM.canvas.width = width * ratio;
-    CM.canvas.height = height * ratio;
-    CM.canvas.style.width = width + "px";
-    CM.canvas.style.height = height + "px";
+    CM.canvas.width = CM.width * ratio;
+    CM.canvas.height = CM.height * ratio;
+    CM.canvas.style.width = CM.width + "px";
+    CM.canvas.style.height = CM.height + "px";
     //                    a     b  c  d      e  f
     CM.context.setTransform(ratio, 0, 0, ratio, 0, 0);
     /**
