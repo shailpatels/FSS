@@ -15,7 +15,8 @@ Array.prototype.toFlatString = function() {
 }
 
 
-window.onload = () => {
+window.addEventListener("load", main);
+function main(){
 	let canvas = document.getElementById("canvas");
 	if(!canvas || !canvas.getContext("2d")){
 		alert("Your browser does not support the HTML5 canvas");
