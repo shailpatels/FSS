@@ -1,7 +1,7 @@
 import {canvasManager} from './canvasManager.js';
 import {API} from './api.js';
 import {initCanvas, drawSelfArrowHelper} from './renderer.js';
-import {Graph} from './lib/graph.js';
+import {Graph,load} from './lib/graph.js';
 import {initControls, drawArrowMenu, inputManager, hideArrowMenu} from './input.js';
 import {Point, getDistance, findAngle} from './lib/geometry.js';
 import {Node} from './elements.js';
@@ -32,6 +32,10 @@ function main(){
     //fileManager();
 	
 	drawScreen();
+
+    if(CM.auto_save){
+        load();
+    }
 }
 
 

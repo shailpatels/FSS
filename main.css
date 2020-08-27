@@ -19,6 +19,15 @@ hr{
     margin-top:10px;
 }
 
+.content {
+    display: flex;
+    justify-content: center;   
+}
+
+.content > button{
+    margin : 5px;
+}
+
 #arrow_menu{
 	width: 110px;
 	box-shadow: 5px 5px 5px 0px #888888;
@@ -42,4 +51,32 @@ hr{
 
 .highlight{
     background-color:hsl(120,60%,70%);
+}
+
+
+#input_box{
+    max-width: 182px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#submit_btn{
+    margin-left: 35px;
+}
+
+
+legend{
+    margin-bottom: 0px;
+}
+
+button{
+    background-color: #e7e7e7; 
+    color: black;
+    border:none;
+    padding: 5px 5px;
+}
+
+button:hover{
+    background-color: grey;
+    color: white;
 }

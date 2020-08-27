@@ -33,17 +33,18 @@ class __SIM_STATE{
         this.is_full_word = false;
         this.moved_next_row = false;
     }
+
+    resetSim () { resetSim() };
 }
 
 
 /**
 * collect all the table cells ignoring the ones used in the transition table
 *
-* @param {Boolean} external - if this is being ran from an external app
 * @returns {Array} - Array of HTML elements
 */
-function getTableCells(external){
-    if (external){
+function getTableCells(){
+    if (API.is_external){
         return [];
     }
 
@@ -65,18 +66,16 @@ function resetSim(){
 
     clearIOTable();
     clearTransitionTable();
-
-    canvasManager.getInstance().resetCanvas();
 }
 
 function clearTransitionTable(){
     document.getElementById("t_table").innerHTML = 
-        "<tr>\
-            <th> State </th>\
-            <th> Input </th>\
-            <th> Output </th>\
-            <th> Next State </th>\
-        </tr>"
+        `<tr>
+            <th> State </th>
+            <th> Input </th>
+            <th> Output </th>
+            <th> Next State </th>
+        </tr>`
 }
 
 function clearIOTable(){
@@ -162,14 +161,13 @@ function filter(node, test, shuffle=true){
 * function that moves the simulation forward by one transition
 * if theres a valid input table will move to the next input otherwise uses an empty string 
 *
-* @param {Boolean|null} external - is the simulation being ran from an external app
 */
-function step(external = false){
+function step(){
     let SM = simManager.getInstance();
     let CM = canvasManager.getInstance();
 
     API.call("step_simulation");
-    SM.is_full_word = external ? false : document.getElementById("is_full_word").checked;
+    SM.is_full_word = API.is_external ? false : document.getElementById("is_full_word").checked;
     
     for(let u of SM.prev){
         u.is_active = false;
@@ -185,14 +183,14 @@ function step(external = false){
 		SM.is_starting = false;
 	}else{
 		SM.prev = [];
-        if( (SM.index + 1) < SM.tds.length && !SM.external){
+        if( (SM.index + 1) < SM.tds.length && !API.external){
             SM.tds[SM.index + 1].innerText += SM.outbuff;
         }
 
 
         API.call("simulate_write", SM.outbuff);
         SM.outbuff = "";
-        SM.moved_next_row = external ? API.call("is_finished") : highlightNext();
+        SM.moved_next_row = API.external ? API.call("is_finished") : highlightNext();
 	}
 
     let connections = [];
@@ -212,7 +210,7 @@ function step(external = false){
         let f = ""; 
         if(SM.tds.length > 0 && SM.index < SM.tds.length){
             f = SM.full_word ? SM.tds[SM.index].innerText : SM.tds[SM.index].innerText[SM.char_index];
-        }else if(!SM.external){
+        }else if(!API.external){
             addRow(false);
         }else{
             f = API.call("request_input")[0];
@@ -259,7 +257,7 @@ function addRow(add_in = true){
         is_first = SM.tds.length === 0;
         
         if(!is_first){
-            tmp_index = tds.length;
+            tmp_index = SM.tds.length;
         }
     } 
     

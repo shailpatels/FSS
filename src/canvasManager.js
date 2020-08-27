@@ -3,7 +3,7 @@ import {Node, Arrow} from './elements.js';
 import {findAngle, Point} from './lib/geometry.js';
 import {getClosestNode} from './canvas.js';
 import {simManager} from './simulate.js';
-import {Graph} from './lib/graph.js';
+import {Graph,save} from './lib/graph.js';
 
 var canvasManager = (function(){
 	var instance;
@@ -44,9 +44,9 @@ class __CANVAS_MANAGER{
 		this.is_arrow_menu_drawn = false;
 		this.is_over_node = false;
 		this.is_starting_arrow = false;
+        this.auto_save = true;
 
 		this.node_radius = 25;
-
 		this.graph = new Graph();
 
 		//map object ids 
@@ -75,6 +75,9 @@ class __CANVAS_MANAGER{
 			SM.resetSim();
 		}
 
+	    if(this.auto_save){
+            save();
+        }
 	}
 
 
@@ -109,7 +112,10 @@ class __CANVAS_MANAGER{
 		if(!SM.is_starting){
 			SM.resetSim();
 		}
-	    
+
+	    if(this.auto_save){
+            save();
+        }
 	}
 
 	/**
@@ -142,6 +148,10 @@ class __CANVAS_MANAGER{
 		if(!SM.is_starting){
 			SM.resetSim();
 		}
+
+        if(this.auto_save){
+            save();
+        }
 	}
 
 	deleteArrow(arr_){
@@ -164,6 +174,10 @@ class __CANVAS_MANAGER{
 		if(!SM.is_starting){
 			SM.resetSim();
 		}
+
+        if(this.auto_save){
+            save();
+        }
 	}
 
 
