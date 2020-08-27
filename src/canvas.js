@@ -22,15 +22,13 @@ window.onload = () => {
 		return;
 	}
 
-	arrow_menu = document.getElementById("arrow_menu");
-
 	let CM = canvasManager.init(canvas);
 
 	//prevent highlighting outside of the canvas on click
 	CM.canvas.onselectstart = function () { return false; }
 	initCanvas();
 	initControls(canvas);
-   // fileManager();
+    //fileManager();
 	
 	drawScreen();
 }
