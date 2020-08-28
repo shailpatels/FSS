@@ -1,6 +1,7 @@
 import {canvasManager} from './canvasManager.js';
 import {inputManager} from './input.js';
 import {findAngle} from './lib/geometry.js';
+import {API} from './api.js';
 
 /** @typedef { import('./lib/geometry.js').Point } Point */``
 
@@ -18,7 +19,7 @@ import {findAngle} from './lib/geometry.js';
 function drawArrowhead(pos, angle, line_width) {
     let CM = canvasManager.getInstance();
 
-	CM.context.fillStyle = "black";
+    CM.context.fillStyle = API.config["light-mode"] ? "black" : "white";
 
 	let sizex = 8 + line_width,
 		sizey = 8 + line_width;
@@ -42,6 +43,8 @@ function drawArrowhead(pos, angle, line_width) {
     CM.context.translate(hx,hy);
     CM.context.rotate(-angle);
     CM.context.translate(-pos.X,-pos.Y);
+
+    CM.context.fillStyle = "black";
 }  
 
 
@@ -105,12 +108,92 @@ function initCanvas() {
       0 0 1
     ]
     */
+
+    if(API.config["light-mode"] === false){
+        displayDarkMode();
+    }
 }
+
+
+function displayDarkMode(){
+    let body = document.getElementsByTagName("body")[0];
+    body.className = "body-dark";
+    body.style.color = "white";
+
+    document.getElementsByTagName("canvas")[0].className = "border-dark";
+}
+
+function toggleDarkMode(){
+    API.config["light-mode"] = !API.config["light-mode"];
+
+    if(API.config["light-mode"]){
+        let body = document.getElementsByTagName("body")[0];
+        body.className = "";
+        body.style.color = "black";
+
+        document.getElementsByTagName("canvas")[0].className = "";
+    }else{
+        displayDarkMode();
+    }
+}
+
+
+/**
+* Draw a label on a node
+* 
+* @param {String} str string to draw
+* @param {Point} _pos position of the node
+*/
+function drawLabel(str, _pos){
+    const CM = canvasManager.getInstance();
+
+    CM.context.font = API.config["font"];
+    CM.context.fillStyle = "black";
+    CM.context.fillText("S", _pos.X-8, _pos.Y+5);
+    CM.context.font = "15px Times New Roman";
+    CM.context.fillText(str, _pos.X+4, _pos.Y+10);
+}
+
+
+function drawText(str, _pos){
+    let CM = canvasManager.getInstance();
+
+    CM.context.font = API.config["font"];
+    CM.context.fillStyle = API.config["light-mode"] ? "black" : "white";
+    CM.context.fillText(str, _pos.X, _pos.Y);
+}
+
+
+function drawLine(a, b, thickness = 1){
+    let CM = canvasManager.getInstance();
+
+    CM.context.beginPath();
+    CM.context.moveTo(a.X,a.Y);
+    CM.context.lineTo(b.X,b.Y);
+    CM.context.lineWidth = thickness;
+    CM.context.stroke();
+}
+
+
+function renderBackground(){
+    let CM = canvasManager.getInstance();
+
+    let background_col = API.config["light-mode"] ? "white" : "black";
+
+    CM.context.fillStyle = background_col;
+    CM.context.fillRect(0, 0, CM.width, CM.height);
+}
+
 
 export{
     initCanvas,
     getDeviceRatio,
     drawArrowhead,
-    drawSelfArrowHelper
+    drawSelfArrowHelper,
+    drawLine,
+    drawText,
+    drawLabel,
+    renderBackground,
+    toggleDarkMode
 }
 

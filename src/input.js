@@ -4,6 +4,7 @@ import {isOverNode, getClosestNode, refocus} from './canvas.js';
 import {canvasManager} from './canvasManager.js';
 import {step, addRow} from './simulate.js';
 import {buildTransitionTable, save, load} from './lib/graph.js';
+import {toggleDarkMode} from './renderer.js';
 
 var inputManager = (function(){
 	var instance;
@@ -63,6 +64,9 @@ function initControls(){
 		});
 		document.getElementById('load_btn').addEventListener('click', () => {
 			load();
+		});
+		document.getElementById('toggle_dark').addEventListener('click', () => {
+			toggleDarkMode();
 		});
 	}
 

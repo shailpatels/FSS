@@ -1,6 +1,11 @@
 canvas{
     pointer-events : auto;
     margin-left:120px;
+    border:2px solid;
+}
+
+.border-dark{
+    border-color: white;
 }
 
 table,td,th{
@@ -53,6 +58,11 @@ hr{
     background-color:hsl(120,60%,70%);
 }
 
+.highlight-dark{
+    background-color:white;
+    color: black;
+}
+
 
 #input_box{
     max-width: 182px;
@@ -79,4 +89,12 @@ button{
 button:hover{
     background-color: grey;
     color: white;
+}
+
+.dark-mode{
+    color: white;
+}
+
+.body-dark{
+    background-color: black;
 }
