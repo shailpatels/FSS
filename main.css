@@ -34,10 +34,12 @@ hr{
 }
 
 #arrow_menu{
-	width: 110px;
+	max-width: 110px;
 	box-shadow: 5px 5px 5px 0px #888888;
 	position: absolute;
 	display:none;
+    border: 2px solid;
+    background-color:gray;
 }
 
 #arrow_menu input[type="text"]{
@@ -47,6 +49,9 @@ hr{
 
 #io_table{
    float:right; 
+   width:140px;
+   min-width:120px;
+   table-layout:fixed;
 }
 
 #io_table td{

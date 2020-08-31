@@ -143,10 +143,10 @@ function onMouseDown(e){
 
 	API.call("mouse_down", e);
 	if(e.button === IM.RIGHT_MOUSE_BUTTON){
-		API.call("left_mouse_down", e);
+		API.call("right_mouse_down", e);
 		return;
 	}else{
-		API.call("right_mouse_down", e);
+		API.call("left_mouse_down", e);
 	}
 
 	if(e.shiftKey && CM.is_over_node){
