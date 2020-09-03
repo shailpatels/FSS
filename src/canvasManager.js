@@ -201,7 +201,7 @@ class __CANVAS_MANAGER{
 		return null;
 	}
 
-	resetCanvas(){
+	clearCanvas(){
 		this.graph = new Graph();
 		this.nodes = [];
 		this.arrows = [];

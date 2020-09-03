@@ -317,7 +317,7 @@ function rebuildIOTable(data){
 
 function load(){
 	let CM = canvasManager.getInstance();
-    CM.resetCanvas();
+    CM.clearCanvas();
 
     let objects = localStorage.getItem('object_map');
     let nodes = localStorage.getItem('nodes');
@@ -361,6 +361,7 @@ function load(){
 
     }
 }
+
 
 export{
     Graph,

@@ -8,6 +8,10 @@ class _API{
     constructor(){
     	this.translation_table = new Map();
         this.is_external = false;
+        this.config = {
+            "light-mode" : true,
+            "font" : "italic 25px Times New Roman"
+        };
     }
 
     clear(){
