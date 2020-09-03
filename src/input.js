@@ -68,6 +68,10 @@ function initControls(){
 		document.getElementById('toggle_dark').addEventListener('click', () => {
 			toggleDarkMode();
 		});
+		document.getElementById('clear_btn').addEventListener('click', () => {
+			CM.clearCanvas();
+			localStorage.clear();
+		});
 	}
 
 	//record the user input when typing in the input box
@@ -77,6 +81,7 @@ function initControls(){
 	    if(e.keyCode === 13){
 		    updateSelectedArrow();  
 		    hideArrowMenu(); 
+		    save();
 	    }
 	});
 

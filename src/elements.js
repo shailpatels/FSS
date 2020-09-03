@@ -293,9 +293,19 @@ class Arrow{
             drawArrowMenu(pt ,this.IF,this.OUT);
         }else if(this.IF != ""){
             let text = this.OUT === "" ? this.IF : this.IF + " : " + this.OUT;
+
+            CM.context.font = API.config["font"];
             let w = CM.context.measureText(text).width;
-          
-            pt = pt.set(pt.X - (w), pt.Y);
+          	
+          	let offset_x = pt.X;
+          	if(this.angle_offset < 5 && this.angle_offset > 2){
+          		//arrow is left of node
+          		offset_x -= w;
+          	}else{
+          		offset_x += (w/15) ;
+          	}
+
+            pt = pt.set(offset_x, pt.Y);
             drawText(text,pt); 
         }
 
