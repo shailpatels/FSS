@@ -270,7 +270,7 @@ function clearIOTable(){
 
 function load(){
 	let CM = canvasManager.getInstance();
-    CM.resetCanvas();
+    CM.clearCanvas();
 
     //toggle auto save so re-adding elements doesn't cause problems
     CM.auto_save = !CM.auto_save;
@@ -329,6 +329,7 @@ function load(){
     save();
     CM.auto_save = !CM.auto_save;
 }
+
 
 export{
     Graph,

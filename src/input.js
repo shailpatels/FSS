@@ -4,6 +4,7 @@ import {isOverNode, getClosestNode, refocus} from './canvas.js';
 import {canvasManager} from './canvasManager.js';
 import {step, addRow} from './simulate.js';
 import {buildTransitionTable, save, load} from './lib/graph.js';
+import {toggleDarkMode} from './renderer.js';
 
 var inputManager = (function(){
 	var instance;
@@ -64,6 +65,13 @@ function initControls(){
 		document.getElementById('load_btn').addEventListener('click', () => {
 			load();
 		});
+		document.getElementById('toggle_dark').addEventListener('click', () => {
+			toggleDarkMode();
+		});
+		document.getElementById('clear_btn').addEventListener('click', () => {
+			CM.clearCanvas();
+			localStorage.clear();
+		});
 	}
 
 	//record the user input when typing in the input box
@@ -73,6 +81,7 @@ function initControls(){
 	    if(e.keyCode === 13){
 		    updateSelectedArrow();  
 		    hideArrowMenu(); 
+		    save();
 	    }
 	});
 
@@ -139,10 +148,10 @@ function onMouseDown(e){
 
 	API.call("mouse_down", e);
 	if(e.button === IM.RIGHT_MOUSE_BUTTON){
-		API.call("left_mouse_down", e);
+		API.call("right_mouse_down", e);
 		return;
 	}else{
-		API.call("right_mouse_down", e);
+		API.call("left_mouse_down", e);
 	}
 
 	if(e.shiftKey && CM.is_over_node){

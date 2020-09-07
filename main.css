@@ -1,6 +1,11 @@
 canvas{
     pointer-events : auto;
     margin-left:120px;
+    border:2px solid;
+}
+
+.border-dark{
+    border-color: white;
 }
 
 table,td,th{
@@ -29,10 +34,12 @@ hr{
 }
 
 #arrow_menu{
-	width: 110px;
+	max-width: 110px;
 	box-shadow: 5px 5px 5px 0px #888888;
 	position: absolute;
 	display:none;
+    border: 2px solid;
+    background-color:gray;
 }
 
 #arrow_menu input[type="text"]{
@@ -42,6 +49,9 @@ hr{
 
 #io_table{
    float:right; 
+   width:140px;
+   min-width:120px;
+   table-layout:fixed;
 }
 
 #io_table td{
@@ -51,6 +61,11 @@ hr{
 
 .highlight{
     background-color:hsl(120,60%,70%);
+}
+
+.highlight-dark{
+    background-color:white;
+    color: black;
 }
 
 
@@ -79,4 +94,12 @@ button{
 button:hover{
     background-color: grey;
     color: white;
+}
+
+.dark-mode{
+    color: white;
+}
+
+.body-dark{
+    background-color: black;
 }

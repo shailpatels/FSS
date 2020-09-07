@@ -219,7 +219,7 @@ function step(){
 		let tmp = filter(u, f);
 		connections = tmp[0];
 
-        SM.outbuff += tmp[1].toFlatString();
+        SM.outbuff += tmp[1].join("");
 		connections = [...new Set(connections)];
     }
 
@@ -264,11 +264,13 @@ function addRow(add_in = true){
     let tmp = document.createElement("tr");
     let td_a = document.createElement("td"); //in col
 
+    let tgt_class_style = API.config["light-mode"] ? "highlight" : "highlight-dark";
+
     if(!full_word){
         for(var i = 0; i < txt.length; i++){
             let highlight = document.createElement("span");
             if (i == 0 && is_first){
-                highlight.setAttribute("class", "highlight");
+                highlight.setAttribute("class", tgt_class_style);
             }
 
             highlight.setAttribute("id", tmp_index.toString() + "_"  + i.toString());
@@ -278,7 +280,7 @@ function addRow(add_in = true){
     }else{
         let highlight = document.createElement("span");
         if(is_first){
-            highlight.setAttribute("class", "highlight");
+            highlight.setAttribute("class", tgt_class_style);
         }
 
         highlight.appendChild( document.createTextNode(txt) );

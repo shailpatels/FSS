@@ -1,8 +1,9 @@
 import {canvasManager} from './canvasManager.js';
-import {isOverNode, getClosestNode, drawLabel, drawText} from './canvas.js';
+import {isOverNode, getClosestNode} from './canvas.js';
 import {inputManager, drawArrowMenu} from './input.js';
 import {getMidPoint, findAngle, Point} from './lib/geometry.js';
-import {drawArrowhead} from './renderer.js';
+import {drawArrowhead, drawLabel, drawText} from './renderer.js';
+import {API} from './api.js';
 
 /**
 * Node:
@@ -63,6 +64,7 @@ class Node{
 		CM.context.beginPath();
 		CM.context.arc(this.pos.X, this.pos.Y, CM.node_radius, 0, 2 * Math.PI);
 		CM.context.stroke();
+
        
 		if(!this.is_mouse_over){
 			CM.context.beginPath();
@@ -167,7 +169,9 @@ class Arrow{
 			return;
 		}
 
-		CM.context.fillStyle = "black";
+		let background_col = API.config["light-mode"] ? "black" : "white";
+		CM.context.fillStyle = background_col;
+		CM.context.strokeStyle = background_col;
 		let line_width = 2;
 
 		if(this.is_mouse_over || this === CM.selected_arrow){
@@ -231,6 +235,8 @@ class Arrow{
             let pt = new Point( X - w, Y );
 			drawText(text, pt);
 		}
+
+		CM.context.strokeStyle = "black";
 	}
 
 	drawSelfArrow(){
@@ -241,6 +247,7 @@ class Arrow{
 			line_width = 4;
 		}
 
+		CM.context.strokeStyle = API.config["light-mode"] ? "black" : "white";
 		CM.context.lineWidth = line_width;
 		let pad = 30;
 
@@ -286,11 +293,23 @@ class Arrow{
             drawArrowMenu(pt ,this.IF,this.OUT);
         }else if(this.IF != ""){
             let text = this.OUT === "" ? this.IF : this.IF + " : " + this.OUT;
+
+            CM.context.font = API.config["font"];
             let w = CM.context.measureText(text).width;
-          
-            pt = pt.set(pt.X - (w), pt.Y);
+          	
+          	let offset_x = pt.X;
+          	if(this.angle_offset < 5 && this.angle_offset > 2){
+          		//arrow is left of node
+          		offset_x -= w;
+          	}else{
+          		offset_x += (w/15) ;
+          	}
+
+            pt = pt.set(offset_x, pt.Y);
             drawText(text,pt); 
         }
+
+       	CM.context.strokeStyle = "black";
 	}
 
 

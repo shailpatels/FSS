@@ -17,7 +17,7 @@
 </head>
 
 <body style="font-family: Tahoma, Geneva, sans-serif">
-	<h1>Finite State Machine Builder</h1>
+	<h1 class="content">Finite State Machine Builder</h1>
 	<div style="max-width:1300px;margin-left:auto;margin-right:auto;">
 		<canvas id = "canvas" tabindex="1" oncontextmenu="return false;">
 			This browser does not support HTML5 canvas
@@ -35,6 +35,7 @@
 	<div class="content">
 		<button id="stp_btn">Step</button>
 		<button id="draw_btn">Draw Table</button>
+		<button id="clear_btn">Clear</button>
     </div>
 
     <br>
@@ -48,14 +49,10 @@
     </fieldset>
 
     <br>
-    <br>
     
-    <table id="t_table" style="margin-left:auto; margin-right:auto;">
-        
+    <table id="t_table" style="margin-left:auto; margin-right:auto;margin-bottom: 5px;">
     </table>
         
-    <hr>
-
     <div class="content" id="saves">
         <span id="save0">
             <button id="save_btn" >Save</button>
@@ -70,13 +67,34 @@
 		<input id="out" type="text" name="">
 	</div>
 
+	<br>
+
+	<div class="content">
+		Toggle dark mode
+		<input id="toggle_dark" type="checkbox"/>
+	</div>
+
+	<hr>
+
+
 	<div class="content">
 		<p>Instructions:</p>
+	</div>
+
+
+
+	<div class="content">
 		<ul style="list-style-type:none;">
 			<li>Double-click to add a new state</li>
 			<li>Left-click & drag to move a state/connection</li>
 			<li>Shift + left-click to add a connection between states</li>
 			<li>Right click to delete a state</li>
+		</ul>
+		<ul style="list-style-type:none;">
+			<li>Enter a string as input for the FSM</li>
+			<li>A string can be submitted multiple times</li>
+			<li>Press step to simulate the FSM against the input</li>
+			<li>Reset will reset the simulation</li>
 		</ul>
 	</div>
 

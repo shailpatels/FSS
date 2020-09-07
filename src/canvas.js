@@ -1,18 +1,10 @@
 import {canvasManager} from './canvasManager.js';
 import {API} from './api.js';
-import {initCanvas, drawSelfArrowHelper} from './renderer.js';
+import {initCanvas, drawSelfArrowHelper, drawLine, renderBackground} from './renderer.js';
 import {Graph,load} from './lib/graph.js';
 import {initControls, drawArrowMenu, inputManager, hideArrowMenu} from './input.js';
 import {Point, getDistance, findAngle} from './lib/geometry.js';
 import {Node} from './elements.js';
-
-
-Array.prototype.toFlatString = function() {
-    let ret = "";
-    for(var i = 0; i < this.length; i++)  
-       ret += this[i].toString(); 
-    return ret;
-}
 
 
 window.addEventListener("load", main);
@@ -44,8 +36,7 @@ function drawScreen(){
 	let IM = inputManager.getInstance();
 
 	//reset
-	CM.context.fillStyle = '#aaaaaa';
-	CM.context.fillRect(0, 0, CM.width, CM.height);
+	renderBackground();
 	isOverNode();
 
 	if(CM.is_starting_arrow && CM.current_node){
@@ -115,38 +106,6 @@ function mouseToPage(pos){
 }
 
 
-//theres probably a better way to handle this...
-function drawLabel(str, _pos){
-	let CM = canvasManager.getInstance();
-
-	CM.context.font = "italic 25px Times New Roman";
-	CM.context.fillStyle = "black";
-	CM.context.fillText("S", _pos.X-8, _pos.Y+5);
-	CM.context.font = "15px Times New Roman";
-	CM.context.fillText(str, _pos.X+4, _pos.Y+10);
-}
-
-
-function drawText(str, _pos){
-	let CM = canvasManager.getInstance();
-
-	CM.context.font = "italic 25px Times New Roman";
-	CM.context.fillStyle = "black";
-	CM.context.fillText(str, _pos.X, _pos.Y);
-}
-
-
-function drawLine(a, b, thickness = 1){
-	let CM = canvasManager.getInstance();
-
-	CM.context.beginPath();
-	CM.context.moveTo(a.X,a.Y);
-	CM.context.lineTo(b.X,b.Y);
-	CM.context.lineWidth = thickness;
-	CM.context.stroke();
-}
-
-
 //returns closest node relative to the current mouse position
 function distanceToClosestNode(){
 	let CM = canvasManager.getInstance();
@@ -197,7 +156,5 @@ function refocus(){
 export{
 	isOverNode,
 	getClosestNode,
-	drawLabel,
 	refocus,
-	drawText
 }
