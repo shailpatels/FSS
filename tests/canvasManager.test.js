@@ -1,12 +1,7 @@
 import {canvasManager} from '../src/canvasManager.js';
 import {Node} from '../src/elements.js';
 import {Point} from '../src/lib/geometry.js';
-
-function buildFakeCanvas(){
-	return {
-		getContext : function() { return null; }
-	}
-}
+import {buildFakeCanvas} from './common.js';
 
 afterEach(()=>{
 	canvasManager.clear();

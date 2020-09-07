@@ -1,6 +1,7 @@
 import {canvasManager} from '../canvasManager.js';
 import {getTableCells} from '../simulate.js';
 import {deserializeNode, deserializeArrow} from '../elements.js';
+import {API} from '../api.js';
 
 class Graph{
 
@@ -77,7 +78,6 @@ class Graph{
 function printGraph(){
 	graph.print();
 }
-//end class
 
 function buildText(str){
     return `
@@ -165,6 +165,9 @@ function buildTransitionTable(tgt_element = null){
 }
 
 
+/**
+* Save the FSS state into localstorage
+*/
 function save(){
     let CM = canvasManager.getInstance();
     let map = canvasManager.getInstance().map;
@@ -179,13 +182,15 @@ function save(){
         arrows.push(x.serialize());
     }
 
-	
 	localStorage.setItem('object_map', JSON.stringify(map));
     localStorage.setItem('nodes', JSON.stringify(nodes));
-    localStorage.setItem('arrows', JSON.stringify(arrows));
+    localStorage.setItem('arrows', JSON.stringify(arrows));   
 
-    saveIO();
+    if(!API.is_external){
+        saveIO();
+    }
 }
+
 
 function saveIO(){
     let ts = getTableCells();
@@ -201,81 +206,18 @@ function saveIO(){
         i ++;
     }
 
-    return {"io_table" : ret }; 
-}
-
-
-function fileManager(){
-    for(var i = 0; i < 10; i++){
-        if(localStorage.getItem('file-' + i.toString()) === null)
-            break;
-
-        file_count ++;
-    } 
-    
-    if(file_count === 0)
-        document.getElementById("loadbtn").disabled = true;
-}
-
-
-function rebuildNode(data){
-    let ret = new Node();
-
-    for (var property in ret)
-        ret[property] = data[property]; 
-    
-    ret.connected_arrows = []; 
-    addNewNode(ret);
-}
-
-
-function rebuildArrow(data){
-    let arr = new Arrow(new Node(), new Node(), false, 0.0); 
-    
-    for (property in data){
-        if (property == "start_node" || property == "end_node"){
-            arr[property] = JSON.parse(data[property]); 
-            continue;
-        }
-        
-        arr[property] = data[property];
-    }
-    
-    for (n of nodes){
-        if(n.label === arr.start_node.label){
-            n.connected_arrows.push(arr);
-            arr.start_node = n;
-        }
-        
-        if(n.label === arr.end_node.label){
-            n.connected_arrows.push(arr);
-            arr.end_node = n;
-        }
-    } 
-    
-    placeNewArrow(arr); 
-}
-
-
-function doesNodeExist(label){
-	for(var i = 0; i < nodes.length; i++)
-		if(nodes[i].label === label)
-			return i;
-
-	return -1;
+    localStorage.setItem('io_table', JSON.stringify(ret));
 }
 
 
 function rebuildIOTable(data){
     let tgt = document.getElementById("io_table");
-
     
     let current_row = null;
     let is_first = true;
 
     let row_index = -1;
-    data = data.io_table;
-    for ( obj of data){
+    for (let obj of data){
         if (obj.input ){
             current_row = document.createElement("tr");
             row_index ++; 
@@ -315,9 +257,23 @@ function rebuildIOTable(data){
 }
 
 
+function clearIOTable(){
+    let tgt = document.getElementById("io_table");
+
+    tgt.innerHTML = 
+    `<tr>
+        <th> Input </th>
+        <th> Output </th>
+    </tr>`;
+}
+
+
 function load(){
 	let CM = canvasManager.getInstance();
     CM.resetCanvas();
+
+    //toggle auto save so re-adding elements doesn't cause problems
+    CM.auto_save = !CM.auto_save;
 
     let objects = localStorage.getItem('object_map');
     let nodes = localStorage.getItem('nodes');
@@ -345,7 +301,7 @@ function load(){
         let end = CM.getObjFromID(new_arrow.end_node);
 
         if(!start || !end){
-            continue;
+            throw 'Failed to find Arrow starting and or ending node from save data';
         }
 
         CM.addNewArrow(start,end);
@@ -360,11 +316,24 @@ function load(){
         }
 
     }
+
+    if(!API.is_external){
+        let io_table = localStorage.getItem('io_table');
+        if(!io_table){
+            return;
+        }
+
+        rebuildIOTable(JSON.parse(io_table));
+    }
+    //save the newly loaded data
+    save();
+    CM.auto_save = !CM.auto_save;
 }
 
 export{
     Graph,
     buildTransitionTable,
     save,
-    load
+    load,
+    clearIOTable
 }

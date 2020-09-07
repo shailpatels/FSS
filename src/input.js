@@ -316,6 +316,7 @@ function hideArrowMenu(){
     CM.is_arrow_menu_drawn = false;
     
     refocus();
+    save();
 }
 
 
