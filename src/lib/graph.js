@@ -258,9 +258,11 @@ function rebuildIOTable(data){
 
 
 function clearIOTable(){
-    let tgt = document.getElementById("io_table");
+    if (API.is_external){
+        return;
+    }
 
-    tgt.innerHTML = 
+    document.getElementById("io_table").innerHTML = 
     `<tr>
         <th> Input </th>
         <th> Output </th>
