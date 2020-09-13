@@ -79,6 +79,8 @@ class __CANVAS_MANAGER{
 	    if(this.auto_save){
             save();
         }
+
+        API.call("add_new_node", node_);
 	}
 
 
@@ -117,6 +119,8 @@ class __CANVAS_MANAGER{
 	    if(this.auto_save){
             save();
         }
+
+        API.call("add_new_arrow", new_arrow);
 	}
 
 	/**
@@ -153,6 +157,8 @@ class __CANVAS_MANAGER{
         if(this.auto_save){
             save();
         }
+
+        API.call("delete_node", tgt);
 	}
 
 	deleteArrow(arr_){
@@ -179,6 +185,8 @@ class __CANVAS_MANAGER{
         if(this.auto_save){
             save();
         }
+
+        API.call("delete_arrow", arr_);
 	}
 
 

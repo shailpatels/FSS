@@ -121,7 +121,6 @@ class Arrow{
 		this.end_node = end;
 		this.is_self = is_self_;
 		this.angle_offset = angle_off;
-		        //console.log(this.angle_offset *( 180/ Math.PI) );
 
 		this.mid_point = this.getCurveMidPoint();
 		this.id = getRandomString();
@@ -354,14 +353,6 @@ class Arrow{
 
     	this.mid_point = this.getCurveMidPoint();
     }
-}
-
-function serializeArrows(arrs){
-	let ret = [];
-	for(var i = 0; i < arrs.length; i++){
-		ret.push(arrs[i].serialize());
-	}
-	return JSON.stringify( ret );
 }
 
 
