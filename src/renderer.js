@@ -63,6 +63,7 @@ function drawSelfArrowHelper(start_pos){
 
     let pad = 30;
 
+    CM.context.strokeStyle = API.config["light-mode"] ? "black" : "white";
     CM.context.translate(start_pos.X, start_pos.Y);
     CM.context.rotate(-a_offset);
 
@@ -166,6 +167,7 @@ function drawText(str, _pos){
 
 function drawLine(a, b, thickness = 1){
     let CM = canvasManager.getInstance();
+    CM.context.strokeStyle = API.config["light-mode"] ? "black" : "white";
 
     CM.context.beginPath();
     CM.context.moveTo(a.X,a.Y);
