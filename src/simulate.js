@@ -183,14 +183,14 @@ function step(){
 		SM.is_starting = false;
 	}else{
 		SM.prev = [];
-        if( (SM.index + 1) < SM.tds.length && !API.external){
+        if( (SM.index + 1) < SM.tds.length && !API.is_external){
             SM.tds[SM.index + 1].innerText += SM.outbuff;
         }
 
 
         API.call("simulate_write", SM.outbuff);
         SM.outbuff = "";
-        SM.moved_next_row = API.external ? API.call("is_finished") : highlightNext();
+        SM.moved_next_row = API.is_external ? API.call("is_finished") : highlightNext();
 	}
 
     let connections = [];
@@ -210,7 +210,7 @@ function step(){
         let f = ""; 
         if(SM.tds.length > 0 && SM.index < SM.tds.length){
             f = SM.full_word ? SM.tds[SM.index].innerText : SM.tds[SM.index].innerText[SM.char_index];
-        }else if(!API.external){
+        }else if(!API.is_external){
             addRow(false);
         }else{
             f = API.call("request_input")[0];
