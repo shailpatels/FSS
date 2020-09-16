@@ -1,5 +1,6 @@
 import {API} from './api.js';
 import {canvasManager} from './canvasManager.js';
+import {save} from './lib/graph.js';
 
 var simManager = (function(){
     var instance = null;
@@ -79,6 +80,9 @@ function clearTransitionTable(){
 }
 
 function clearIOTable(){
+    if (API.is_external){
+        return;
+    }
     document.getElementById("io_table").innerHTML = 
         "<tbody><tr><th>Input</th><th>Output</th></tr></tbody>";
 }
@@ -297,6 +301,10 @@ function addRow(add_in = true){
     tmp.appendChild(td_b);
     
     table.appendChild(tmp);
+
+    if(canvasManager.getInstance().auto_save){
+        save();
+    }
 }
 
 /**
