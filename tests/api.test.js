@@ -65,3 +65,14 @@ test('test multiple return', () => {
 
     expect(API.call("test", 2)).toStrictEqual([1,"test", {}, 4]);
 });
+
+
+test('test API to string', () => {
+    let a = function(){ return 1 };
+    
+    API.addFunc("test", a); 
+    API.addFunc("test", () => {return "str";}); 
+    API.addFunc("test_other", () => {return "str2";}); 
+
+    console.log(API.dump(false));
+});

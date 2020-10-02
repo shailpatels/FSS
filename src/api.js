@@ -59,6 +59,33 @@ class _API{
 
         return response;
     }
+
+
+    /**
+    * @returns {String}
+    */
+    toString(){
+        let ret = "";
+        this.translation_table.forEach( (val, key) => {
+            console.log(typeof val);
+            ret += `${key} ==> \n"` + val.toString() + `"\n`;
+        }); 
+        return ret;
+    }
+
+    
+    /**
+    * print all current triggers and what functions they call
+    * @param {Bool|Null} print to console, true by default
+    * @returns {String} 
+    */
+    dump(console_log = true){
+        let ret = this.toString();
+        if (console_log){
+            console.log(ret);
+        }
+        return ret;
+    } 
 }
 
 //global object shared between program
