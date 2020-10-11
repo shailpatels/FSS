@@ -150,6 +150,7 @@ function filter(node, test, shuffle=true){
         if(arr.IF === test || arr.IF === ""){
             ret.push(arr.end_node);
             out.push(arr.OUT);
+            API.call("arrow_accepted", arr);
         }
     }
 
