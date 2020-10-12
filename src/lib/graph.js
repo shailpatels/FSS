@@ -327,9 +327,6 @@ function load(){
 
         rebuildIOTable(JSON.parse(io_table));
     }
-    //save the newly loaded data
-    save();
-    CM.auto_save = !CM.auto_save;
 }
 
 
