@@ -360,7 +360,7 @@ function deserializeNode(data){
     let tmp = JSON.parse(data);
     let ret = new Node();
 
-    for(let x in ret){
+    for(let x in tmp){
         ret[x] = tmp[x];
     }
 
@@ -375,7 +375,7 @@ function deserializeArrow(data){
 		new Node(new Point())
 	);
 
-	for(let x in ret){
+	for(let x in tmp){
 		ret[x] = tmp[x];
 	}
 
