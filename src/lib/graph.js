@@ -62,9 +62,7 @@ class Graph{
 	* @param {Node} v - ending node of edge 
 	*/
 	deleteEdge(u, v){
-		let keys = this.graph.keys();
 		let connections = this.graph.get(u);
-
         const index = connections.indexOf(v);
         connections.splice(index,1);
 	}
@@ -75,9 +73,6 @@ class Graph{
 	}
 }
 
-function printGraph(){
-	graph.print();
-}
 
 function buildText(str){
     return `

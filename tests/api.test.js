@@ -74,5 +74,17 @@ test('test API to string', () => {
     API.addFunc("test", () => {return "str";}); 
     API.addFunc("test_other", () => {return "str2";}); 
 
-    console.log(API.dump(false));
+    let expected =`test ==> 
+      "function () {
+          return 1;
+        },() => {
+          return "str";
+        }"
+      test_other ==> 
+      "() => {
+          return "str2";
+        }"`.replace(/\n|\t|\s/g,"")
+
+    let test = API.dump(false).replace(/\n|\t|\s/g,"");
+    expect(test).toBe(expected);
 });

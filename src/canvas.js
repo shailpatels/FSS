@@ -1,10 +1,8 @@
 import {canvasManager} from './canvasManager.js';
-import {API} from './api.js';
 import {initCanvas, drawSelfArrowHelper, drawLine, renderBackground} from './renderer.js';
-import {Graph,load} from './lib/graph.js';
-import {initControls, drawArrowMenu, inputManager, hideArrowMenu} from './input.js';
-import {Point, getDistance, findAngle} from './lib/geometry.js';
-import {Node} from './elements.js';
+import {load} from './lib/graph.js';
+import {initControls, inputManager, hideArrowMenu} from './input.js';
+import {getDistance} from './lib/geometry.js';
 
 
 window.addEventListener("load", main);
@@ -78,31 +76,6 @@ function isOverNode(){
 	let CM = canvasManager.getInstance();
 	CM.is_over_node = distanceToClosestNode() < CM.node_radius;
 	return CM.is_over_node;
-}
-
-
-/**
-* place an existing arrow and add it to the graph
-*
-* @param {Arrow} arr
-*/
-function placeNewArrow(arr){
-	arrows.push(arr);
-	graph.addEdge(arr.start_node,arr.end_node);
-        
-
-	if(!is_starting)
-		resetSim();
-}
-
-
-/**
-* @param {Point} pos - position to convert from canvas to HTML coords
-* @returns {Point}
-**/
-function mouseToPage(pos){
-	var rect = CANVAS.getBoundingClientRect();
-	return new Point( pos.X + rect.left, pos.Y + Math.abs(rect.top) ); 
 }
 
 
