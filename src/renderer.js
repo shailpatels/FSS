@@ -21,11 +21,11 @@ function drawArrowhead(pos, angle, line_width) {
 
     CM.context.fillStyle = API.config["light-mode"] ? "black" : "white";
 
-	let sizex = 8 + line_width,
-		sizey = 8 + line_width;
+    let sizex = 8 + line_width,
+        sizey = 8 + line_width;
 
     let hx = sizex / 2,
-    	hy = sizey / 2;
+        hy = sizey / 2;
 
     CM.context.translate(pos.X, pos.Y);
     CM.context.rotate(angle);
@@ -35,7 +35,7 @@ function drawArrowhead(pos, angle, line_width) {
 
     let pad = 5
     CM.context.moveTo(-(CM.node_radius+pad),0);
-  	CM.context.lineTo(-(CM.node_radius+pad),(1*sizey));   
+    CM.context.lineTo(-(CM.node_radius+pad),(1*sizey));   
     CM.context.lineTo((1*sizex)- (CM.node_radius+pad),1*hy);
     CM.context.closePath();
     CM.context.fill();

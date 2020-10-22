@@ -35,7 +35,7 @@ class __SIM_STATE{
         this.moved_next_row = false;
     }
 
-    resetSim () { resetSim() };
+    resetSim () { resetSim() }
 }
 
 
@@ -63,7 +63,7 @@ function getTableCells(){
 
 
 function resetSim(){
-	simManager.clear();
+    simManager.clear();
 
     clearIOTable();
     clearTransitionTable();
@@ -135,9 +135,8 @@ function shuffleArray(array) {
 * @returns {Object} array containing an array of nodes to visit and an array of strings from the arrow OUTs
 */
 function filter(node, test, shuffle=true){
-	let ret = [];
-	let out = [];
-	let i = 0;
+    let ret = [];
+    let out = [];
     let arrows = node.connected_arrows;
 
     
@@ -158,7 +157,7 @@ function filter(node, test, shuffle=true){
         out = shuffleArray(out);
     }
         
-	return [ret, out];
+    return [ret, out];
 }
 
 
@@ -179,15 +178,15 @@ function step(){
     }
 
 
-	if(CM.nodes.length === 0){
-		return;
+    if(CM.nodes.length === 0){
+        return;
     }
 
-	if (SM.is_starting){
-		SM.Q.push(CM.nodes[0]);
-		SM.is_starting = false;
-	}else{
-		SM.prev = [];
+    if (SM.is_starting){
+        SM.Q.push(CM.nodes[0]);
+        SM.is_starting = false;
+    }else{
+        SM.prev = [];
         if( (SM.index + 1) < SM.tds.length && !API.is_external){
             SM.tds[SM.index + 1].innerText += SM.outbuff;
         }
@@ -196,21 +195,21 @@ function step(){
         API.call("simulate_write", SM.outbuff);
         SM.outbuff = "";
         SM.moved_next_row = API.is_external ? API.call("is_finished") : highlightNext();
-	}
-
-    let connections = [];
-	SM.tds = getTableCells(); 
-    if(SM.Q.length === 0){
-    	return;
     }
 
-	for(let u of SM.Q){
-		if(typeof u === 'undefined'){
-			break;
+    let connections = [];
+    SM.tds = getTableCells(); 
+    if(SM.Q.length === 0){
+        return;
+    }
+
+    for(let u of SM.Q){
+        if(typeof u === 'undefined'){
+            break;
         }
 
-		u.is_active = true;
-		SM.prev.push(u);
+        u.is_active = true;
+        SM.prev.push(u);
     
         let f = ""; 
         if(SM.tds.length > 0 && SM.index < SM.tds.length){
@@ -221,11 +220,11 @@ function step(){
             f = API.call("request_input")[0];
         }
         
-		let tmp = filter(u, f);
-		connections = tmp[0];
+        let tmp = filter(u, f);
+        connections = tmp[0];
 
         SM.outbuff += tmp[1].join("");
-		connections = [...new Set(connections)];
+        connections = [...new Set(connections)];
     }
 
     SM.Q = connections;     
@@ -248,10 +247,10 @@ function addRow(add_in = true){
     let full_word = document.getElementById("is_full_word").checked;
     let is_first = true;
     let tmp_index = 0;
-	let table = document.getElementById("io_table");
+    let table = document.getElementById("io_table");
     let SM = simManager.getInstance();
 
-	SM.tds = getTableCells(); 
+    SM.tds = getTableCells(); 
 
     if(add_in){
         txt = document.getElementById("string_input").value;  

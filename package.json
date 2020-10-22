@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@types/jest": "^24.9.1",
+    "eslint": "^7.11.0",
     "esm": "^3.2.25",
     "ts-jest": "^24.3.0"
   },

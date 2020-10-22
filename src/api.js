@@ -6,7 +6,7 @@
 */
 class _API{
     constructor(){
-    	this.translation_table = new Map();
+        this.translation_table = new Map();
         this.is_external = false;
         this.config = {
             "light-mode" : true,
@@ -24,16 +24,16 @@ class _API{
     * @param {Object} callback - a function to call when the trigger occurs
     */
     addFunc(func, callback){
-    	let tgt = this.translation_table.get(func);
-    	let set = [];
-    	if (typeof tgt === "undefined") {
-    		set = [callback]; 
-    	}else{
-    		tgt.push(callback);
-    		set = tgt;
-    	}
+        let tgt = this.translation_table.get(func);
+        let set = [];
+        if (typeof tgt === "undefined") {
+            set = [callback]; 
+        }else{
+            tgt.push(callback);
+            set = tgt;
+        }
 
-    	this.translation_table.set(func, set);
+        this.translation_table.set(func, set);
     }
 
     /**
@@ -42,20 +42,20 @@ class _API{
     * @param {Object} data - additional parameters to send to the functions associated with the given trigger
     */
     call(func, ...data){
-    	let tgt = this.translation_table.get(func);
-    	if ( typeof tgt === "undefined"){
-    		return;
+        let tgt = this.translation_table.get(func);
+        if ( typeof tgt === "undefined"){
+            return;
         }
 
-    	let args = [];
-    	for (let x of data){
-    		args.push(x);
-    	}
+        let args = [];
+        for (let x of data){
+            args.push(x);
+        }
 
         let response = [];
-    	for (let x of tgt){
-    		response.push( x.apply(null, args) );
-    	}
+        for (let x of tgt){
+            response.push( x.apply(null, args) );
+        }
 
         return response;
     }
@@ -67,7 +67,6 @@ class _API{
     toString(){
         let ret = "";
         this.translation_table.forEach( (val, key) => {
-            console.log(typeof val);
             ret += `${key} ==> \n"` + val.toString() + `"\n`;
         }); 
         return ret;
