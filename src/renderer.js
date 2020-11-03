@@ -86,7 +86,9 @@ function getDeviceRatio () {
         CM.context.oBackingStorePixelRatio ||
         CM.context.backingStorePixelRatio || 1;
 
-    return dpr / bsr;
+    //TODO: fix
+    return 1;
+    //return dpr / bsr;
 }
 
 
