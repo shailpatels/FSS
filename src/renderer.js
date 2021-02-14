@@ -76,43 +76,16 @@ function drawSelfArrowHelper(start_pos){
 } 
 
 
-/** returns the device's pixel ratio for HiDPI displays */
-function getDeviceRatio () {
-    let CM = canvasManager.getInstance();
-    let dpr = window.devicePixelRatio || 1;
-    let bsr = CM.context.webkitBackingStorePixelRatio ||
-        CM.context.mozBackingStorePixelRatio ||
-        CM.context.msBackingStorePixelRatio ||
-        CM.context.oBackingStorePixelRatio ||
-        CM.context.backingStorePixelRatio || 1;
-
-    //TODO: fix
-    return 1;
-    //return dpr / bsr;
-}
-
-
-/**
-* https://stackoverflow.com/questions/
-* 15661339/how-do-i-fix-blurry-text-in-my-html5-canvas
-*/
 function initCanvas() {
-    let ratio = getDeviceRatio();
+    let ratio = window.devicePixelRatio;
     let CM = canvasManager.getInstance();
-    CM.canvas.width = CM.width * ratio;
-    CM.canvas.height = CM.height * ratio;
     CM.canvas.style.width = CM.width + "px";
     CM.canvas.style.height = CM.height + "px";
-    //                    a     b  c  d      e  f
-    CM.context.setTransform(ratio, 0, 0, ratio, 0, 0);
-    /**
-    [ a c e 
-      b d f
-      0 0 1
-    ]
-    */
-
-    if(API.config["light-mode"] === false){
+ 
+    CM.canvas.width = CM.width * ratio;
+    CM.canvas.height = CM.height * ratio;
+    CM.context.scale(ratio, ratio);
+   if(API.config["light-mode"] === false){
         displayDarkMode();
     }
 }
@@ -191,7 +164,6 @@ function renderBackground(){
 
 export{
     initCanvas,
-    getDeviceRatio,
     drawArrowhead,
     drawSelfArrowHelper,
     drawLine,

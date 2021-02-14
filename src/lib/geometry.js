@@ -1,4 +1,3 @@
-import {getDeviceRatio} from '../renderer.js';
 
 /** 
 * point represents 2D position
@@ -22,6 +21,10 @@ class Point{
         this.X = X_;
         this.Y = Y_;
         return this;
+    }
+
+    product(m){
+        return new Point( this.X * m, this.Y * m );
     }
 }
 
@@ -89,29 +92,8 @@ function matrixDot (A, B) {
     });
 }
 
-
-/**
-* transform the mouse position to match the initial canvas transformation
-*
-* @param {Point} p
-* @returns {Point}
-*/
-function transformPoint(p){
-    let ratio = getDeviceRatio();
-    //use the transformation matrix to get the real canvas position
-    let m = matrixDot(
-        [[p.X, p.Y]], 
-        [[ratio, 0, 0 ], 
-         [0, ratio, 0], 
-         [0,0,1]]
-    )[0];
-
-    return new Point(m[0]/ratio,m[1]/ratio);
-}
-
 export{
     Point,
-    transformPoint,
     getDistance,
     findAngle,
     getMidPoint

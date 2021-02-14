@@ -63,6 +63,7 @@ function drawScreen(){
 		hideArrowMenu();
 	}
 
+	//DEBUG
 	// if(CM.nodes.length > 0){
 	// 	drawLine(IM.mouse_pos, CM.nodes[0].pos );
 	// }
@@ -89,7 +90,7 @@ function distanceToClosestNode(){
 
 	let IM = inputManager.getInstance();
 
-	return getDistance(IM.mouse_pos, getClosestNode().pos);
+	return getDistance(t, getClosestNode().pos);
 }
 
 
