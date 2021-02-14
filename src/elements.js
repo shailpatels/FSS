@@ -313,9 +313,9 @@ class Arrow{
 
 
     isMouseOver(){  
-        let mp = inputManager.getInstance().mouse_pos;
+        let mp = inputManager.getInstance().mouse_pos.product( window.devicePixelRatio );
         return canvasManager.getInstance().context.isPointInStroke( 
-            this.hooverPath, mp.X, mp.Y 
+            this.hooverPath, mp.X, mp.Y
         );
     }
 

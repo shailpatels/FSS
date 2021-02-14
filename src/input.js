@@ -1,5 +1,5 @@
 import {API} from './api.js';
-import {transformPoint, Point} from './lib/geometry.js';
+import {Point} from './lib/geometry.js';
 import {isOverNode, getClosestNode, refocus} from './canvas.js';
 import {canvasManager} from './canvasManager.js';
 import {step, addRow} from './simulate.js';
@@ -175,13 +175,10 @@ function onMouseDown(e){
 
 
 function onMouseMove(e){
-    API.call("mouse_move", e);
-
     let IM = inputManager.getInstance();
     let CM = canvasManager.getInstance();
 
     IM.mouse_pos = getMouse(e);
-
     IM.is_dragging = IM.is_mouse_down;
     
     if(CM.nodes.length == 0 || IM.is_key_down) {
@@ -346,7 +343,8 @@ function hideArrowMenu(){
 * @returns {Point}
 */
 function getMouse(pos){
-    return transformPoint(new Point(pos.offsetX, pos.offsetY));
+    let ratio = window.devicePixelRatio; 
+    return new Point(pos.offsetX, pos.offsetY)  ;
 }
 
 /** @typedef { import('./lib/geometry.js').Point } Point */
