@@ -90,7 +90,6 @@ function distanceToClosestNode(){
 
 	let IM = inputManager.getInstance();
 
-	let t = IM.mouse_pos.product(1);
 	return getDistance(t, getClosestNode().pos);
 }
 
