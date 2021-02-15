@@ -8,6 +8,7 @@
     "test": "tests"
   },
   "dependencies": {
+    "cypress": "^6.4.0",
     "jest": "^24.9.0",
     "jest-esm-transformer": "^1.0.0"
   },
