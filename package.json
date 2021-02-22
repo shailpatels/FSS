@@ -4,19 +4,13 @@
   "description": "Finite State Simulator",
   "main": "canvas.js",
   "directories": {
-    "source": "src",
     "test": "tests"
-  },
-  "dependencies": {
-    "cypress": "^6.4.0",
-    "jest": "^24.9.0",
-    "jest-esm-transformer": "^1.0.0"
   },
   "devDependencies": {
     "@types/jest": "^24.9.1",
-    "eslint": "^7.11.0",
-    "esm": "^3.2.25",
-    "ts-jest": "^24.3.0"
+    "cypress": "^6.5.0",
+    "jest-esm-transformer": "^1.0.0",
+    "serve": "^11.3.2"
   },
   "scripts": {
     "test": "jest  --config jest.config.js --coverage",
@@ -31,5 +25,10 @@
   "bugs": {
     "url": "https://github.com/shailpatels/FSS/issues"
   },
-  "homepage": "https://github.com/shailpatels/FSS#readme"
+  "homepage": "https://github.com/shailpatels/FSS#readme",
+  "keywords": [
+    "finite",
+    "state",
+    "machines"
+  ]
 }
