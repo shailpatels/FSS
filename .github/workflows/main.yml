@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install modules
-        run: npm install
+        run: npm install --production=false
       - name: Run tests
         run: npm test
 
@@ -28,7 +28,7 @@ jobs:
             key: ${{ runner.os }}-cache-node-modules-${{ hashFiles('**/package-lock.json') }}
             restore-keys: |
                  ${{ runner.os }}-cache-node-modules-
-      - run: npm install
+      - run: npm install --production=false
       - name: cypress runs
         uses: cypress-io/github-action@v2
         with: 
