@@ -9,11 +9,12 @@
   "devDependencies": {
     "@types/jest": "^24.9.1",
     "cypress": "^6.5.0",
+    "jest": "^26.6.3",
     "jest-esm-transformer": "^1.0.0",
     "serve": "^11.3.2"
   },
   "scripts": {
-    "test": "jest  --config jest.config.js --coverage",
+    "test": "npx jest  --config jest.config.js --coverage",
     "build": "./build.sh"
   },
   "repository": {
