@@ -8,6 +8,7 @@ class _API{
     constructor(){
         this.translation_table = new Map();
         this.is_external = false;
+        this.can_output = false;
         this.config = {
             "light-mode" : true,
             "font" : "italic 25px Times New Roman"
@@ -88,9 +89,14 @@ class _API{
 }
 
 //global object shared between program
-var API = new _API();
+let API = null;
+
+function initAPI(){
+    API = new _API();
+}
 
 export{
     API,
+    initAPI,
     _API /* used for testing */
 }

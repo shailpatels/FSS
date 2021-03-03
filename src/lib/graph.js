@@ -1,6 +1,6 @@
 import {canvasManager} from '../canvasManager.js';
-import {getTableCells} from '../simulate.js';
 import {deserializeNode, deserializeArrow} from '../elements.js';
+import {inputManager} from '../input.js';
 import {API} from '../api.js';
 
 class Graph{
@@ -96,19 +96,20 @@ function buildTransitionTableHelper(key, val){
         }
 
         let data = null;
+        output += "<div>"
         if(val === "IF"){
-            data = arr.IF;
+            data = `<span><sub>${arr.IF === "" ? 'ε' : arr.IF}</sub></span>`;
         }else if(val === "OUT"){
-            data = arr.OUT;
+            data = `<span><sub>${arr.IF === "" ? 'ε' : arr.IF}</sub></span>`;
         }else{
             data = buildText(arr.end_node.label);
         }
 
-        output += `${data}`;
-        output += `<br>`
+        output += `${data}</div>`;
 
     }
 
+    output += `</td>`
     return output;
 }
 
@@ -127,13 +128,16 @@ function buildTransitionTable(tgt_element = null){
     }
 
     let keys = CM.graph.getKeys();
+    let extra = "";
+    if(API.can_output){
+        extra = "<th> Output </th>";
+    }
     
-
     let output = `
         <tr>
             <th> State </th>
             <th> Input </th>
-            <th> Output </th>
+            ${extra}
             <th> Next State </th>
         </tr>
     `;
@@ -146,8 +150,11 @@ function buildTransitionTable(tgt_element = null){
                 </td>
         `;
         
-        output += buildTransitionTableHelper(key, "IF");
-        output += buildTransitionTableHelper(key, "OUT");
+
+        output += `${buildTransitionTableHelper(key, "IF")}`
+        if(API.can_output){
+            output += buildTransitionTableHelper(key, "OUT");
+        }
         output += buildTransitionTableHelper(key, "");
         output += "</tr>";
     }
@@ -177,91 +184,14 @@ function save(){
         arrows.push(x.serialize());
     }
 
+    if(!API.is_external){
+        //save the io table
+        let IM = inputManager.getInstance().saveIOTable();
+    }
+
 	localStorage.setItem('object_map', JSON.stringify(map));
     localStorage.setItem('nodes', JSON.stringify(nodes));
-    localStorage.setItem('arrows', JSON.stringify(arrows));   
-
-    if(!API.is_external){
-        saveIO();
-    }
-}
-
-
-function saveIO(){
-    let ts = getTableCells();
-    let ret = [];
-
-    let i = 0;
-    for (let t of ts ){
-        ret.push({ 
-            "value" : t.textContent,
-            "full_word" : t.childNodes.length === 1,
-            "input" : i % 2 == 0
-        });
-        i ++;
-    }
-
-    localStorage.setItem('io_table', JSON.stringify(ret));
-}
-
-
-function rebuildIOTable(data){
-    let tgt = document.getElementById("io_table");
-    
-    let current_row = null;
-    let is_first = true;
-
-    let row_index = -1;
-    for (let obj of data){
-        if (obj.input ){
-            current_row = document.createElement("tr");
-            row_index ++; 
-        }
-
-        let td_a = document.createElement("td");
-        if( obj.input ){
-        if ( obj.full_word ){
-            let highlight = document.createElement("span");
-            if ( is_first )
-                highlight.setAttribute("class", "highlight");
-
-            highlight.setAttribute("id", row_index.toString() + "_0"); 
-            highlight.appendChild( document.createTextNode( obj.value ) );
-            td_a.appendChild(highlight);
-        } else {
-            for(var i = 0; i < obj.value.length; i++){
-                let highlight = document.createElement("span");
-                if (i == 0 && is_first)
-                    highlight.setAttribute("class", "highlight");
-
-                highlight.setAttribute("id", row_index.toString() + "_" + i.toString());
-                highlight.appendChild( document.createTextNode( obj.value[i] ) );
-                td_a.appendChild( highlight );
-            }
-        }
-        }else{
-            let td_a = document.createElement("td");
-            td_a.appendChild( document.createTextNode( obj.value ) );
-        }
-            
-        
-        current_row.appendChild( td_a );
-        tgt.appendChild(current_row);
-        is_first = false; 
-    }
-}
-
-
-function clearIOTable(){
-    if (API.is_external){
-        return;
-    }
-
-    document.getElementById("io_table").innerHTML = 
-    `<tr>
-        <th> Input </th>
-        <th> Output </th>
-    </tr>`;
+    localStorage.setItem('arrows', JSON.stringify(arrows));  
 }
 
 
@@ -315,12 +245,7 @@ function load(){
     }
 
     if(!API.is_external){
-        let io_table = localStorage.getItem('io_table');
-        if(!io_table){
-            return;
-        }
-
-        rebuildIOTable(JSON.parse(io_table));
+        inputManager.getInstance().loadIOTable();
     }
 }
 
@@ -329,6 +254,5 @@ export{
     Graph,
     buildTransitionTable,
     save,
-    load,
-    clearIOTable
+    load
 }

@@ -2,7 +2,7 @@ import {API} from './api.js';
 import {Point} from './lib/geometry.js';
 import {isOverNode, getClosestNode, refocus} from './canvas.js';
 import {canvasManager} from './canvasManager.js';
-import {step, addRow} from './simulate.js';
+import {step} from './simulate.js';
 import {buildTransitionTable, save, load} from './lib/graph.js';
 import {toggleDarkMode} from './renderer.js';
 
@@ -28,6 +28,37 @@ class __INPUT_MANAGER{
 
         this.LEFT_MOUSE_BUTTON = 0;
         this.RIGHT_MOUSE_BUTTON = 2;
+
+        this.num_input_strings = 0;
+
+        this.io_table = {
+            in : [],
+            out: []
+        };
+    }
+
+    /**
+    * save the io table to localStorage
+    */ 
+    saveIOTable(){
+        localStorage.setItem('io_table', JSON.stringify(this.io_table));
+    }
+
+    /**
+    * load the io table from localStorage
+    */
+    loadIOTable(){
+        let table = localStorage.getItem('io_table');
+        if(!table){
+            return;
+        }
+
+        this.io_table = JSON.parse(table);
+        this.num_input_strings = this.io_table['in'].length;
+
+        for(let x of this.io_table['in']){
+            addRowToDOM(x);
+        }
     }
 }
 
@@ -48,7 +79,7 @@ function initControls(){
 
     if(!API.is_external){
         document.getElementById('stp_btn').addEventListener('click', () => {
-            step(API.is_external);
+            step();
         });
         document.getElementById('submit_btn').addEventListener('click', () => {
             addRow();
@@ -68,6 +99,12 @@ function initControls(){
         document.getElementById('clear_btn').addEventListener('click', () => {
             CM.clearCanvas();
             localStorage.clear();
+        });
+        document.getElementById('string_input').addEventListener('keyup', (e) => {
+            if(e.key === 'Enter'){
+                addRow();
+            }
+            e.stopPropagation();
         });
     }
 
@@ -267,9 +304,9 @@ function updateSelectedArrow(){
     }
 
     CM.selected_arrow.IF = if_.value;
-    CM.selected_arrow.OUT = out.value;
+    CM.selected_arrow.OUT = out === null ? '' : out.value;
 
-    API.call("update_selected_arrow", if_.value, out.value);
+    API.call("update_selected_arrow", CM.selected_arrow.IF, CM.selected_arrow.OUT);
 }
 
 
@@ -283,9 +320,12 @@ function updateArrowMenu(){
     let out = document.getElementById("out");
 
     if_.value = CM.selected_arrow.IF;
-    out.value = CM.selected_arrow.OUT; 
 
-    API.call("update_arrow_menu", if_.value, out.value);
+    if(out !== null){
+        out.value = CM.selected_arrow.OUT; 
+    }
+
+    API.call("update_arrow_menu", CM.selected_arrow.OUT, CM.selected_arrow.OUT);
 }
 
 
@@ -300,7 +340,10 @@ function drawArrowMenu(pos, if_text, out_text){
     let if_ = document.getElementById("if_");
     let out = document.getElementById("out");
     if_.value = if_text;
-    out.value = out_text;
+
+    if(out !== null){
+        out.value = out_text;
+    }
 
     let arrow_menu = document.getElementById("arrow_menu");
     let w = Math.round(arrow_menu.offsetWidth/2);
@@ -313,6 +356,7 @@ function drawArrowMenu(pos, if_text, out_text){
     CM.is_arrow_menu_drawn = true;
     if_.focus();
 }
+
 
 //check if this function gets called correctly
 function hideArrowMenu(){
@@ -333,17 +377,47 @@ function hideArrowMenu(){
 
 
 /**
+* Add a row to the io table
+*/
+function addRow(){
+    const string = document.getElementById('string_input').value;
+    const IM = inputManager.getInstance();
+
+    IM.num_input_strings ++;
+    IM.io_table['in'].push(string);
+
+    addRowToDOM(string);
+}
+
+/**
+* Write a string to the html page's IO table
+*/
+function addRowToDOM(string){
+    const IM = inputManager.getInstance();
+    const table = document.getElementById('io_table');
+
+    if(string === ''){
+        string = 'ε'
+    }
+
+    let output = "<tr><td>";
+    for(let i = 0; i < string.length; i++){
+        output += `<span id='str-${IM.num_input_strings}${i}'>${string[i]}</span>`
+    }
+    output += "</tr></td>";
+
+    table.innerHTML += output;
+}
+
+
+/**
 * corrects the raw mouse position to a mouse position relative to the canvas
 * upper left corner is (0,0)
-*
-* also corrects for HiDPI displays since every canvas pixel
-* may not map to every pixel on the physical display
 *
 * @param {Point} pos - raw mouse position
 * @returns {Point}
 */
 function getMouse(pos){
-    let ratio = window.devicePixelRatio; 
     return new Point(pos.offsetX, pos.offsetY)  ;
 }
 

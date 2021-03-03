@@ -85,7 +85,7 @@ function initCanvas() {
     CM.canvas.width = CM.width * ratio;
     CM.canvas.height = CM.height * ratio;
     CM.context.scale(ratio, ratio);
-   if(API.config["light-mode"] === false){
+    if(API.config["light-mode"] === false){
         displayDarkMode();
     }
 }

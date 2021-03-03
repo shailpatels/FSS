@@ -3,6 +3,7 @@ import {initCanvas, drawSelfArrowHelper, drawLine, renderBackground} from './ren
 import {load} from './lib/graph.js';
 import {initControls, inputManager, hideArrowMenu} from './input.js';
 import {getDistance} from './lib/geometry.js';
+import {initAPI} from './api.js';
 
 
 window.addEventListener("load", main);
@@ -13,13 +14,12 @@ function main(){
 		return;
 	}
 
+
+	initAPI();
 	let CM = canvasManager.init(canvas);
 
-	//prevent highlighting outside of the canvas on click
-	CM.canvas.onselectstart = function () { return false; }
 	initCanvas();
 	initControls(canvas);
-    //fileManager();
 	
 	drawScreen();
 
@@ -56,6 +56,7 @@ function drawScreen(){
 	//draw circles on top of arrows to avoid anything inside the 'nodes'
 	for(let n of CM.nodes){
 		n.draw();
+		// n.drawGridLines();
 	}
 	
 
