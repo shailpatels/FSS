@@ -1,6 +1,6 @@
 {
   "name": "@shailpatels/fss",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Finite State Simulator",
   "main": "canvas.js",
   "directories": {
