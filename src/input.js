@@ -54,11 +54,19 @@ class __INPUT_MANAGER{
         }
 
         this.io_table = JSON.parse(table);
-        this.num_input_strings = this.io_table['in'].length;
 
         for(let x of this.io_table['in']){
             addRowToDOM(x);
+            this.num_input_strings ++;
         }
+    }
+
+    clear(){
+        this.num_input_strings = 0;
+        this.io_table = {
+            in : [],
+            out: []
+        };
     }
 }
 
@@ -99,6 +107,8 @@ function initControls(){
         document.getElementById('clear_btn').addEventListener('click', () => {
             CM.clearCanvas();
             localStorage.clear();
+            inputManager.getInstance().clear();
+            clearIOTable();
         });
         document.getElementById('string_input').addEventListener('keyup', (e) => {
             if(e.key === 'Enter'){
@@ -383,10 +393,10 @@ function addRow(){
     const string = document.getElementById('string_input').value;
     const IM = inputManager.getInstance();
 
-    IM.num_input_strings ++;
     IM.io_table['in'].push(string);
 
     addRowToDOM(string);
+    IM.num_input_strings ++;
 }
 
 /**
@@ -400,13 +410,23 @@ function addRowToDOM(string){
         string = 'ε'
     }
 
-    let output = "<tr><td>";
+    let output = `<tr><td id="str-${IM.num_input_strings}" data-full-string="${string}">`;
     for(let i = 0; i < string.length; i++){
-        output += `<span id='str-${IM.num_input_strings}${i}'>${string[i]}</span>`
+        output += `<span id='str-${IM.num_input_strings}-${i}'>${string[i]}</span>`
     }
-    output += "</tr></td>";
+    output += `<td id="status-${IM.num_input_strings}"></td>  </td></tr>`;
 
     table.innerHTML += output;
+}
+
+function clearIOTable(){
+    if (API.is_external){
+        return;
+    }
+    document.getElementById("io_table").innerHTML = 
+        `<tbody>
+            <tr><th>Input</th></tr>
+        </tbody>`;
 }
 
 

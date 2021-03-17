@@ -65,7 +65,7 @@ class __CANVAS_MANAGER{
         let SM = simManager.getInstance();
 
         if(node_ === null){
-            node_ = new Node(IM.mouse_pos, this.nodes.length.toString(10));
+            node_ = new Node(IM.mouse_pos, this.nodes.length.toString(10), this.nodes.length);
         }
         
         this.nodes.push( node_ );
@@ -207,6 +207,10 @@ class __CANVAS_MANAGER{
         }
 
         return null;
+    }
+
+    getGraph(){
+        return this.graph.graph;
     }
 
     clearCanvas(){

@@ -3,6 +3,7 @@ import {isOverNode, getClosestNode} from './canvas.js';
 import {inputManager, drawArrowMenu} from './input.js';
 import {getMidPoint, findAngle, Point} from './lib/geometry.js';
 import {drawArrowhead, drawLabel, drawText} from './renderer.js';
+import {simManager} from './simulate.js';
 import {API} from './api.js';
 
 /**
@@ -15,14 +16,14 @@ class Node{
     * @param {Point} pos
     * @param {string} str - label to give node
     */
-    constructor(pos_, str){
+    constructor(pos_, str, index_){
         this.pos = pos_;
         this.connected_arrows = [];
         this.label = str;
         this.is_active = false;
         this.is_accept = false;
         this.is_mouse_over = false;
-        this.index = parseInt(this.label, 10);  
+        this.index = index_;
         this.id = getRandomString();
 
         canvasManager.getInstance().updateMap(this);
@@ -90,16 +91,18 @@ class Node{
 
     draw(){
         let CM = canvasManager.getInstance();
+        let SM = simManager.getInstance();
 
         CM.context.beginPath();
         CM.context.arc(this.pos.X, this.pos.Y, CM.node_radius, 0, 2 * Math.PI);
         CM.context.stroke();
-
        
         if(!this.is_mouse_over){
             CM.context.beginPath();
             CM.context.arc(this.pos.X, this.pos.Y, CM.node_radius - 0.5, 0, 2 * Math.PI);
-            CM.context.fillStyle = this.is_active ? "yellow" : "white";
+            CM.context.fillStyle = this.is_active && 
+                (SM.getCurrentBranch().current_node_index === this.index || SM.display_all) 
+                ?  "yellow" : "white";
             CM.context.fill();
         }
         else{
@@ -343,11 +346,7 @@ class Arrow{
         }else{
             let text = this.IF;
             if(this.IF === ""){
-                let text = 'ε';
-            }
-
-            if(this.OUT === ""){
-                text += 'ε';
+                text = 'ε';
             }
 
             CM.context.font = API.config["font"];
