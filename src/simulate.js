@@ -1,6 +1,8 @@
 import {API} from './api.js';
 import {canvasManager} from './canvasManager.js';
 import {save} from './lib/graph.js';
+import {inputManager} from './input.js';
+
 
 var simManager = (function(){
     var instance = null;
@@ -12,7 +14,7 @@ var simManager = (function(){
 
         getInstance: function () {
             if (!instance) {
-                instance = new __SIM_STATE();
+                instance = new __SIM_MANAGER();
             }
             return instance;
         }
@@ -21,71 +23,320 @@ var simManager = (function(){
 })();
 
 
-class __SIM_STATE{
+class __SIM_MANAGER{
     constructor(){
-        this.Q = [],
-        this.is_starting = true,
-        this.prev = [],
-        this.outbuff = "",
-        this.inbuff = "",
-        this.index = 0,
-        this.char_index = 0,
-        this.tds = getTableCells(),
-        this.is_full_word = false;
-        this.moved_next_row = false;
+        this.has_started = false;
+        this.branches = [];
+        this.str_index = 0;
+        this.use_epsilon = false;
+        this.current_branch_open = 0;
+        this.is_deterministic = true;
+        this.display_all = true;
     }
 
-    resetSim () { resetSim() }
+    resetSim(){ resetSim(); }
+
+    getCurrentBranch(){
+        return this.branches[this.current_branch_open];
+    }
+}
+
+class SimState{
+    constructor(start_node_index, string, index, inner_str_index = 0){
+        this.current_node_index = start_node_index;
+        this.string = string;
+        this.inner_str_index = inner_str_index;
+        this.accepted = false;
+        this.is_done = false;
+        this.branch_index = index;
+    }
+
+    step(){
+        let CM = canvasManager.getInstance();
+        let SM = simManager.getInstance();
+
+        //check outgoing connections 
+        let this_node = CM.nodes[this.current_node_index];
+        let connections = this_node.connected_arrows;
+        let matches = [];
+
+        for(let c of connections){
+            if(c.isDeparting(this_node)){
+                continue;
+            }
+
+            if(c.IF === ""){
+                matches.push(c.end_node.index);
+                SM.use_epsilon = true;
+            }else if(c.IF === this.string[this.inner_str_index]){
+                matches.push(c.end_node.index);
+            }
+        }
+
+        if(matches.length === 1){
+            //deterministic can continue as normal
+            CM.nodes[this.current_node_index].is_active = false;
+
+            //only consume input on a literal match, not epsilon
+            if(connections[0].IF === this.string[this.inner_str_index]){
+                this.inner_str_index++;
+                if(SM.display_all){
+                    highlightNextChar();
+                }
+            }
+
+            API.call("node_transition", this.current_node_index, matches[0], this.inner_str_index);
+            this.current_node_index = matches[0];
+            CM.nodes[this.current_node_index].is_active = true;
+        }else if(matches.length === 0){
+            //nothing more to do, check if we're in an accept state
+            this.accepted = CM.nodes[this.current_node_index].is_accept && 
+                            this.inner_str_index === this.string.length;
+            CM.nodes[this.current_node_index].is_active = false;
+            this.is_done = true;
+            API.call("branch_complete", this );
+        }else if(matches.length > 1){
+            //need to branch on all posibilities
+            this.is_deterministic = false;
+
+            if(SM.branches.length === 1){
+                createNewBranch(0);
+            }
+
+            let new_inner_str_index = this.inner_str_index;
+            for(let i = 0; i < matches.length; i++){
+                let child_index = this.inner_str_index;
+                //only consume input on a literal match, not epsilon
+                if(connections[i].IF === this.string[this.inner_str_index]){
+                    child_index ++;
+                }
+
+                if(i === 0){
+                    if(connections[i].IF === this.string[this.inner_str_index]){
+                        new_inner_str_index++;
+                        if(SM.display_all){
+                            highlightNextChar();
+                        }
+                    }
+                    continue;
+                }
+
+                
+                let index = SM.branches.length;
+                CM.nodes[matches[i]].is_active = true;
+                SM.branches.push(new SimState(matches[i],this.string,index,child_index));
+                createNewBranch(index);
+            }
+
+            //the first match will be followed by the 'main' branch
+            CM.nodes[this.current_node_index].is_active = false;
+            this.inner_str_index = new_inner_str_index;
+            this.current_node_index = matches[0];
+            CM.nodes[this.current_node_index].is_active = true;
+        }
+
+    }
 }
 
 
-/**
-* collect all the table cells ignoring the ones used in the transition table
-*
-* @returns {Array} - Array of HTML elements
-*/
-function getTableCells(){
-    if (API.is_external){
-        return [];
+function createNewBranch(branch_index){
+    let branch_bar = document.getElementById('branches');
+    if(!branch_bar){
+        return;
     }
 
-    let tmp  = document.getElementsByTagName("td") || [];
-    let ret = [];
-    for (let t of tmp){
-        if (t.className === "t_tbl"){
-            continue;
+    let SM = simManager.getInstance();
+
+    let new_btn = document.createElement('button');
+    new_btn.appendChild(document.createTextNode(`Branch ${branch_index}`));
+    new_btn.addEventListener('click', () => {
+        displayBranch(branch_index);
+    });
+    branch_bar.appendChild(new_btn);
+
+    let all_btn = document.getElementById('branch-all')
+    all_btn.addEventListener('click', () => {
+        SM.display_all = true;
+    });
+    all_btn.style.display = '';
+}
+
+
+function displayBranch(id){
+    let SM = simManager.getInstance();
+    SM.display_all = false;
+    SM.current_branch_open = id;
+    highlightChar( SM.getCurrentBranch().inner_str_index-1 );
+}
+
+
+function highlightNextChar(){
+    if(API.is_external){
+        return;
+    }
+
+    let SM = simManager.getInstance();
+    let tgt = document.getElementsByClassName('highlight');
+
+    if(tgt.length === 0){
+        tgt = document.getElementById(`str-${SM.str_index}-0`);
+        if(!tgt){
+            return; 
+        }
+        tgt.className += 'highlight';
+    }else{
+        tgt[0].className = "";
+        let branch = SM.branches[SM.current_branch_open];
+
+        tgt = document.getElementById(`str-${SM.str_index}-${branch.inner_str_index}`);
+        if(!tgt){
+            return;
         }
 
-        ret.push(t);
+        tgt.className += 'highlight';
     }
-    return ret;
+}
+
+
+function highlightChar(index){
+    if(API.is_external){
+        return;
+    }
+
+    let tgt = document.getElementsByClassName('highlight');
+    for(let t of tgt){
+        tgt.className = '';
+    }
+
+    let SM = simManager.getInstance();
+    tgt = document.getElementById(`str-${SM.str_index}-${index}`);
+    tgt.className = 'highlight';
+}
+
+
+function moveToNextRow(){
+    let SM = simManager.getInstance();
+    let tgts = document.getElementsByClassName('highlight');
+    for(let t of tgts){
+        t.className = "";
+    }
+    let new_index = SM.str_index + 1;
+    resetSim();
+    SM = simManager.getInstance();
+    SM.str_index = new_index;
+}
+
+
+function updateStatus(status){
+    API.call("update_status", status);
+    if(API.is_external){
+        return;
+    }
+
+    let SM = simManager.getInstance();
+    let tgt = document.getElementById(`status-${SM.str_index}`);
+    if(!tgt){
+        return;
+    }
+
+    tgt.innerHTML = status;
+}
+
+function step(){
+    let SM = simManager.getInstance();
+    let CM = canvasManager.getInstance();
+
+    if(!SM.has_started){
+
+        let string = API.is_external ? API.requestInput() : getNextString();
+        let index = SM.branches.length;
+
+        if(CM.nodes.length > 0){
+            SM.branches.push(new SimState( 0, string ));
+            CM.nodes[0].is_active = true;
+            SM.has_started = true;
+            highlightNextChar();
+        }else{
+            return;
+        }
+
+    }else{
+        let all_done = true;
+        let num_branches = SM.branches.length;
+
+        for(let i = 0; i < num_branches; i++){
+            if(!SM.branches[i].is_done){
+                all_done = false;
+                SM.branches[i].step();
+            }
+
+            if(SM.branches[i].accepted){
+                updateStatus("Accept");
+                moveToNextRow();
+                //reset and move to next row
+                return;
+            }
+        }
+
+        if(!SM.display_all){
+            highlightChar( SM.getCurrentBranch().inner_str_index-1 );
+        }
+
+
+        //all done?
+        if(all_done){
+            updateStatus("Reject");
+            moveToNextRow();
+        }
+    }
+}
+
+
+function getNextString(){
+    let SM = simManager.getInstance();
+    let tgt = document.getElementById(`str-${SM.str_index}`);
+
+    if(!tgt){
+        return "";
+    }
+
+    return tgt.dataset.fullString;
 }
 
 
 function resetSim(){
     simManager.clear();
-
-    clearIOTable();
     clearTransitionTable();
+
+    for(let n of canvasManager.getInstance().nodes){
+        n.is_active = false;
+    }
+
+    let tgts = document.getElementsByClassName('highlight');
+    for(let t of tgts){
+        t.className = "";
+    }
+
+    let tgt = document.getElementById('branches');
+    if(!tgt){
+        return;
+    }
+
+    tgt.innerHTML = `<button style="display: none;" id="branch-all">All</button>`;
 }
 
 function clearTransitionTable(){
+    if(API.is_external){
+        return;
+    }
     document.getElementById("t_table").innerHTML = 
         `<tr>
             <th> State </th>
             <th> Input </th>
-            <th> Output </th>
             <th> Next State </th>
         </tr>`
 }
 
-function clearIOTable(){
-    if (API.is_external){
-        return;
-    }
-    document.getElementById("io_table").innerHTML = 
-        "<tbody><tr><th>Input</th><th>Output</th></tr></tbody>";
-}
 
 //instead of resetting the entire sim, only start back at state0
 function resetFSS(){
@@ -99,252 +350,8 @@ function resetFSS(){
 }
 
 
-/**
-* given an array, shuffle its contents
-*
-* @param {Array}
-* @return {Array}
-* SRC: https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
-*/
-function shuffleArray(array) {
-    var currentIndex = array.length, temporaryValue, randomIndex;
-
-    // While there remain elements to shuffle...
-    while (0 !== currentIndex) {
-        // Pick a remaining element...
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex -= 1;
-
-        // And swap it with the current element.
-        temporaryValue = array[currentIndex];
-        array[currentIndex] = array[randomIndex];
-        array[randomIndex] = temporaryValue;
-    }
-
-    return array;
-}
-
-
-/**
-* filter which nodes to visit based on a string to test against
-*
-* @param {Node} node - the node to start from
-* @param {test} String - the string to test arrow IF conditionals against
-* @param {shuffle} Boolean - shuffle the output string array
-*
-* @returns {Object} array containing an array of nodes to visit and an array of strings from the arrow OUTs
-*/
-function filter(node, test, shuffle=true){
-    let ret = [];
-    let out = [];
-    let arrows = node.connected_arrows;
-
-    
-    for(let arr of arrows){
-        //if the node is entering pointing to this, skip it
-        if( arr.isDeparting(node) ){
-            continue;
-        }
-        
-        if(arr.IF === test || arr.IF === ""){
-            ret.push(arr.end_node);
-            out.push(arr.OUT);
-            API.call("arrow_accepted", arr);
-        }
-    }
-
-    if(shuffle){
-        out = shuffleArray(out);
-    }
-        
-    return [ret, out];
-}
-
-
-/**
-* function that moves the simulation forward by one transition
-* if theres a valid input table will move to the next input otherwise uses an empty string 
-*
-*/
-function step(){
-    let SM = simManager.getInstance();
-    let CM = canvasManager.getInstance();
-
-    API.call("step_simulation");
-    SM.is_full_word = API.is_external ? false : document.getElementById("is_full_word").checked;
-    
-    for(let u of SM.prev){
-        u.is_active = false;
-    }
-
-
-    if(CM.nodes.length === 0){
-        return;
-    }
-
-    if (SM.is_starting){
-        SM.Q.push(CM.nodes[0]);
-        SM.is_starting = false;
-    }else{
-        SM.prev = [];
-        if( (SM.index + 1) < SM.tds.length && !API.is_external){
-            SM.tds[SM.index + 1].innerText += SM.outbuff;
-        }
-
-
-        API.call("simulate_write", SM.outbuff);
-        SM.outbuff = "";
-        SM.moved_next_row = API.is_external ? API.call("is_finished") : highlightNext();
-    }
-
-    let connections = [];
-    SM.tds = getTableCells(); 
-    if(SM.Q.length === 0){
-        return;
-    }
-
-    for(let u of SM.Q){
-        if(typeof u === 'undefined'){
-            break;
-        }
-
-        u.is_active = true;
-        SM.prev.push(u);
-    
-        let f = ""; 
-        if(SM.tds.length > 0 && SM.index < SM.tds.length){
-            f = SM.full_word ? SM.tds[SM.index].innerText : SM.tds[SM.index].innerText[SM.char_index];
-        }else if(!API.is_external){
-            addRow(false);
-        }else{
-            f = API.call("request_input")[0];
-        }
-        
-        let tmp = filter(u, f);
-        connections = tmp[0];
-
-        SM.outbuff += tmp[1].join("");
-        connections = [...new Set(connections)];
-    }
-
-    SM.Q = connections;     
-    SM.char_index += 1;
-    
-    if (SM.moved_next_row){
-        resetFSS();
-        SM.char_index -= 1;
-    }
-}
-
-
-/**
-* add a new row to the input list from the input textarea on the page
-*
-* @param {Boolean|null} add_in - if the input textarea should be read and added to the input table
-*/
-function addRow(add_in = true){
-    let txt = "";
-    let full_word = document.getElementById("is_full_word").checked;
-    let is_first = true;
-    let tmp_index = 0;
-    let table = document.getElementById("io_table");
-    let SM = simManager.getInstance();
-
-    SM.tds = getTableCells(); 
-
-    if(add_in){
-        txt = document.getElementById("string_input").value;  
-        if ( txt === ""){
-            return;
-        }
-        
-        is_first = SM.tds.length === 0;
-        
-        if(!is_first){
-            tmp_index = SM.tds.length;
-        }
-    } 
-    
-    let tmp = document.createElement("tr");
-    let td_a = document.createElement("td"); //in col
-
-    let tgt_class_style = API.config["light-mode"] ? "highlight" : "highlight-dark";
-
-    if(!full_word){
-        for(var i = 0; i < txt.length; i++){
-            let highlight = document.createElement("span");
-            if (i == 0 && is_first){
-                highlight.setAttribute("class", tgt_class_style);
-            }
-
-            highlight.setAttribute("id", tmp_index.toString() + "_"  + i.toString());
-            highlight.appendChild( document.createTextNode(txt[i]) );
-            td_a.appendChild(highlight);
-        }
-    }else{
-        let highlight = document.createElement("span");
-        if(is_first){
-            highlight.setAttribute("class", tgt_class_style);
-        }
-
-        highlight.appendChild( document.createTextNode(txt) );
-        td_a.appendChild(highlight);
-        highlight.setAttribute("id", tmp_index.toString() + "_0");
-    }
-
-
-    let td_b = document.createElement("td"); //out col
-    txt = document.createTextNode("");
-    td_b.appendChild(txt);
-
-    tmp.appendChild(td_a);
-    tmp.appendChild(td_b);
-    
-    table.appendChild(tmp);
-
-    if(canvasManager.getInstance().auto_save){
-        save();
-    }
-}
-
-/**
-* move the highlight from the current word/char to the next in the input list
-* @returns {Boolean} True if moved to the next row, false otherwise
-*/
-function highlightNext(){
-    let SM = simManager.getInstance();
-    let h = document.getElementsByClassName("highlight");
-    if (h.length === 0){
-        return false;
-    }
-
-    h = h[0];
-
-    h.setAttribute("class","");
-    let id = parseInt(h.getAttribute("id").split("_")[1], 10);
-    let next = document.getElementById( SM.index.toString() + "_" + (id+1).toString() );
-        
-    
-    if( next === null || typeof next === "undefined" ){
-        SM.index += 2;
-        SM.char_index = 0;
-        let ref = document.getElementById( SM.index.toString() + "_0");
-        if( ref === null ){
-            return true;
-        }
-
-        ref.setAttribute("class", "highlight");        
-        return true;
-    }
-
-    next.setAttribute("class", "highlight"); 
-    return false;
-}
-
 
 export {
     simManager,
-    step,
-    addRow,
-    getTableCells
+    step
 }

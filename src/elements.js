@@ -3,6 +3,7 @@ import {isOverNode, getClosestNode} from './canvas.js';
 import {inputManager, drawArrowMenu} from './input.js';
 import {getMidPoint, findAngle, Point} from './lib/geometry.js';
 import {drawArrowhead, drawLabel, drawText} from './renderer.js';
+import {simManager} from './simulate.js';
 import {API} from './api.js';
 
 /**
@@ -15,14 +16,14 @@ class Node{
     * @param {Point} pos
     * @param {string} str - label to give node
     */
-    constructor(pos_, str){
+    constructor(pos_, str, index_){
         this.pos = pos_;
         this.connected_arrows = [];
         this.label = str;
         this.is_active = false;
         this.is_accept = false;
         this.is_mouse_over = false;
-        this.index = parseInt(this.label, 10);  
+        this.index = index_;
         this.id = getRandomString();
 
         canvasManager.getInstance().updateMap(this);
@@ -47,6 +48,36 @@ class Node{
     * @param {Point} new_pos
     */
     moveTo(new_pos){
+        let CM = canvasManager.getInstance();
+        const thresh = 10;
+        //are we near another node, if so snap to it
+        for(let n of CM.nodes){
+
+            let x_adjust = false;
+            let y_adjust = false;
+
+            if (n.id === this.id){
+                continue;
+            }
+
+            //x 
+            let x_diff = Math.abs(n.pos.X - new_pos.X);
+            if(x_diff < thresh){
+                new_pos.X = n.pos.X;
+                x_adjust = true;
+            }
+
+            let y_diff = Math.abs(n.pos.Y - new_pos.Y);
+            if(y_diff < thresh){
+                new_pos.Y = n.pos.Y;
+                y_adjust = true;
+            }
+
+            if(x_adjust || y_adjust){
+                break;
+            }
+        }
+
         this.pos = new_pos;
         for (var i = this.connected_arrows.length - 1; i >= 0; i--) {
             this.connected_arrows[i].moveByNode(new_pos, this);
@@ -60,16 +91,18 @@ class Node{
 
     draw(){
         let CM = canvasManager.getInstance();
+        let SM = simManager.getInstance();
 
         CM.context.beginPath();
         CM.context.arc(this.pos.X, this.pos.Y, CM.node_radius, 0, 2 * Math.PI);
         CM.context.stroke();
-
        
         if(!this.is_mouse_over){
             CM.context.beginPath();
             CM.context.arc(this.pos.X, this.pos.Y, CM.node_radius - 0.5, 0, 2 * Math.PI);
-            CM.context.fillStyle = this.is_active ? "yellow" : "white";
+            CM.context.fillStyle = this.is_active && 
+                (SM.getCurrentBranch().current_node_index === this.index || SM.display_all) 
+                ?  "yellow" : "white";
             CM.context.fill();
         }
         else{
@@ -88,6 +121,25 @@ class Node{
     
         this.is_mouse_over = this.mouseOver();
         drawLabel(this.label, this.pos);
+    }
+
+    /**
+    * Draw a grid line for this node, other nodes 'snap' to its
+    * X and Y axis'. This function visualizes what gets snapped to what for debugging
+    */ 
+    drawGridLines(){
+        let CM = canvasManager.getInstance();
+        //y
+        CM.context.beginPath();
+        CM.context.moveTo(this.pos.X, 0);
+        CM.context.lineTo(this.pos.X, CM.height);
+        CM.context.stroke();
+
+        //x
+        CM.context.beginPath();
+        CM.context.moveTo(0, this.pos.Y);
+        CM.context.lineTo(CM.width, this.pos.Y);
+        CM.context.stroke();
     }
 
     /** @returns {boolean} **/
@@ -154,10 +206,7 @@ class Arrow{
         var ax = getMidPoint( this.ctrl_pos, this.start_pos );
         var bx = getMidPoint( this.ctrl_pos, this.end_pos)
 
-        var m = getMidPoint(ax,bx);
-
-
-        return m;
+        return getMidPoint(ax,bx);
     }
 
     draw(){
@@ -211,10 +260,14 @@ class Arrow{
 
         if(this === CM.selected_arrow){
             drawArrowMenu(this.mid_point,this.IF,this.OUT);
-        }else if(this.IF != ""){
-            let text = this.OUT === "" ? this.IF : this.IF + " : " + this.OUT;
+        }else{
+
+            let text = this.IF;
+            if(this.IF === ""){
+                text = 'ε';
+            }
+
             let w = CM.context.measureText(text).width;
-            
             let Y = this.mid_point.Y;
             let X = this.mid_point.X; 
             let m = getMidPoint( this.start_pos, this.end_pos );
@@ -290,8 +343,11 @@ class Arrow{
        
         if(this === CM.selected_arrow){
             drawArrowMenu(pt ,this.IF,this.OUT);
-        }else if(this.IF != ""){
-            let text = this.OUT === "" ? this.IF : this.IF + " : " + this.OUT;
+        }else{
+            let text = this.IF;
+            if(this.IF === ""){
+                text = 'ε';
+            }
 
             CM.context.font = API.config["font"];
             let w = CM.context.measureText(text).width;

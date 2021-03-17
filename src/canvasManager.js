@@ -2,7 +2,7 @@ import {inputManager} from './input.js';
 import {Node, Arrow} from './elements.js';
 import {findAngle} from './lib/geometry.js';
 import {simManager} from './simulate.js';
-import {Graph,save, clearIOTable} from './lib/graph.js';
+import {Graph,save} from './lib/graph.js';
 import {API} from './api.js';
 
 var canvasManager = (function(){
@@ -65,7 +65,7 @@ class __CANVAS_MANAGER{
         let SM = simManager.getInstance();
 
         if(node_ === null){
-            node_ = new Node(IM.mouse_pos, this.nodes.length.toString(10));
+            node_ = new Node(IM.mouse_pos, this.nodes.length.toString(10), this.nodes.length);
         }
         
         this.nodes.push( node_ );
@@ -209,14 +209,14 @@ class __CANVAS_MANAGER{
         return null;
     }
 
+    getGraph(){
+        return this.graph.graph;
+    }
+
     clearCanvas(){
         this.graph = new Graph();
         this.nodes = [];
         this.arrows = [];
-
-        if(!canvasManager.getInstance().is_external){
-            clearIOTable();
-        }
     }
 }
 

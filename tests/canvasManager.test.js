@@ -2,8 +2,11 @@ import {canvasManager} from '../src/canvasManager.js';
 import {Node} from '../src/elements.js';
 import {Point} from '../src/lib/geometry.js';
 import {buildFakeCanvas} from './common.js';
+import {initAPI,API} from '../src/api.js';
 
 afterEach(()=>{
+	initAPI();
+	API.is_external = true;
 	canvasManager.clear();
 })
 

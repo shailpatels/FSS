@@ -4,10 +4,6 @@ canvas{
     border:2px solid;
 }
 
-.border-dark{
-    border-color: white;
-}
-
 table,td,th{
 	border: 1px solid #ddd;
     border-collapse: collapse;
@@ -24,6 +20,26 @@ hr{
     margin-top:10px;
 }
 
+legend{
+    margin-bottom: 0px;
+}
+
+button{
+    background-color: #e7e7e7; 
+    color: black;
+    border:none;
+    padding: 5px 5px;
+}
+
+button:hover{
+    background-color: grey;
+    color: white;
+}
+
+.border-dark{
+    border-color: white;
+}
+
 .content {
     display: flex;
     justify-content: center;   
@@ -31,6 +47,27 @@ hr{
 
 .content > button{
     margin : 5px;
+}
+
+.dark-mode{
+    color: white;
+}
+
+.body-dark{
+    background-color: black;
+}
+
+.highlight{
+    background-color:hsl(120,60%,70%);
+}
+
+.highlight-dark{
+    background-color:white;
+    color: black;
+}
+
+#string_input{
+    border: 1px solid gray;
 }
 
 #arrow_menu{
@@ -59,47 +96,16 @@ hr{
 	word-wrap: break-word;
 }
 
-.highlight{
-    background-color:hsl(120,60%,70%);
-}
-
-.highlight-dark{
-    background-color:white;
-    color: black;
-}
-
-
 #input_box{
     max-width: 182px;
     margin-left: auto;
     margin-right: auto;
 }
 
-#submit_btn{
-    margin-left: 35px;
+#branches{
+    margin-left: auto;
+    margin-right: auto;
+    width: 1000px;
+    height: 50px;
 }
 
-
-legend{
-    margin-bottom: 0px;
-}
-
-button{
-    background-color: #e7e7e7; 
-    color: black;
-    border:none;
-    padding: 5px 5px;
-}
-
-button:hover{
-    background-color: grey;
-    color: white;
-}
-
-.dark-mode{
-    color: white;
-}
-
-.body-dark{
-    background-color: black;
-}

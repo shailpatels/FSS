@@ -10,7 +10,7 @@ describe('Build basic FSS', () => {
   	//
   	cy.get('.t_tbl').invoke('text').then((text) => {
   		//State S0, on input "" outputs "" and goes to S0
-  		expect(text.replace(/(\r\n|\n|\r|\s)/gm, "") ) .equal('S0S0');
+  		expect(text.replace(/(\r\n|\n|\r|\s)/gm, "") ) .equal('S0εS0');
   	});
   });
 });
