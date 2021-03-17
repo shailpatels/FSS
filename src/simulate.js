@@ -303,70 +303,6 @@ function getNextString(){
     return tgt.dataset.fullString;
 }
 
-// //return if match, next node, if consumed
-// function transition(node, sym){
-//     let ret = [];
-//     for(let x of node.connected_arrows){
-
-//         if(x.isDeparting(node)){
-//             continue;
-//         }
-
-//         if(x.IF === "" || x.IF === sym){
-//             ret.push([true, parseInt(x.end_node.label,10) ,  x.IF !== ""  ]);
-//         }
-//     }
-
-//     if(ret.length === 0){
-//         ret = [[false, -1, false]];
-//     }
-
-//     return ret;
-// }
-
-
-/**
-// * filter which nodes to visit based on a string to test against
-// *
-// * @param {Node} node - the node to start from
-// * @param {test} String - the string to test arrow IF conditionals against
-// * @param {shuffle} Boolean - shuffle the output string array
-// *
-// * @returns {Object} array containing an array of nodes to visit and an array of strings from the arrow OUTs
-// */
-// function filter(node, test, shuffle=true){
-//     let ret = [];
-//     let out = [];
-//     let arrows = node.connected_arrows;
-
-    
-//     for(let arr of arrows){
-//         //if the node is entering pointing to this, skip it
-//         if( arr.isDeparting(node) ){
-//             continue;
-//         }
-        
-//         if(arr.IF === test || arr.IF === ""){
-//             ret.push(arr.end_node);
-//             out.push(arr.OUT);
-//             API.call("arrow_accepted", arr);
-
-//             if(arr.IF === ""){
-//                 reverseInput();
-//             }
-//         }
-//     }
-
-//     if(shuffle){
-//         out = shuffleArray(out);
-//     }
-        
-//     return [ret, out];
-// }
-
-// 
-
-
 
 function resetSim(){
     simManager.clear();
@@ -412,49 +348,6 @@ function resetFSS(){
     SM.is_starting = true;
     SM.moved_next_row = false;
 }
-
-// function requestInput(){
-//     if(API.is_external){
-//         return API.call("request_input")[0];
-//     }
-
-//     //if there are no active cells we haven't started
-//     let tgt = document.getElementsByClassName("highlight");
-//     if(tgt.length === 0){
-//         tgt = document.getElementById('str-0-0');
-//         if(!tgt){
-//             return null;
-//         }
-
-//         console.log("!");
-//         tgt.className = API.config["light-mode"] ? "highlight" : "highlight-dark";
-//         return tgt.innerHTML;
-//     }else{
-//         tgt = tgt.item(0);
-//         tgt.className = ""; 
-//         tgt = tgt.id.split('-');
-//         let index_a = parseInt(tgt[1], 10);
-//         let index_b = parseInt(tgt[2], 10);
-
-//         let row = document.getElementById(`str-${index_a}`).dataset.fullString;
-        
-//         if(index_b + 1 >= row.length){
-//             index_b = 0;
-//             index_a ++;
-//         }else{
-//             index_b ++;
-//         }
-
-//         tgt = document.getElementById(`str-${index_a}-${index_b}`);
-//         if(!tgt){
-//             return null;
-//         }
-
-//         tgt.className = API.config["light-mode"] ? "highlight" : "highlight-dark";
-
-//         return tgt.innerHTML;
-//     }
-// }
 
 
 
