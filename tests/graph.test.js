@@ -3,11 +3,14 @@ import {buildFakeCanvas} from './common.js';
 import {canvasManager} from '../src/canvasManager.js';
 import {Point} from '../src/lib/geometry.js';
 import {Node, Arrow} from '../src/elements.js';
+import {initAPI, API} from '../src/api.js';
 
 beforeEach(() => {
 	localStorage = new Map();
 	canvasManager.init(buildFakeCanvas());
 	canvasManager.getInstance().is_external = true;
+	initAPI();
+	API.is_external = true;
 });
 
 afterEach(() => {
