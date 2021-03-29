@@ -43,6 +43,7 @@ class __CANVAS_MANAGER{
 
         this.is_arrow_menu_drawn = false;
         this.is_over_node = false;
+        this.is_over_arrow = false;
         this.is_starting_arrow = false;
         this.auto_save = true;
 

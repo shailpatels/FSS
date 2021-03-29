@@ -3,3 +3,4 @@ coverage
 build
 *.zip
 *.swp
+cypress

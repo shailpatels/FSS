@@ -36,6 +36,7 @@ function drawScreen(){
 	//reset
 	renderBackground();
 	isOverNode();
+	CM.is_over_arrow = false;
 
 	if(CM.is_starting_arrow && CM.current_node){
 		if(CM.is_over_node && (getClosestNode() == CM.start_node) ){
@@ -48,6 +49,10 @@ function drawScreen(){
 
 	for(let i = 0; i < CM.arrows.length; ++i){
 		CM.arrows[i].draw();
+		if(CM.arrows[i].isMouseOver()){
+			CM.is_over_arrow = true;
+		}
+
 		if(CM.arrows[i].isMouseOver() && !CM.is_over_node ){
 			CM.current_arrow = CM.arrows[i];
 		}

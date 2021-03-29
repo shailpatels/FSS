@@ -249,7 +249,9 @@ function onDoubleClick(e){
 
     IM.mouse_pos = getMouse(e);
     API.call("double_click", e);
-    if( !isOverNode() && !IM.is_key_down && CM.current_arrow === null) {
+    console.log(CM.is_over_arrow)
+    if( !isOverNode() && !IM.is_key_down && CM.current_arrow === null 
+        && !CM.is_over_arrow && !CM.selected_arrow && !CM.is_arrow_menu_drawn) {
         CM.addNewNode();
         CM.curent_node = null;
         CM.current_arrow = null;

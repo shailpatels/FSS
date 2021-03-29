@@ -297,6 +297,7 @@ class Arrow{
 
         if(this.is_mouse_over || this === CM.selected_arrow){
             line_width = 4;
+            CM.is_over_arrow = true;
         }
 
         CM.context.strokeStyle = API.config["light-mode"] ? "black" : "white";
