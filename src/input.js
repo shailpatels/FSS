@@ -2,7 +2,7 @@ import {API} from './api.js';
 import {Point} from './lib/geometry.js';
 import {isOverNode, getClosestNode, refocus} from './canvas.js';
 import {canvasManager} from './canvasManager.js';
-import {step} from './simulate.js';
+import {step, getNextString, simManager} from './simulate.js';
 import {buildTransitionTable, save, load} from './lib/graph.js';
 import {toggleDarkMode} from './renderer.js';
 
@@ -105,17 +105,23 @@ function initControls(){
             toggleDarkMode();
         });
         document.getElementById('clear_btn').addEventListener('click', () => {
-            CM.clearCanvas();
-            localStorage.clear();
-            inputManager.getInstance().clear();
-            clearIOTable();
-        });
+            clearGame();
+            if(timeout != null){
+                clearTimeout(timeout);
+            }
+       });
         document.getElementById('string_input').addEventListener('keyup', (e) => {
             if(e.key === 'Enter'){
                 addRow();
             }
             e.stopPropagation();
         });
+        document.getElementById('run_btn').addEventListener('click', () => {
+            setTimeout(() => {run()}, 0);
+        });
+        document.getElementById('reset_btn').addEventListener('click', () => {
+            simManager.getInstance().resetSim();
+        })
     }
 
     //record the user input when typing in the input box
@@ -132,6 +138,25 @@ function initControls(){
 
 
 }
+
+let run_delay = 200;
+var timeout = null;
+function run(){
+    step();
+
+    if("" === getNextString()){
+        return;
+    }
+
+    timeout = setTimeout(() => {run()}, run_delay);
+}
+
+function clearGame(){
+    canvasManager.getInstance().clearCanvas();
+    localStorage.clear();
+    inputManager.getInstance().clear();
+    clearIOTable();
+} 
 
 function onMouseUp(e){
     API.call("mouse_up", e);
@@ -249,7 +274,6 @@ function onDoubleClick(e){
 
     IM.mouse_pos = getMouse(e);
     API.call("double_click", e);
-    console.log(CM.is_over_arrow)
     if( !isOverNode() && !IM.is_key_down && CM.current_arrow === null 
         && !CM.is_over_arrow && !CM.selected_arrow && !CM.is_arrow_menu_drawn) {
         CM.addNewNode();
@@ -445,6 +469,7 @@ function getMouse(pos){
 
 /** @typedef { import('./lib/geometry.js').Point } Point */
 export{
+    clearGame,
     initControls,
     drawArrowMenu,
     inputManager,

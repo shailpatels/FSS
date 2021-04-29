@@ -3,7 +3,7 @@ import {initCanvas, drawSelfArrowHelper, drawLine, renderBackground} from './ren
 import {load} from './lib/graph.js';
 import {initControls, inputManager, hideArrowMenu} from './input.js';
 import {getDistance} from './lib/geometry.js';
-import {initAPI} from './api.js';
+import {initAPI, API} from './api.js';
 
 
 window.addEventListener("load", main);
@@ -14,8 +14,9 @@ function main(){
 		return;
 	}
 
-
-	initAPI();
+    if(!API){
+        initAPI();
+    }
 	let CM = canvasManager.init(canvas);
 
 	initCanvas();
