@@ -169,7 +169,7 @@ function onMouseUp(e){
 
     if(e.button === IM.RIGHT_MOUSE_BUTTON){
         //remove all conections from this node
-        if(CM.is_over_node){
+        if(isOverNode()){
             CM.deleteNode(getClosestNode());
         }
 
@@ -188,9 +188,9 @@ function onMouseUp(e){
 
     if(CM.is_starting_arrow){
         CM.is_starting_arrow = false;
-        if(CM.is_over_node){
+        if(isOverNode()){
             //if we landed on another node create a new arrow
-            CM.addNewArrow(CM.current_node, getClosestNode());
+            CM.addNewArrow(CM.start_node, getClosestNode());
         }
     }
     
