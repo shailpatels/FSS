@@ -143,7 +143,6 @@ function drawText(str, _pos){
 function drawLine(a, b, thickness = 1){
     let CM = canvasManager.getInstance();
     CM.context.strokeStyle = API.config["light-mode"] ? "black" : "white";
-
     CM.context.beginPath();
     CM.context.moveTo(a.X,a.Y);
     CM.context.lineTo(b.X,b.Y);
