@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang = "eng">
+<html lang = "en">
 <head>
 	<meta charset="UTF-8">
 	<title>FSS</title>
@@ -17,7 +17,9 @@
 </head>
 
 <body style="font-family: Tahoma, Geneva, sans-serif">
-	<h1 class="content">Finite State Machine Builder</h1>
+    <header>
+        <h1 class="content">Finite State Machine Builder</h1>
+    </header>
 	<div style="max-width:1300px;margin-left:auto;margin-right:auto;">
 		<canvas  id = "canvas" tabindex="1" width="2000" height="1000" oncontextmenu="return false;">
 			This browser does not support HTML5 canvas
@@ -53,6 +55,9 @@
         <input type="text" id="string_input"/> 
         <button id="submit_btn"> Submit </button> 
     </fieldset>
+    <label for="string_input" style="visibility:hidden;">
+        Input a new string to test the FSM against
+    </label>
 
     <br>
     
@@ -72,11 +77,12 @@
 		<!-- Output used for models of computation like PDAs or TMs -->
 		<!-- <input id="out" type="text" name=""> -->
 	</div>
+    <label for="if_" style="visibility:hidden;">Input for FSM branches</label>
 
 	<br>
 
 	<div class="content">
-		Toggle dark mode
+        <label visiblity="false" for="toggle_dark">Toggle dark mode</label>
 		<input id="toggle_dark" type="checkbox"/>
 	</div>
 
