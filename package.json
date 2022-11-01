@@ -11,7 +11,7 @@
     "cypress": "^8.7.0",
     "jest": "^27.3.1",
     "jest-esm-transformer": "^1.0.0",
-    "serve": "^11.3.2"
+    "serve": "^14.0.1"
   },
   "scripts": {
     "test": "npx jest  --config jest.config.js --coverage",
